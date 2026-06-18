@@ -1,0 +1,36 @@
+strategy:
+  name: rsi_reversal
+  symbol: R_25              # Volatility 25 Index
+  rsi_period: 14            # ticks used to calculate RSI
+  rsi_overbought: 70        # sell signal threshold
+  rsi_oversold: 30          # buy signal threshold
+  confirm_ticks: 3          # consecutive ticks needed to confirm a signal
+
+  # EMA trend filter — only trade reversals aligned with recent trend
+  # oversold bounce = valid only when price > EMA (uptrend pullback)
+  # overbought drop = valid only when price < EMA (downtrend bounce)
+  # set to 0 to disable
+  ema_trend_period: 50
+
+  # Bollinger Band confirmation — price must reach the band before entry fires
+  use_bb_filter: true
+  bb_period: 20
+  bb_std_dev: 2.0
+
+  # ATR periods for volatility-aware stake sizing (passed to RiskManager)
+  atr_period: 14            # short-term volatility
+  atr_baseline_period: 50   # longer-term baseline to compare against
+
+  contract_duration: 5      # number of ticks per contract
+  contract_duration_unit: t # t = ticks, m = minutes
+
+risk:
+  stake_percent: 1.0        # % of balance to risk per trade (base)
+  max_stake: 5.0            # hard cap per trade in account currency
+  daily_loss_limit: 10.0    # stop bot if daily loss exceeds this % of starting balance
+  max_open_contracts: 1     # only 1 trade at a time
+  use_atr_stake: true       # scale stake inversely with current ATR vs baseline
+
+monitoring:
+  log_every_tick: false     # set true for verbose tick logging
+  dashboard_refresh: 1.0    # seconds between dashboard updates
