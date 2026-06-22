@@ -1,154 +1,242 @@
 """
-RSI Reversal Strategy — enhanced with EMA trend filter and Bollinger Band confirmation.
+RSI Reversal Strategy — multi-layer confirmation for higher win-rate entries.
 
-Three-layer signal logic:
-  1. RSI extreme      — RSI > overbought or RSI < oversold (momentum exhaustion)
-  2. EMA trend filter — only trade reversals that align with the dominant trend:
-                         oversold bounce only when price > EMA  (uptrend pullback)
-                         overbought drop only when price < EMA  (downtrend bounce)
-  3. BB confirmation  — require price to be at or beyond the corresponding band
-                         (price at upper BB confirms overbought; lower BB confirms oversold)
-  4. Confirmation     — RSI must stay in the zone for `confirm_ticks` consecutive ticks
+Signal pipeline (each layer must pass before moving to the next):
 
-Once a signal fires, the same direction is suppressed until RSI returns to neutral,
-preventing repeated entries in a single sustained extreme.
+  0. ATR gate        Block ALL signals when ATR(fast) > ATR(slow) * ratio.
+                     Trending bursts are the primary cause of consecutive RSI
+                     reversal failures; this keeps the bot out of those periods.
+  1. RSI zone        RSI(fast) must be in oversold/overbought territory.
+  2. RSI slope       RSI must be TURNING toward neutral — catching the actual
+                     reversal moment, not entering into a continuing move.
+  3. Price confirm   The last price tick must be moving in the reversal
+                     direction (price already ticking up for BUY_RISE, etc.).
+  4. Dual RSI        A slower RSI(slow) must also be approaching the extreme,
+                     confirming the move is not just short-term tick noise.
+  5. Confirm ticks   All of the above must hold for N consecutive ticks.
+  6. Suppression     Same direction cannot fire again until RSI resets to
+                     neutral, preventing repeated entries in one sustained run.
+  7. Loss cooldown   After M consecutive losses the bot skips the next signal,
+                     protecting against trending periods that defeat reversal.
 """
 
+from collections import deque
+from typing import Optional
 from .base import BaseStrategy, Signal
 
 
 class RSIReversalStrategy(BaseStrategy):
+
     def __init__(self, config: dict):
         super().__init__(config)
+
+        # ── Core thresholds ───────────────────────────────────────
         self.overbought: float = config.get("rsi_overbought", 70)
-        self.oversold: float = config.get("rsi_oversold", 30)
-        self.confirm_ticks: int = config.get("confirm_ticks", 3)
+        self.oversold:   float = config.get("rsi_oversold",   30)
+        self.confirm_ticks: int = config.get("confirm_ticks", 2)
 
-        # EMA trend filter — set to 0 to disable
-        self.ema_period: int = config.get("ema_trend_period", 50)
+        # ── EMA / BB (kept for config compatibility, not used in signal logic)
+        self.ema_period:    int   = config.get("ema_trend_period", 0)
+        self.use_bb_filter: bool  = config.get("use_bb_filter", False)
 
-        # Bollinger Band confirmation
-        self.use_bb_filter: bool = config.get("use_bb_filter", True)
-        self.bb_period: int = config.get("bb_period", 20)
-        self.bb_std: float = config.get("bb_std_dev", 2.0)
+        # ── Layer 0: ATR ranging-market gate ─────────────────────
+        # Block ALL signals when short-term ATR > long-term ATR * ratio.
+        # Trending bursts are the main cause of consecutive RSI reversal failures.
+        self.use_atr_filter:   bool  = config.get("use_atr_filter", True)
+        self.atr_filter_ratio: float = config.get("atr_filter_ratio", 1.0)
 
-        # ATR periods for volatility-aware stake sizing
-        self.atr_period: int = config.get("atr_period", 14)
+        # ── Layer 2: RSI slope confirmation ───────────────────────
+        # RSI must be moving toward neutral (turning from the extreme).
+        # Filters out entries where price is still diving / still surging.
+        self.rsi_slope_confirm: bool = config.get("rsi_slope_confirm", True)
+
+        # ── Layer 3: Price direction confirmation ─────────────────
+        # The last tick must move in the expected reversal direction.
+        self.price_confirm: bool = config.get("price_confirm", True)
+
+        # ── Layer 4: Dual RSI (multi-timeframe) ───────────────────
+        # A second, slower RSI(dual_rsi_period) must also be near the extreme.
+        # dual_rsi_threshold: slow RSI must be < this for BUY_RISE,
+        #                                       > (100 - this) for BUY_FALL.
+        # Set dual_rsi_period = 0 to disable.
+        self.dual_rsi_period:    int   = config.get("dual_rsi_period", 14)
+        self.dual_rsi_threshold: float = config.get("dual_rsi_threshold", 45.0)
+
+        # ── Layer 7: Loss cooldown ────────────────────────────────
+        # After `loss_cooldown` consecutive losses skip the next signal entirely.
+        # Set to 0 to disable.
+        self.loss_cooldown: int = config.get("loss_cooldown", 3)
+
+        # ── ATR periods (passed through to Signal for stake sizing) ──
+        self.atr_period:          int = config.get("atr_period", 14)
         self.atr_baseline_period: int = config.get("atr_baseline_period", 50)
 
-        # Confirmation state
+        # ── Internal state ────────────────────────────────────────
+        self._prev_rsi:   Optional[float] = None
         self._consecutive_signal: str = "HOLD"
-        self._consecutive_count: int = 0
-        self._last_fired: str = "HOLD"
+        self._consecutive_count:  int  = 0
+        self._last_fired:         str  = "HOLD"
+        self._consecutive_losses: int  = 0
+        self._cooldown_remaining: int  = 0
+
+    # ------------------------------------------------------------------ #
+    #  Public result callback — call after every closed trade
+    # ------------------------------------------------------------------ #
+
+    def on_result(self, won: bool) -> None:
+        """Trader / backtest engine calls this after each contract settles."""
+        if won:
+            self._consecutive_losses = 0
+        else:
+            self._consecutive_losses += 1
+            if self.loss_cooldown > 0 and self._consecutive_losses >= self.loss_cooldown:
+                self._cooldown_remaining = 1          # skip next 1 signal
+                self._consecutive_losses = 0
+                self._last_fired = "HOLD"             # allow fresh entry after cooldown
+
+    # ------------------------------------------------------------------ #
+    #  Main evaluate loop
+    # ------------------------------------------------------------------ #
 
     def evaluate(self, tick_store) -> Signal:
-        rsi = tick_store.rsi()
+        rsi   = tick_store.rsi()
         price = tick_store.latest_price
 
         # ── Warmup ───────────────────────────────────────────────
         if rsi is None or price is None:
             needed = tick_store.rsi_period + 1
-            have = tick_store.tick_count
             return Signal(
                 action="HOLD",
-                reason=f"Warming up ({have}/{needed} ticks collected)",
+                reason=f"Warming up ({tick_store.tick_count}/{needed} ticks)",
             )
 
-        # ── Collect indicator values ─────────────────────────────
-        ema = tick_store.ema(self.ema_period) if self.ema_period > 0 else None
-        bb = tick_store.bollinger_bands(self.bb_period, self.bb_std) if self.use_bb_filter else None
-        atr = tick_store.atr(self.atr_period)
+        # ── Collect ATR for ranging filter + stake sizing ────────
+        atr          = tick_store.atr(self.atr_period)
         atr_baseline = tick_store.atr(self.atr_baseline_period)
 
-        # ── Step 1: Determine RSI zone ───────────────────────────
+        # ── Layer 0: ATR ranging-market gate ─────────────────────
+        # Skip everything when the market is trending (ATR spiking above baseline).
+        if (self.use_atr_filter
+                and atr is not None
+                and atr_baseline is not None
+                and atr_baseline > 0):
+            if atr > atr_baseline * self.atr_filter_ratio:
+                self._reset_confirmation()
+                return Signal(
+                    action="HOLD",
+                    reason=f"ATR gate: volatile ({atr:.6f} > {atr_baseline:.6f}x{self.atr_filter_ratio})",
+                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                )
+
+        # Track previous RSI for slope check
+        prev_rsi      = self._prev_rsi
+        self._prev_rsi = rsi
+
+        prices = tick_store.prices
+
+        # ── Step 1: RSI zone ─────────────────────────────────────
         if rsi > self.overbought:
             candidate = "BUY_FALL"
         elif rsi < self.oversold:
             candidate = "BUY_RISE"
         else:
-            self._reset_state()
+            self._reset_confirmation()
             return Signal(
                 action="HOLD",
-                reason=f"RSI {rsi} neutral ({self.oversold}–{self.overbought})",
-                rsi=rsi,
-                atr=atr,
-                atr_baseline=atr_baseline,
-            )
-
-        # ── Step 2: EMA trend filter ─────────────────────────────
-        if ema is not None:
-            trend_up = price > ema
-            if candidate == "BUY_RISE" and not trend_up:
-                return Signal(
-                    action="HOLD",
-                    reason=f"OS but trend DOWN ({price:.5f} < EMA{self.ema_period} {ema:.5f})",
-                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
-                )
-            if candidate == "BUY_FALL" and trend_up:
-                return Signal(
-                    action="HOLD",
-                    reason=f"OB but trend UP ({price:.5f} > EMA{self.ema_period} {ema:.5f})",
-                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
-                )
-
-        # ── Step 3: Bollinger Band confirmation ──────────────────
-        # Require price to be in the outer half of the BB channel
-        # (between middle and the relevant band), confirming the
-        # RSI signal is backed by price being genuinely elevated/depressed.
-        if bb is not None:
-            upper, middle, lower = bb
-            if candidate == "BUY_FALL" and price <= middle:
-                return Signal(
-                    action="HOLD",
-                    reason=f"RSI overbought but price {price:.5f} not in upper BB half (mid {middle:.5f})",
-                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
-                )
-            if candidate == "BUY_RISE" and price >= middle:
-                return Signal(
-                    action="HOLD",
-                    reason=f"RSI oversold but price {price:.5f} not in lower BB half (mid {middle:.5f})",
-                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
-                )
-
-        # ── Step 4: Suppression — already traded this zone ───────
-        if candidate == self._last_fired:
-            return Signal(
-                action="HOLD",
-                reason=f"RSI {rsi} — already traded this zone, waiting for RSI reset",
+                reason=f"RSI {rsi} neutral ({self.oversold}-{self.overbought})",
                 rsi=rsi, atr=atr, atr_baseline=atr_baseline,
             )
 
-        # ── Step 5: Confirmation ticks ───────────────────────────
+        # ── Loss cooldown ─────────────────────────────────────────
+        if self._cooldown_remaining > 0:
+            self._cooldown_remaining -= 1
+            return Signal(
+                action="HOLD",
+                reason=f"Loss cooldown active ({self._cooldown_remaining + 1} remaining)",
+                rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+            )
+
+        # ── Suppression — already traded this zone ────────────────
+        if candidate == self._last_fired:
+            return Signal(
+                action="HOLD",
+                reason=f"RSI {rsi} — already traded this zone, waiting for reset",
+                rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+            )
+
+        # ── Step 2: RSI slope confirmation ───────────────────────
+        if self.rsi_slope_confirm and prev_rsi is not None:
+            turning = (
+                (candidate == "BUY_RISE" and rsi > prev_rsi) or
+                (candidate == "BUY_FALL" and rsi < prev_rsi)
+            )
+            if not turning:
+                self._reset_confirmation()
+                return Signal(
+                    action="HOLD",
+                    reason=f"RSI {rsi} in zone but not turning yet (slope {'up' if rsi > prev_rsi else 'down'} needed {'up' if candidate == 'BUY_RISE' else 'down'})",
+                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                )
+
+        # ── Step 3: Price direction confirmation ─────────────────
+        if self.price_confirm and len(prices) >= 2:
+            price_ok = (
+                (candidate == "BUY_RISE" and prices[-1] > prices[-2]) or
+                (candidate == "BUY_FALL" and prices[-1] < prices[-2])
+            )
+            if not price_ok:
+                self._reset_confirmation()
+                return Signal(
+                    action="HOLD",
+                    reason=f"RSI {rsi} turning but price not confirming yet",
+                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                )
+
+        # ── Step 4: Dual RSI confirmation ─────────────────────────
+        if self.dual_rsi_period > 0:
+            rsi_slow = tick_store.rsi_simple(self.dual_rsi_period)
+            if rsi_slow is not None:
+                slow_ok = (
+                    (candidate == "BUY_RISE" and rsi_slow < self.dual_rsi_threshold) or
+                    (candidate == "BUY_FALL" and rsi_slow > (100 - self.dual_rsi_threshold))
+                )
+                if not slow_ok:
+                    return Signal(
+                        action="HOLD",
+                        reason=f"RSI{self.dual_rsi_period} {rsi_slow} not confirming (need {'<' if candidate == 'BUY_RISE' else '>'}{self.dual_rsi_threshold if candidate == 'BUY_RISE' else 100 - self.dual_rsi_threshold})",
+                        rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                    )
+
+        # ── Step 5: Confirmation ticks ────────────────────────────
         if candidate == self._consecutive_signal:
             self._consecutive_count += 1
         else:
             self._consecutive_signal = candidate
-            self._consecutive_count = 1
+            self._consecutive_count  = 1
 
         if self._consecutive_count < self.confirm_ticks:
             return Signal(
                 action="HOLD",
-                reason=f"RSI {rsi} — confirming ({self._consecutive_count}/{self.confirm_ticks} ticks)",
+                reason=f"RSI {rsi} confirming ({self._consecutive_count}/{self.confirm_ticks})",
                 rsi=rsi, atr=atr, atr_baseline=atr_baseline,
             )
 
         # ── Signal confirmed ──────────────────────────────────────
         self._last_fired = candidate
-        direction = "OB->fall" if candidate == "BUY_FALL" else "OS->rise"
-        trend_arrow = "^" if (ema and price > ema) else "v"
+        direction = "OS->rise" if candidate == "BUY_RISE" else "OB->fall"
+        slow_tag  = ""
+        if self.dual_rsi_period > 0:
+            rs = tick_store.rsi_simple(self.dual_rsi_period)
+            slow_tag = f" | RSI{self.dual_rsi_period}:{rs}"
+
         return Signal(
             action=candidate,
-            reason=(
-                f"RSI {rsi} {direction} | EMA{self.ema_period}{trend_arrow} | "
-                f"BB {'on' if bb else 'off'} | "
-                f"confirmed {self._consecutive_count}/{self.confirm_ticks}"
-            ),
+            reason=f"RSI{tick_store.rsi_period}:{rsi} {direction}{slow_tag} | confirmed {self._consecutive_count}/{self.confirm_ticks}",
             rsi=rsi,
             atr=atr,
             atr_baseline=atr_baseline,
         )
 
-    def _reset_state(self):
+    def _reset_confirmation(self):
         self._consecutive_signal = "HOLD"
-        self._consecutive_count = 0
-        self._last_fired = "HOLD"
+        self._consecutive_count  = 0

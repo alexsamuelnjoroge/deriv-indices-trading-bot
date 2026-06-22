@@ -130,6 +130,32 @@ class TickStore:
     #  Bollinger Bands
     # ------------------------------------------------------------------ #
 
+    # ------------------------------------------------------------------ #
+    #  Simple RSI — for any period, computed on-demand (for dual-RSI)
+    # ------------------------------------------------------------------ #
+
+    def rsi_simple(self, period: int) -> Optional[float]:
+        """
+        RSI using a plain average (not Wilder's smoothing).
+        Slightly less stable than the incremental rsi() but works for any
+        period without pre-warming — used as a secondary confirmation RSI.
+        """
+        prices = self.prices
+        if len(prices) < period + 1:
+            return None
+        window  = prices[-(period + 1):]
+        changes = [window[i] - window[i - 1] for i in range(1, len(window))]
+        avg_gain = sum(c for c in changes if c > 0) / period
+        avg_loss = sum(abs(c) for c in changes if c < 0) / period
+        if avg_loss == 0:
+            return 100.0
+        rs = avg_gain / avg_loss
+        return round(100 - (100 / (1 + rs)), 2)
+
+    # ------------------------------------------------------------------ #
+    #  Bollinger Bands
+    # ------------------------------------------------------------------ #
+
     def bollinger_bands(
         self, period: int = 20, num_std: float = 2.0
     ) -> Optional[tuple[float, float, float]]:
