@@ -163,3 +163,75 @@ def print_report(result: BacktestResult, strategy_cfg: dict, risk_cfg: dict) -> 
             )
 
         console.print(trade_table)
+
+
+def print_multi_window_report(
+    results: list,
+    strategy_cfg: dict,
+    risk_cfg: dict,
+) -> None:
+    """Print per-window and aggregate results for a multi-window backtest."""
+    console.print()
+    be = results[0].breakeven_win_rate if results else 53.5
+
+    # ── Per-window table ───────────────────────────────────────
+    win_table = Table(
+        title="Per-Window Results",
+        box=box.SIMPLE_HEAD,
+        show_lines=False,
+    )
+    win_table.add_column("Window", justify="right", style="dim")
+    win_table.add_column("Ticks", justify="right")
+    win_table.add_column("Trades", justify="right")
+    win_table.add_column("Win Rate", justify="right")
+    win_table.add_column("Net P&L", justify="right")
+    win_table.add_column("Worst streak", justify="right")
+
+    for i, r in enumerate(results, 1):
+        color = "green" if r.win_rate >= be else "red"
+        win_table.add_row(
+            str(i),
+            f"{r.ticks_total:,}",
+            str(r.total_trades),
+            Text(f"{r.win_rate:.1f}%", style=color),
+            Text(f"{r.net_profit:+.2f}", style=color),
+            str(r.worst_loss_streak),
+        )
+
+    console.print(win_table)
+
+    # ── Aggregate stats ────────────────────────────────────────
+    n          = len(results)
+    all_trades = sum(r.total_trades for r in results)
+    all_wins   = sum(r.wins for r in results)
+    avg_wr     = round(all_wins / all_trades * 100, 1) if all_trades else 0
+    total_pnl  = round(sum(r.net_profit for r in results), 2)
+    min_wr     = min(r.win_rate for r in results)
+    max_wr     = max(r.win_rate for r in results)
+    profitable = sum(1 for r in results if r.win_rate >= be)
+
+    agg = Table(box=box.SIMPLE, show_header=False, padding=(0, 2))
+    agg.add_column(style="dim", width=26)
+    agg.add_column()
+    agg.add_row("Windows tested", str(n))
+    agg.add_row("Profitable windows", Text(f"{profitable}/{n}", style="green" if profitable == n else "yellow"))
+    agg.add_row("Total trades", str(all_trades))
+    agg.add_row("Aggregate win rate", _pct_text(avg_wr, be))
+    agg.add_row("Win rate range", f"{min_wr:.1f}% – {max_wr:.1f}%")
+    agg.add_row("Total net P&L", _profit_text(total_pnl))
+    agg.add_row("Breakeven needed", Text(f"{be:.1f}%", style="dim"))
+
+    verdict_color = "green" if profitable == n else ("yellow" if profitable > n // 2 else "red")
+    verdict_text  = (
+        "Robust: above breakeven in every window."
+        if profitable == n else
+        f"Inconsistent: profitable in {profitable}/{n} windows. Needs more tuning."
+    )
+
+    console.print(Panel(
+        Columns([agg]),
+        title="[bold]Multi-Window Aggregate[/bold]",
+        border_style="blue",
+    ))
+    console.print(Panel(Text(verdict_text, style=f"bold {verdict_color}"),
+                        border_style=verdict_color, title="Verdict"))

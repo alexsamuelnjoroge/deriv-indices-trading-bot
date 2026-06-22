@@ -167,6 +167,7 @@ class BacktestEngine:
                     profit=profit,
                     status=status,
                 ))
+                strategy.on_result(won)
                 pending = None
 
             # ── Evaluate strategy for new signal ─────────────────

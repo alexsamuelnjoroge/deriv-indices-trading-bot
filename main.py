@@ -75,7 +75,7 @@ async def run(watch_only: bool = False):
     tick_store = TickStore(rsi_period=rsi_period)
     strategy = RSIReversalStrategy(strategy_cfg)
     risk = RiskManager(risk_cfg, starting_balance=starting_balance)
-    trader = Trader(client, risk, symbol, duration, duration_unit)
+    trader = Trader(client, risk, symbol, duration, duration_unit, strategy=strategy)
     dashboard = Dashboard(tick_store, risk, ema_period=strategy_cfg.get("ema_trend_period", 50))
 
     mode_label = "WATCH ONLY" if watch_only else "LIVE TRADING"

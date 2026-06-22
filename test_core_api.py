@@ -1,8 +1,11 @@
+import os
 import urllib.request
 import urllib.error
 import json
 
-PAT = "pat_6089f9c854db6fd085b6ddffdb92e977a9dcf6201a14d6cffe445161bf15d946"
+PAT = os.getenv("DERIV_API_TOKEN", "")
+if not PAT:
+    raise SystemExit("Set DERIV_API_TOKEN in your .env before running this test.")
 
 tests = [
     ("GET",  "https://auth.deriv.com/sessions/whoami"),

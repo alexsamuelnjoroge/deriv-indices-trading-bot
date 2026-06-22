@@ -28,6 +28,7 @@ class Trader:
         symbol: str,
         duration: int,
         duration_unit: str,
+        strategy=None,
     ):
         self.client = client
         self.risk = risk
@@ -35,6 +36,7 @@ class Trader:
         self.duration = duration
         self.duration_unit = duration_unit
         self._open: dict[str, dict] = {}  # contract_id → metadata
+        self._strategy = strategy          # optional: receives on_result() callbacks
 
         self.client.on_contract_update(self._on_contract_update)
 
@@ -99,3 +101,5 @@ class Trader:
             pass
 
         self.risk.on_contract_closed(trade)
+        if self._strategy and hasattr(self._strategy, "on_result"):
+            self._strategy.on_result(profit > 0)

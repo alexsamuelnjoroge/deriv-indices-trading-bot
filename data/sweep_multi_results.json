@@ -1,0 +1,8642 @@
+[
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 65.0,
+    "min_wr": 42.9,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      100.0,
+      60.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 65.0,
+    "min_wr": 42.9,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      100.0,
+      60.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 65.0,
+    "min_wr": 42.9,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      100.0,
+      60.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 66.7,
+    "min_wr": 40.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      66.7,
+      40.0,
+      100.0,
+      66.7
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 66.7,
+    "min_wr": 40.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      66.7,
+      40.0,
+      100.0,
+      66.7
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 66.7,
+    "min_wr": 40.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      66.7,
+      40.0,
+      100.0,
+      66.7
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 53.5,
+    "min_wr": 29.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      54.8,
+      68.4,
+      54.2,
+      61.3,
+      29.0
+    ],
+    "total_trades": 136
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 54.6,
+    "min_wr": 25.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      25.0,
+      55.6,
+      60.0,
+      62.5,
+      70.0
+    ],
+    "total_trades": 53
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 53.2,
+    "min_wr": 25.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      60.0,
+      54.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 53.2,
+    "min_wr": 25.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      60.0,
+      54.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 53.2,
+    "min_wr": 25.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      60.0,
+      60.0,
+      54.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 53.2,
+    "min_wr": 23.1,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      23.1,
+      55.6,
+      60.0,
+      57.1,
+      70.0
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 55.8,
+    "min_wr": 20.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      20.0,
+      66.7,
+      70.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 55.8,
+    "min_wr": 20.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      20.0,
+      66.7,
+      70.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 55.8,
+    "min_wr": 20.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      20.0,
+      66.7,
+      70.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 52.5,
+    "min_wr": 20.0,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      20.0,
+      55.6,
+      60.0,
+      57.1,
+      70.0
+    ],
+    "total_trades": 51
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 53.4,
+    "min_wr": 51.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      54.0,
+      52.7,
+      54.5,
+      54.3,
+      51.7
+    ],
+    "total_trades": 608
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 65.3,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 65.3,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 65.3,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 58.9,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      50.0,
+      61.5,
+      60.0,
+      70.6,
+      52.6
+    ],
+    "total_trades": 95
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 58.9,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      50.0,
+      61.5,
+      60.0,
+      70.6,
+      52.6
+    ],
+    "total_trades": 95
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 57.9,
+    "min_wr": 50.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      51.7,
+      57.1,
+      60.0,
+      70.6,
+      50.0
+    ],
+    "total_trades": 100
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 59.0,
+    "min_wr": 48.3,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      48.3,
+      62.5,
+      63.6,
+      70.6,
+      50.0
+    ],
+    "total_trades": 104
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 57.6,
+    "min_wr": 48.1,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      57.9,
+      76.5,
+      53.8,
+      48.1,
+      51.9
+    ],
+    "total_trades": 116
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 53.2,
+    "min_wr": 47.3,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      57.6,
+      56.4,
+      51.0,
+      53.8,
+      47.3
+    ],
+    "total_trades": 457
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 59.9,
+    "min_wr": 46.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      66.7,
+      63.6,
+      70.6,
+      52.6
+    ],
+    "total_trades": 99
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 59.9,
+    "min_wr": 46.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      66.7,
+      63.6,
+      70.6,
+      52.6
+    ],
+    "total_trades": 99
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 54.8,
+    "min_wr": 46.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      54.5,
+      55.0,
+      71.4,
+      46.7
+    ],
+    "total_trades": 86
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 69.1,
+    "min_wr": 45.5,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      70.0,
+      80.0,
+      45.5,
+      100.0,
+      50.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 69.1,
+    "min_wr": 45.5,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      70.0,
+      80.0,
+      45.5,
+      100.0,
+      50.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 52.7,
+    "min_wr": 45.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.6,
+      60.0,
+      47.1,
+      45.0,
+      55.6
+    ],
+    "total_trades": 88
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 52.8,
+    "min_wr": 44.8,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      44.8,
+      56.2,
+      50.0,
+      57.9,
+      55.0
+    ],
+    "total_trades": 106
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 52.0,
+    "min_wr": 44.8,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      44.8,
+      57.1,
+      45.0,
+      57.9,
+      55.0
+    ],
+    "total_trades": 102
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 57.9,
+    "min_wr": 44.4,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      48.1,
+      69.2,
+      70.0,
+      44.4,
+      57.9
+    ],
+    "total_trades": 97
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 57.4,
+    "min_wr": 44.4,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      44.4,
+      56.2,
+      75.0,
+      52.6,
+      58.8
+    ],
+    "total_trades": 86
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 55.9,
+    "min_wr": 44.4,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      44.4,
+      60.0,
+      72.7,
+      44.4,
+      57.9
+    ],
+    "total_trades": 101
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 52.7,
+    "min_wr": 44.3,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      58.0,
+      55.6,
+      51.1,
+      54.7,
+      44.3
+    ],
+    "total_trades": 435
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 56.8,
+    "min_wr": 44.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      57.9,
+      76.5,
+      53.8,
+      44.0,
+      51.9
+    ],
+    "total_trades": 114
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 56.8,
+    "min_wr": 44.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      57.9,
+      76.5,
+      53.8,
+      44.0,
+      51.9
+    ],
+    "total_trades": 114
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 54.0,
+    "min_wr": 42.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      54.5,
+      55.0,
+      71.4,
+      42.9
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 52.2,
+    "min_wr": 42.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      56.3,
+      56.7,
+      52.1,
+      53.9,
+      42.0
+    ],
+    "total_trades": 435
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 49.5,
+    "min_wr": 41.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      42.9,
+      54.5,
+      54.8,
+      41.7,
+      53.6
+    ],
+    "total_trades": 126
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 56.9,
+    "min_wr": 41.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      69.2,
+      70.0,
+      41.2,
+      57.9
+    ],
+    "total_trades": 95
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 56.9,
+    "min_wr": 41.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.2,
+      69.2,
+      70.0,
+      41.2,
+      57.9
+    ],
+    "total_trades": 95
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 54.8,
+    "min_wr": 41.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      42.3,
+      60.0,
+      72.7,
+      41.2,
+      57.9
+    ],
+    "total_trades": 99
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 54.8,
+    "min_wr": 41.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      42.3,
+      60.0,
+      72.7,
+      41.2,
+      57.9
+    ],
+    "total_trades": 99
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 70.0,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      60.0,
+      100.0,
+      40.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 70.0,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      60.0,
+      100.0,
+      40.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 70.0,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      60.0,
+      100.0,
+      40.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 63.0,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      40.0
+    ],
+    "total_trades": 25
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 54.4,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      66.7,
+      40.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 54.4,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      66.7,
+      40.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 54.4,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      42.9,
+      66.7,
+      40.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 50.2,
+    "min_wr": 37.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.4,
+      62.2,
+      42.6,
+      54.0,
+      37.0
+    ],
+    "total_trades": 266
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 49.6,
+    "min_wr": 36.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      47.4,
+      55.0,
+      54.2,
+      54.9,
+      36.7
+    ],
+    "total_trades": 287
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 67.3,
+    "min_wr": 36.4,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      70.0,
+      80.0,
+      36.4,
+      100.0,
+      50.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 50.1,
+    "min_wr": 35.8,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.4,
+      62.2,
+      43.3,
+      54.0,
+      35.8
+    ],
+    "total_trades": 264
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 52.3,
+    "min_wr": 29.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      51.6,
+      68.4,
+      54.2,
+      58.1,
+      29.0
+    ],
+    "total_trades": 136
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.6,
+    "min_wr": 28.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      57.3,
+      55.6,
+      51.1,
+      55.3,
+      28.9
+    ],
+    "total_trades": 394
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 52.4,
+    "min_wr": 26.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      56.7,
+      68.4,
+      50.0,
+      60.0,
+      26.7
+    ],
+    "total_trades": 133
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.0,
+    "min_wr": 26.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      26.7,
+      36.4,
+      66.7,
+      55.6,
+      54.5
+    ],
+    "total_trades": 52
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 52.2,
+    "min_wr": 25.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      56.7,
+      68.4,
+      50.0,
+      60.0,
+      25.9
+    ],
+    "total_trades": 130
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 25.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 25.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 25.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 25.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 25.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      100.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 48.7,
+    "min_wr": 16.7,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      16.7,
+      66.7,
+      60.0
+    ],
+    "total_trades": 31
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 55.3,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 55.3,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 55.3,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 47.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      100.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 47.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      100.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 47.0,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      75.0,
+      100.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 45.3,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      0.0,
+      66.7,
+      60.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 45.3,
+    "min_wr": 0.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      0.0,
+      66.7,
+      60.0
+    ],
+    "total_trades": 31
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 57.8,
+    "min_wr": 52.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.9,
+      53.3,
+      75.0,
+      55.0,
+      52.9
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 53.2,
+    "min_wr": 51.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.2,
+      51.5,
+      54.5,
+      55.2,
+      51.7
+    ],
+    "total_trades": 609
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 52.9,
+    "min_wr": 50.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.9,
+      52.8,
+      54.5,
+      54.1,
+      50.4
+    ],
+    "total_trades": 591
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 52.8,
+    "min_wr": 50.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.1,
+      52.0,
+      54.5,
+      55.0,
+      50.4
+    ],
+    "total_trades": 591
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 57.6,
+    "min_wr": 50.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.9,
+      50.0,
+      75.0,
+      57.1,
+      52.9
+    ],
+    "total_trades": 87
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 53.0,
+    "min_wr": 50.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.4,
+      53.2,
+      54.2,
+      54.1,
+      50.0
+    ],
+    "total_trades": 583
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 52.8,
+    "min_wr": 50.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.5,
+      52.4,
+      54.2,
+      55.0,
+      50.0
+    ],
+    "total_trades": 583
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 52.8,
+    "min_wr": 49.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.7,
+      52.2,
+      55.7,
+      55.8,
+      49.7
+    ],
+    "total_trades": 690
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.5,
+    "min_wr": 49.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.7,
+      51.4,
+      55.3,
+      55.4,
+      49.7
+    ],
+    "total_trades": 698
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.7,
+    "min_wr": 49.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.5,
+      51.4,
+      56.0,
+      55.4,
+      49.0
+    ],
+    "total_trades": 692
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.8,
+    "min_wr": 48.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.2,
+      51.7,
+      53.8,
+      57.8,
+      48.7
+    ],
+    "total_trades": 719
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 52.8,
+    "min_wr": 48.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.5,
+      52.2,
+      56.4,
+      55.8,
+      48.3
+    ],
+    "total_trades": 684
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.7,
+    "min_wr": 47.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      57.6,
+      49.6,
+      57.8,
+      51.2,
+      47.4
+    ],
+    "total_trades": 647
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 52.8,
+    "min_wr": 47.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      57.7,
+      50.0,
+      57.8,
+      51.2,
+      47.3
+    ],
+    "total_trades": 642
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 54.7,
+    "min_wr": 47.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      48.3,
+      50.0,
+      55.0,
+      73.3,
+      47.1
+    ],
+    "total_trades": 93
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.5,
+    "min_wr": 47.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      58.5,
+      49.3,
+      57.6,
+      50.0,
+      47.1
+    ],
+    "total_trades": 673
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 55.0,
+    "min_wr": 46.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      72.0,
+      46.9,
+      54.5,
+      51.5
+    ],
+    "total_trades": 142
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 54.1,
+    "min_wr": 46.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      54.5,
+      50.0,
+      69.2,
+      46.7
+    ],
+    "total_trades": 83
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.1,
+    "min_wr": 46.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      48.1,
+      58.6,
+      53.6,
+      48.9,
+      46.4
+    ],
+    "total_trades": 271
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.0,
+    "min_wr": 46.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      48.1,
+      58.6,
+      55.4,
+      46.7,
+      46.3
+    ],
+    "total_trades": 267
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.9,
+    "min_wr": 46.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      48.1,
+      58.6,
+      53.6,
+      47.8,
+      46.3
+    ],
+    "total_trades": 268
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.3,
+    "min_wr": 45.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.0,
+      50.4,
+      54.9,
+      45.8,
+      49.5
+    ],
+    "total_trades": 566
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 51.2,
+    "min_wr": 45.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.1,
+      50.8,
+      55.4,
+      45.8,
+      48.1
+    ],
+    "total_trades": 559
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.7,
+    "min_wr": 45.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.1,
+      50.0,
+      55.4,
+      45.8,
+      46.3
+    ],
+    "total_trades": 559
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 50.7,
+    "min_wr": 45.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.0,
+      49.6,
+      54.9,
+      45.8,
+      47.3
+    ],
+    "total_trades": 565
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 51.9,
+    "min_wr": 45.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.3,
+      52.2,
+      53.7,
+      54.5,
+      45.7
+    ],
+    "total_trades": 444
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 51.4,
+    "min_wr": 45.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.9,
+      59.3,
+      53.6,
+      47.9,
+      45.5
+    ],
+    "total_trades": 275
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.8,
+    "min_wr": 45.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      48.1,
+      58.6,
+      55.4,
+      45.5,
+      46.2
+    ],
+    "total_trades": 264
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 51.6,
+    "min_wr": 45.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.8,
+      57.0,
+      52.1,
+      46.7,
+      45.3
+    ],
+    "total_trades": 361
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 52.0,
+    "min_wr": 45.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.5,
+      53.3,
+      53.2,
+      54.7,
+      45.2
+    ],
+    "total_trades": 429
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 52.7,
+    "min_wr": 45.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.4,
+      55.6,
+      46.7,
+      45.1
+    ],
+    "total_trades": 239
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.2,
+    "min_wr": 45.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      59.1,
+      49.3,
+      57.6,
+      50.0,
+      45.1
+    ],
+    "total_trades": 668
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 52.8,
+    "min_wr": 45.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      64.3,
+      60.0,
+      47.1,
+      45.0
+    ],
+    "total_trades": 194
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 52.8,
+    "min_wr": 44.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.7,
+      57.4,
+      52.0,
+      53.1,
+      44.9
+    ],
+    "total_trades": 452
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.0,
+    "min_wr": 44.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.7,
+      49.6,
+      57.8,
+      51.2,
+      44.9
+    ],
+    "total_trades": 643
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 52.3,
+    "min_wr": 44.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      57.6,
+      50.0,
+      57.8,
+      51.2,
+      44.8
+    ],
+    "total_trades": 638
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.8,
+    "min_wr": 44.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      56.6,
+      51.4,
+      44.8,
+      45.7
+    ],
+    "total_trades": 348
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 52.7,
+    "min_wr": 44.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      64.3,
+      60.0,
+      47.1,
+      44.7
+    ],
+    "total_trades": 192
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 51.4,
+    "min_wr": 44.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      44.4,
+      53.8,
+      45.0,
+      61.1,
+      52.6
+    ],
+    "total_trades": 97
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.8,
+    "min_wr": 44.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.8,
+      55.7,
+      52.1,
+      45.0,
+      44.2
+    ],
+    "total_trades": 363
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 51.9,
+    "min_wr": 44.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.4,
+      54.5,
+      45.2,
+      44.0
+    ],
+    "total_trades": 234
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.2,
+    "min_wr": 44.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      58.8,
+      53.8,
+      44.0,
+      51.9
+    ],
+    "total_trades": 114
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 51.2,
+    "min_wr": 44.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      58.8,
+      53.8,
+      44.0,
+      51.9
+    ],
+    "total_trades": 114
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 51.2,
+    "min_wr": 43.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.3,
+      51.0,
+      53.5,
+      54.3,
+      43.9
+    ],
+    "total_trades": 466
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.9,
+    "min_wr": 43.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      56.6,
+      51.4,
+      43.9,
+      47.1
+    ],
+    "total_trades": 345
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 52.6,
+    "min_wr": 43.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.9,
+      60.0,
+      43.8,
+      47.4,
+      58.8
+    ],
+    "total_trades": 84
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 52.6,
+    "min_wr": 43.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.9,
+      60.0,
+      43.8,
+      47.4,
+      58.8
+    ],
+    "total_trades": 84
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 51.9,
+    "min_wr": 43.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.4,
+      54.5,
+      45.2,
+      43.8
+    ],
+    "total_trades": 232
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 51.5,
+    "min_wr": 43.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.6,
+      58.0,
+      48.6,
+      50.7,
+      43.8
+    ],
+    "total_trades": 361
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.2,
+    "min_wr": 43.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.9,
+      47.4,
+      49.0,
+      57.3,
+      43.3
+    ],
+    "total_trades": 437
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 52.4,
+    "min_wr": 43.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.5,
+      65.1,
+      60.0,
+      43.2,
+      46.3
+    ],
+    "total_trades": 201
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.0,
+    "min_wr": 43.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      55.3,
+      51.4,
+      43.1,
+      44.4
+    ],
+    "total_trades": 350
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 53.3,
+    "min_wr": 42.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      54.5,
+      50.0,
+      69.2,
+      42.9
+    ],
+    "total_trades": 82
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.3,
+    "min_wr": 42.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.0,
+      68.8,
+      60.5,
+      42.9,
+      44.1
+    ],
+    "total_trades": 179
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.4,
+    "min_wr": 42.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.3,
+      54.4,
+      48.1,
+      60.3,
+      42.9
+    ],
+    "total_trades": 361
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 52.1,
+    "min_wr": 42.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.0,
+      55.6,
+      46.7,
+      42.6
+    ],
+    "total_trades": 231
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 51.4,
+    "min_wr": 42.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.3,
+      55.2,
+      47.4,
+      60.3,
+      42.6
+    ],
+    "total_trades": 357
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 49.8,
+    "min_wr": 42.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.9,
+      48.7,
+      48.9,
+      55.1,
+      42.5
+    ],
+    "total_trades": 424
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.5,
+    "min_wr": 42.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      42.5,
+      59.1,
+      53.7,
+      43.2,
+      43.9
+    ],
+    "total_trades": 203
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.4,
+    "min_wr": 42.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      44.7,
+      68.8,
+      60.5,
+      42.4,
+      45.5
+    ],
+    "total_trades": 174
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 50.5,
+    "min_wr": 42.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      42.3,
+      53.8,
+      45.0,
+      58.8,
+      52.6
+    ],
+    "total_trades": 95
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 50.4,
+    "min_wr": 42.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.8,
+      54.4,
+      48.6,
+      50.0,
+      42.3
+    ],
+    "total_trades": 351
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 50.7,
+    "min_wr": 42.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      60.0,
+      60.0,
+      44.1,
+      42.1
+    ],
+    "total_trades": 190
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.0,
+    "min_wr": 42.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      55.3,
+      51.4,
+      42.1,
+      45.7
+    ],
+    "total_trades": 347
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 52.2,
+    "min_wr": 41.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      57.0,
+      56.7,
+      52.1,
+      53.3,
+      41.7
+    ],
+    "total_trades": 429
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 50.6,
+    "min_wr": 41.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      60.0,
+      60.0,
+      44.1,
+      41.7
+    ],
+    "total_trades": 188
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 52.6,
+    "min_wr": 41.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      59.5,
+      63.2,
+      50.0,
+      49.1,
+      41.4
+    ],
+    "total_trades": 349
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 51.3,
+    "min_wr": 41.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.0,
+      54.5,
+      45.2,
+      41.3
+    ],
+    "total_trades": 226
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.4,
+    "min_wr": 41.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      56.8,
+      55.2,
+      48.6,
+      50.0,
+      41.2
+    ],
+    "total_trades": 347
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 51.2,
+    "min_wr": 40.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.5,
+      70.0,
+      54.5,
+      45.2,
+      40.9
+    ],
+    "total_trades": 224
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 52.3,
+    "min_wr": 40.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      43.3,
+      68.4,
+      62.5,
+      46.7,
+      40.7
+    ],
+    "total_trades": 130
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 52.0,
+    "min_wr": 40.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.7,
+      63.2,
+      62.5,
+      46.7,
+      40.7
+    ],
+    "total_trades": 130
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.6,
+    "min_wr": 40.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      44.4,
+      68.8,
+      60.5,
+      40.6,
+      43.8
+    ],
+    "total_trades": 170
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 50.2,
+    "min_wr": 40.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.5,
+      59.5,
+      60.0,
+      40.5,
+      43.6
+    ],
+    "total_trades": 198
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 61.3,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      40.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 61.3,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      40.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 61.3,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      40.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 52.2,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      58.7,
+      63.2,
+      50.0,
+      49.1,
+      40.0
+    ],
+    "total_trades": 350
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 52.2,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      54.5,
+      70.0,
+      40.0,
+      46.7
+    ],
+    "total_trades": 89
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.1,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      61.0,
+      63.6,
+      50.0,
+      45.9,
+      40.0
+    ],
+    "total_trades": 368
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 52.1,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.2,
+      54.5,
+      70.0,
+      40.0,
+      50.0
+    ],
+    "total_trades": 86
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 52.0,
+    "min_wr": 39.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      43.3,
+      68.4,
+      62.5,
+      46.7,
+      39.3
+    ],
+    "total_trades": 131
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.7,
+    "min_wr": 39.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.7,
+      63.2,
+      62.5,
+      46.7,
+      39.3
+    ],
+    "total_trades": 131
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.3,
+    "min_wr": 38.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      60.0,
+      64.9,
+      38.9,
+      48.8,
+      38.9
+    ],
+    "total_trades": 236
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 51.8,
+    "min_wr": 38.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      60.0,
+      64.9,
+      51.3,
+      44.3,
+      38.4
+    ],
+    "total_trades": 364
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 49.9,
+    "min_wr": 38.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      59.2,
+      64.9,
+      41.2,
+      46.2,
+      38.0
+    ],
+    "total_trades": 226
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 48.9,
+    "min_wr": 37.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      49.4,
+      55.7,
+      47.6,
+      54.2,
+      37.7
+    ],
+    "total_trades": 374
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 49.7,
+    "min_wr": 37.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      39.3,
+      58.3,
+      60.0,
+      53.3,
+      37.5
+    ],
+    "total_trades": 91
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.3,
+    "min_wr": 37.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      37.5,
+      55.6,
+      42.9,
+      55.6,
+      50.0
+    ],
+    "total_trades": 53
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 47.4,
+    "min_wr": 37.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      39.3,
+      58.3,
+      55.6,
+      46.2,
+      37.5
+    ],
+    "total_trades": 87
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.8,
+    "min_wr": 37.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      58.3,
+      64.5,
+      51.4,
+      47.4,
+      37.3
+    ],
+    "total_trades": 344
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 51.6,
+    "min_wr": 37.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      57.5,
+      64.5,
+      51.4,
+      47.4,
+      37.3
+    ],
+    "total_trades": 345
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.6,
+    "min_wr": 37.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.9,
+      55.7,
+      48.1,
+      60.0,
+      37.3
+    ],
+    "total_trades": 365
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 47.1,
+    "min_wr": 37.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.6,
+      55.6,
+      41.1,
+      47.9,
+      37.3
+    ],
+    "total_trades": 256
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 47.6,
+    "min_wr": 37.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      37.0,
+      54.5,
+      60.0,
+      46.7,
+      40.0
+    ],
+    "total_trades": 88
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 46.0,
+    "min_wr": 37.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      37.0,
+      54.5,
+      55.6,
+      42.9,
+      40.0
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.8,
+    "min_wr": 36.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      39.4,
+      68.4,
+      64.0,
+      45.5,
+      36.7
+    ],
+    "total_trades": 140
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.4,
+    "min_wr": 36.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      42.4,
+      63.2,
+      64.0,
+      45.5,
+      36.7
+    ],
+    "total_trades": 140
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 49.1,
+    "min_wr": 36.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      59.2,
+      64.9,
+      40.0,
+      44.7,
+      36.7
+    ],
+    "total_trades": 223
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.8,
+    "min_wr": 36.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      44.7,
+      66.7,
+      60.5,
+      36.4,
+      45.5
+    ],
+    "total_trades": 172
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 49.1,
+    "min_wr": 36.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.3,
+      55.2,
+      53.6,
+      53.2,
+      36.4
+    ],
+    "total_trades": 271
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.5,
+    "min_wr": 36.1,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      45.0,
+      66.7,
+      60.5,
+      36.1,
+      44.1
+    ],
+    "total_trades": 178
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 51.4,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      54.5,
+      66.7,
+      35.7,
+      50.0
+    ],
+    "total_trades": 83
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 51.3,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.2,
+      54.5,
+      70.0,
+      35.7,
+      50.0
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 51.1,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      51.9,
+      54.5,
+      66.7,
+      35.7,
+      46.7
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.4,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      35.7,
+      55.6,
+      50.0,
+      55.6,
+      50.0
+    ],
+    "total_trades": 50
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 47.7,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      38.5,
+      54.5,
+      60.0,
+      50.0,
+      35.7
+    ],
+    "total_trades": 85
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 46.1,
+    "min_wr": 35.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      38.5,
+      54.5,
+      55.6,
+      46.2,
+      35.7
+    ],
+    "total_trades": 82
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 55.0,
+    "min_wr": 35.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      35.3,
+      53.3,
+      75.0,
+      52.4,
+      58.8
+    ],
+    "total_trades": 86
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 54.0,
+    "min_wr": 35.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      35.3,
+      53.3,
+      75.0,
+      47.4,
+      58.8
+    ],
+    "total_trades": 84
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 48.7,
+    "min_wr": 35.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.3,
+      55.2,
+      53.6,
+      53.2,
+      35.2
+    ],
+    "total_trades": 269
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.0,
+    "min_wr": 34.4,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      44.4,
+      66.7,
+      60.5,
+      34.4,
+      43.8
+    ],
+    "total_trades": 168
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 57.3,
+    "min_wr": 33.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      80.0,
+      33.3,
+      40.0,
+      100.0,
+      33.3
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 57.3,
+    "min_wr": 33.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      80.0,
+      33.3,
+      40.0,
+      100.0,
+      33.3
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 57.3,
+    "min_wr": 33.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      80.0,
+      33.3,
+      40.0,
+      100.0,
+      33.3
+    ],
+    "total_trades": 21
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 47.8,
+    "min_wr": 33.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      33.3,
+      33.3,
+      50.0
+    ],
+    "total_trades": 31
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 48.1,
+    "min_wr": 32.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.4,
+      55.0,
+      54.2,
+      51.0,
+      32.7
+    ],
+    "total_trades": 277
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 49.5,
+    "min_wr": 32.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.4,
+      63.0,
+      42.6,
+      56.6,
+      32.0
+    ],
+    "total_trades": 268
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 47.2,
+    "min_wr": 32.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      47.3,
+      55.2,
+      53.6,
+      47.8,
+      32.0
+    ],
+    "total_trades": 265
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 50.4,
+    "min_wr": 30.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      54.5,
+      66.7,
+      30.8,
+      50.0
+    ],
+    "total_trades": 82
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 48.4,
+    "min_wr": 30.8,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      30.8,
+      55.6,
+      50.0,
+      55.6,
+      50.0
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 46.9,
+    "min_wr": 30.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.3,
+      55.2,
+      53.6,
+      48.9,
+      30.6
+    ],
+    "total_trades": 262
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 55.7,
+    "min_wr": 28.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      28.6,
+      100.0,
+      50.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 55.7,
+    "min_wr": 28.6,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      28.6,
+      100.0,
+      50.0
+    ],
+    "total_trades": 32
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 51.7,
+    "min_wr": 26.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.3,
+      68.4,
+      50.0,
+      60.0,
+      26.7
+    ],
+    "total_trades": 133
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 51.5,
+    "min_wr": 25.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      53.3,
+      68.4,
+      50.0,
+      60.0,
+      25.9
+    ],
+    "total_trades": 130
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      50.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      50.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      75.0,
+      60.0,
+      40.0,
+      50.0,
+      25.0
+    ],
+    "total_trades": 24
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 49.4,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      70.0,
+      40.0,
+      45.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 49.4,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      70.0,
+      40.0,
+      45.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 49.4,
+    "min_wr": 25.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      70.0,
+      40.0,
+      45.5,
+      66.7,
+      25.0
+    ],
+    "total_trades": 33
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 45.0,
+    "min_wr": 22.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      35.7,
+      22.2,
+      60.0,
+      57.1,
+      50.0
+    ],
+    "total_trades": 50
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 44.6,
+    "min_wr": 22.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      28.6,
+      22.2,
+      66.7,
+      55.6,
+      50.0
+    ],
+    "total_trades": 50
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 44.0,
+    "min_wr": 22.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      30.8,
+      22.2,
+      60.0,
+      57.1,
+      50.0
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 43.8,
+    "min_wr": 22.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      28.6,
+      22.2,
+      60.0,
+      62.5,
+      45.5
+    ],
+    "total_trades": 52
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 43.5,
+    "min_wr": 22.2,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      23.1,
+      22.2,
+      66.7,
+      55.6,
+      50.0
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 45.1,
+    "min_wr": 20.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      20.0,
+      33.3,
+      50.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 45.1,
+    "min_wr": 20.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.6,
+      66.7,
+      20.0,
+      33.3,
+      50.0
+    ],
+    "total_trades": 30
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 53.3,
+    "min_wr": 16.7,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      33.3,
+      16.7,
+      100.0,
+      50.0
+    ],
+    "total_trades": 31
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 60.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      50.0,
+      100.0,
+      0.0
+    ],
+    "total_trades": 13
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 58.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      40.0,
+      100.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 58.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      40.0,
+      100.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 58.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      40.0,
+      100.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 58.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      40.0,
+      100.0,
+      0.0
+    ],
+    "total_trades": 12
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 56.7,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      100.0,
+      33.3,
+      100.0,
+      0.0
+    ],
+    "total_trades": 13
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 50.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      33.3,
+      100.0,
+      50.0
+    ],
+    "total_trades": 17
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 50.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 47.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      20.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 47.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      20.0,
+      100.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 45.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 45.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 45.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      60.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 45.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      25.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 45.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      25.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 43.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 43.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 43.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      100.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 33.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 33.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 33.3,
+    "min_wr": 0.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      66.7,
+      100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 57.3,
+    "min_wr": 52.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.9,
+      53.3,
+      75.0,
+      52.6,
+      52.9
+    ],
+    "total_trades": 84
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 52.7,
+    "min_wr": 49.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.1,
+      51.7,
+      53.1,
+      57.0,
+      49.4
+    ],
+    "total_trades": 725
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 55.2,
+    "min_wr": 48.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.3,
+      72.0,
+      51.6,
+      52.4,
+      51.5
+    ],
+    "total_trades": 139
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 51.5,
+    "min_wr": 48.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      55.6,
+      51.9,
+      48.1,
+      51.9
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 51.2,
+    "min_wr": 47.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      56.3,
+      50.0,
+      53.0,
+      47.8,
+      48.7
+    ],
+    "total_trades": 586
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 51.2,
+    "min_wr": 47.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.4,
+      53.2,
+      53.6,
+      51.5,
+      47.3
+    ],
+    "total_trades": 696
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.1,
+    "min_wr": 47.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.7,
+      52.9,
+      53.6,
+      51.2,
+      47.3
+    ],
+    "total_trades": 693
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 50.4,
+    "min_wr": 47.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.4,
+      52.8,
+      54.2,
+      47.3,
+      47.4
+    ],
+    "total_trades": 588
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 52.6,
+    "min_wr": 47.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.7,
+      50.0,
+      50.0,
+      64.3,
+      47.1
+    ],
+    "total_trades": 90
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 50.6,
+    "min_wr": 46.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.8,
+      53.2,
+      54.2,
+      46.8,
+      47.8
+    ],
+    "total_trades": 584
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 54.8,
+    "min_wr": 46.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      46.7,
+      72.0,
+      51.6,
+      52.4,
+      51.5
+    ],
+    "total_trades": 140
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 52.3,
+    "min_wr": 46.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.4,
+      52.2,
+      53.2,
+      56.0,
+      46.6
+    ],
+    "total_trades": 435
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.6,
+    "min_wr": 46.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.5,
+      52.9,
+      55.7,
+      51.2,
+      46.5
+    ],
+    "total_trades": 687
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 51.5,
+    "min_wr": 46.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.7,
+      53.2,
+      55.7,
+      51.5,
+      46.5
+    ],
+    "total_trades": 691
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.5,
+    "min_wr": 46.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      56.3,
+      49.2,
+      53.0,
+      46.5,
+      47.3
+    ],
+    "total_trades": 586
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.4,
+    "min_wr": 46.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.6,
+      51.5,
+      54.8,
+      47.9,
+      46.3
+    ],
+    "total_trades": 622
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.3,
+    "min_wr": 45.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      60.8,
+      50.0,
+      52.8,
+      47.4,
+      45.7
+    ],
+    "total_trades": 349
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 51.3,
+    "min_wr": 45.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.9,
+      59.3,
+      50.9,
+      50.0,
+      45.6
+    ],
+    "total_trades": 280
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 51.0,
+    "min_wr": 45.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      59.7,
+      51.3,
+      52.8,
+      45.6,
+      45.6
+    ],
+    "total_trades": 345
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.9,
+    "min_wr": 45.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.1,
+      50.5,
+      54.8,
+      47.9,
+      45.3
+    ],
+    "total_trades": 431
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.4,
+    "min_wr": 45.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      56.0,
+      52.6,
+      50.0,
+      48.1,
+      45.2
+    ],
+    "total_trades": 411
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 50.2,
+    "min_wr": 45.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.3,
+      50.0,
+      54.3,
+      49.3,
+      45.2
+    ],
+    "total_trades": 423
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.9,
+    "min_wr": 45.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      60.0,
+      50.0,
+      52.8,
+      46.6,
+      45.1
+    ],
+    "total_trades": 352
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 50.4,
+    "min_wr": 45.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.1,
+      51.6,
+      54.8,
+      49.3,
+      45.1
+    ],
+    "total_trades": 427
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 50.7,
+    "min_wr": 45.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.3,
+      51.1,
+      54.3,
+      50.7,
+      45.0
+    ],
+    "total_trades": 419
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.5,
+    "min_wr": 44.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      58.9,
+      51.3,
+      52.8,
+      44.8,
+      44.9
+    ],
+    "total_trades": 348
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 52.3,
+    "min_wr": 44.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      53.3,
+      50.0,
+      61.1,
+      52.6
+    ],
+    "total_trades": 101
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 50.7,
+    "min_wr": 44.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.9,
+      51.1,
+      53.7,
+      51.4,
+      44.4
+    ],
+    "total_trades": 440
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 51.6,
+    "min_wr": 44.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.4,
+      53.3,
+      53.7,
+      53.2,
+      44.3
+    ],
+    "total_trades": 438
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.3,
+    "min_wr": 44.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      56.0,
+      53.3,
+      50.0,
+      48.1,
+      44.3
+    ],
+    "total_trades": 403
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 51.1,
+    "min_wr": 44.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.9,
+      52.1,
+      53.7,
+      52.7,
+      44.2
+    ],
+    "total_trades": 436
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.9,
+    "min_wr": 44.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      61.0,
+      50.6,
+      52.1,
+      46.8,
+      44.0
+    ],
+    "total_trades": 368
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.5,
+    "min_wr": 43.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      60.0,
+      51.2,
+      52.1,
+      45.2,
+      43.8
+    ],
+    "total_trades": 363
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.7,
+    "min_wr": 43.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.6,
+      59.5,
+      52.5,
+      45.7,
+      47.4
+    ],
+    "total_trades": 194
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 47.8,
+    "min_wr": 43.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.1,
+      54.1,
+      44.0,
+      43.6,
+      44.0
+    ],
+    "total_trades": 225
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.0,
+    "min_wr": 43.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.3,
+      55.8,
+      49.5,
+      48.8,
+      43.5
+    ],
+    "total_trades": 423
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.2,
+    "min_wr": 43.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.4,
+      63.0,
+      47.2,
+      43.3,
+      46.2
+    ],
+    "total_trades": 169
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 48.4,
+    "min_wr": 43.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.3,
+      57.9,
+      45.8,
+      46.9,
+      48.1
+    ],
+    "total_trades": 132
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 48.1,
+    "min_wr": 43.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.3,
+      57.9,
+      45.8,
+      45.2,
+      48.1
+    ],
+    "total_trades": 131
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.8,
+    "min_wr": 42.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      47.4,
+      69.0,
+      46.3,
+      42.9,
+      43.6
+    ],
+    "total_trades": 195
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 48.2,
+    "min_wr": 42.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.6,
+      57.5,
+      52.5,
+      42.9,
+      44.4
+    ],
+    "total_trades": 190
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 47.8,
+    "min_wr": 42.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.9,
+      53.8,
+      44.2,
+      42.9,
+      46.2
+    ],
+    "total_trades": 237
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 49.5,
+    "min_wr": 42.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      47.4,
+      69.0,
+      42.5,
+      44.1,
+      44.7
+    ],
+    "total_trades": 192
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 52.4,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.7,
+      64.0,
+      51.6,
+      52.4,
+      42.4
+    ],
+    "total_trades": 139
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 52.1,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.7,
+      64.0,
+      50.0,
+      52.4,
+      42.4
+    ],
+    "total_trades": 138
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 51.9,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.7,
+      64.0,
+      51.5,
+      50.0,
+      42.4
+    ],
+    "total_trades": 142
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.6,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      71.9,
+      50.0,
+      45.5,
+      42.4
+    ],
+    "total_trades": 173
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 50.1,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      49.1,
+      54.2,
+      52.5,
+      52.1,
+      42.4
+    ],
+    "total_trades": 282
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.1,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      70.0,
+      52.6,
+      42.4,
+      42.4
+    ],
+    "total_trades": 171
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.0,
+    "min_wr": 42.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.4,
+      49.3,
+      48.9,
+      55.8,
+      42.4
+    ],
+    "total_trades": 417
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 51.4,
+    "min_wr": 42.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.3,
+      53.3,
+      50.0,
+      58.8,
+      52.6
+    ],
+    "total_trades": 99
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 49.2,
+    "min_wr": 42.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.7,
+      56.7,
+      45.6,
+      52.9,
+      42.3
+    ],
+    "total_trades": 363
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 49.6,
+    "min_wr": 42.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      49.1,
+      54.2,
+      52.5,
+      50.0,
+      42.1
+    ],
+    "total_trades": 278
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 49.4,
+    "min_wr": 42.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.1,
+      59.5,
+      52.5,
+      45.7,
+      47.4
+    ],
+    "total_trades": 193
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 47.9,
+    "min_wr": 42.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.1,
+      57.5,
+      52.5,
+      42.9,
+      44.4
+    ],
+    "total_trades": 189
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 47.6,
+    "min_wr": 42.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.1,
+      54.1,
+      44.0,
+      42.1,
+      44.9
+    ],
+    "total_trades": 223
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 47.3,
+    "min_wr": 42.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.2,
+      64.8,
+      44.4,
+      43.2,
+      42.0
+    ],
+    "total_trades": 238
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 49.9,
+    "min_wr": 41.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.3,
+      51.7,
+      54.8,
+      50.7,
+      41.9
+    ],
+    "total_trades": 665
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 49.9,
+    "min_wr": 41.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      49.1,
+      53.4,
+      50.9,
+      54.3,
+      41.8
+    ],
+    "total_trades": 271
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.6,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.7,
+      71.9,
+      50.0,
+      45.5,
+      43.8
+    ],
+    "total_trades": 171
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.1,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.7,
+      70.0,
+      52.6,
+      42.4,
+      43.8
+    ],
+    "total_trades": 169
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 47.6,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.3,
+      57.9,
+      41.7,
+      46.9,
+      48.1
+    ],
+    "total_trades": 132
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 47.4,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      55.6,
+      47.7,
+      48.8,
+      41.7
+    ],
+    "total_trades": 233
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 47.2,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      64.8,
+      43.2,
+      42.9,
+      41.7
+    ],
+    "total_trades": 232
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 47.2,
+    "min_wr": 41.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.3,
+      57.9,
+      41.7,
+      45.2,
+      48.1
+    ],
+    "total_trades": 131
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 48.6,
+    "min_wr": 41.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      47.4,
+      70.0,
+      42.5,
+      41.2,
+      41.7
+    ],
+    "total_trades": 188
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 47.0,
+    "min_wr": 41.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.5,
+      57.1,
+      52.5,
+      42.1,
+      41.0
+    ],
+    "total_trades": 199
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 50.6,
+    "min_wr": 40.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.3,
+      52.1,
+      53.5,
+      53.1,
+      40.9
+    ],
+    "total_trades": 452
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 49.7,
+    "min_wr": 40.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.1,
+      53.4,
+      51.8,
+      54.3,
+      40.7
+    ],
+    "total_trades": 268
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 46.7,
+    "min_wr": 40.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.7,
+      63.0,
+      45.7,
+      42.2,
+      40.7
+    ],
+    "total_trades": 247
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 50.8,
+    "min_wr": 40.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      75.0,
+      50.0,
+      43.8,
+      40.6
+    ],
+    "total_trades": 170
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 49.3,
+    "min_wr": 40.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      56.7,
+      46.2,
+      52.9,
+      40.6
+    ],
+    "total_trades": 358
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 48.6,
+    "min_wr": 40.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      46.7,
+      52.6,
+      49.5,
+      53.8,
+      40.2
+    ],
+    "total_trades": 419
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 48.8,
+    "min_wr": 40.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      47.4,
+      70.0,
+      46.3,
+      40.0,
+      40.5
+    ],
+    "total_trades": 191
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 47.5,
+    "min_wr": 40.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      56.4,
+      47.7,
+      48.8,
+      40.0
+    ],
+    "total_trades": 237
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.5,
+    "min_wr": 39.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      75.0,
+      50.0,
+      43.8,
+      39.4
+    ],
+    "total_trades": 171
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 45.8,
+    "min_wr": 39.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      39.4,
+      55.0,
+      44.0,
+      47.1,
+      43.3
+    ],
+    "total_trades": 142
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 45.6,
+    "min_wr": 39.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      46.7,
+      56.0,
+      45.2,
+      40.9,
+      39.4
+    ],
+    "total_trades": 141
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 49.3,
+    "min_wr": 39.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.6,
+      64.0,
+      48.6,
+      39.3,
+      45.9
+    ],
+    "total_trades": 160
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 48.8,
+    "min_wr": 38.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.0,
+      70.0,
+      52.6,
+      41.7,
+      38.9
+    ],
+    "total_trades": 179
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 48.7,
+    "min_wr": 38.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.0,
+      71.9,
+      50.0,
+      41.7,
+      38.9
+    ],
+    "total_trades": 181
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.6,
+    "min_wr": 38.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.4,
+      57.4,
+      43.1,
+      50.0,
+      38.9
+    ],
+    "total_trades": 265
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 46.2,
+    "min_wr": 38.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.0,
+      55.3,
+      43.4,
+      42.5,
+      38.9
+    ],
+    "total_trades": 234
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 46.9,
+    "min_wr": 38.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      56.0,
+      47.7,
+      48.8,
+      38.6
+    ],
+    "total_trades": 225
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.2,
+    "min_wr": 38.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.9,
+      69.0,
+      45.5,
+      38.5,
+      43.9
+    ],
+    "total_trades": 207
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 46.7,
+    "min_wr": 38.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.8,
+      55.6,
+      39.7,
+      48.0,
+      38.5
+    ],
+    "total_trades": 261
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 46.9,
+    "min_wr": 38.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      38.4,
+      51.3,
+      49.5,
+      55.0,
+      40.2
+    ],
+    "total_trades": 412
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 50.7,
+    "min_wr": 38.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.6,
+      75.0,
+      52.5,
+      44.1,
+      38.2
+    ],
+    "total_trades": 179
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 45.4,
+    "min_wr": 38.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.3,
+      56.0,
+      45.2,
+      38.1,
+      39.4
+    ],
+    "total_trades": 139
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 47.5,
+    "min_wr": 37.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      45.7,
+      72.0,
+      42.9,
+      39.3,
+      37.8
+    ],
+    "total_trades": 160
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 46.9,
+    "min_wr": 37.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      56.0,
+      47.7,
+      48.8,
+      37.8
+    ],
+    "total_trades": 227
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 47.3,
+    "min_wr": 37.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      40.4,
+      57.4,
+      51.1,
+      50.0,
+      37.7
+    ],
+    "total_trades": 247
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 49.8,
+    "min_wr": 37.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      76.7,
+      50.0,
+      37.5,
+      40.6
+    ],
+    "total_trades": 168
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 49.3,
+    "min_wr": 37.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      44.4,
+      76.7,
+      48.6,
+      37.5,
+      39.4
+    ],
+    "total_trades": 168
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 48.8,
+    "min_wr": 37.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.9,
+      63.6,
+      51.7,
+      37.5,
+      48.1
+    ],
+    "total_trades": 123
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 49.6,
+    "min_wr": 37.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.6,
+      76.7,
+      52.5,
+      37.1,
+      38.2
+    ],
+    "total_trades": 178
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 46.6,
+    "min_wr": 37.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      42.2,
+      66.0,
+      44.4,
+      43.2,
+      37.0
+    ],
+    "total_trades": 230
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 46.5,
+    "min_wr": 36.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      45.7,
+      72.0,
+      40.0,
+      37.9,
+      36.8
+    ],
+    "total_trades": 162
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 44.8,
+    "min_wr": 36.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.0,
+      56.8,
+      40.0,
+      39.5,
+      36.7
+    ],
+    "total_trades": 223
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 49.6,
+    "min_wr": 36.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.6,
+      73.1,
+      45.9,
+      43.8,
+      36.6
+    ],
+    "total_trades": 171
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 45.1,
+    "min_wr": 36.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      57.7,
+      41.0,
+      40.0,
+      36.6
+    ],
+    "total_trades": 172
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 46.3,
+    "min_wr": 36.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.2,
+      66.0,
+      43.2,
+      42.9,
+      36.4
+    ],
+    "total_trades": 224
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 45.0,
+    "min_wr": 36.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      57.7,
+      43.8,
+      36.4,
+      37.1
+    ],
+    "total_trades": 145
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 45.7,
+    "min_wr": 36.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      41.7,
+      64.0,
+      44.4,
+      42.2,
+      36.0
+    ],
+    "total_trades": 238
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 44.2,
+    "min_wr": 36.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      39.4,
+      55.0,
+      36.0,
+      47.1,
+      43.3
+    ],
+    "total_trades": 142
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 47.0,
+    "min_wr": 35.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      43.9,
+      70.0,
+      44.2,
+      35.9,
+      41.0
+    ],
+    "total_trades": 202
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 45.2,
+    "min_wr": 35.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.6,
+      60.0,
+      44.4,
+      37.9,
+      35.1
+    ],
+    "total_trades": 162
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 44.5,
+    "min_wr": 35.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      48.6,
+      60.0,
+      42.9,
+      35.7,
+      35.1
+    ],
+    "total_trades": 160
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 50.4,
+    "min_wr": 34.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.6,
+      70.6,
+      46.2,
+      34.6,
+      48.1
+    ],
+    "total_trades": 115
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 48.9,
+    "min_wr": 34.5,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      64.0,
+      48.6,
+      34.5,
+      47.4
+    ],
+    "total_trades": 163
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 46.6,
+    "min_wr": 34.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      40.4,
+      58.8,
+      50.0,
+      50.0,
+      34.0
+    ],
+    "total_trades": 240
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 44.3,
+    "min_wr": 34.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.0,
+      56.8,
+      40.0,
+      38.5,
+      34.0
+    ],
+    "total_trades": 226
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 49.3,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      45.0,
+      66.7,
+      53.3,
+      33.3,
+      48.1
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 49.3,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      45.0,
+      66.7,
+      53.3,
+      33.3,
+      48.1
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 46.1,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      35.0,
+      57.1,
+      53.3,
+      33.3,
+      51.9
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 45.5,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      35.0,
+      57.1,
+      50.0,
+      33.3,
+      51.9
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 43.0,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      40.0,
+      57.1,
+      40.0,
+      33.3,
+      44.4
+    ],
+    "total_trades": 119
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 42.6,
+    "min_wr": 33.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      38.1,
+      57.1,
+      40.0,
+      33.3,
+      44.4
+    ],
+    "total_trades": 120
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 49.9,
+    "min_wr": 32.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.6,
+      70.6,
+      46.2,
+      32.0,
+      48.1
+    ],
+    "total_trades": 114
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 42.0,
+    "min_wr": 30.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      39.1,
+      57.1,
+      40.0,
+      30.4,
+      43.3
+    ],
+    "total_trades": 127
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 48.6,
+    "min_wr": 29.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      70.6,
+      46.2,
+      29.6,
+      46.7
+    ],
+    "total_trades": 120
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 46.1,
+    "min_wr": 28.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      56.5,
+      47.6,
+      47.3,
+      28.9
+    ],
+    "total_trades": 265
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 40.1,
+    "min_wr": 28.6,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      33.3,
+      30.0,
+      28.6,
+      66.7,
+      41.7
+    ],
+    "total_trades": 53
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 46.5,
+    "min_wr": 27.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      57.8,
+      46.7,
+      50.0,
+      27.9
+    ],
+    "total_trades": 254
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 45.9,
+    "min_wr": 27.9,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      50.0,
+      56.8,
+      45.9,
+      49.0,
+      27.9
+    ],
+    "total_trades": 255
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 46.0,
+    "min_wr": 26.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      26.7,
+      33.3,
+      70.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 52
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 43.9,
+    "min_wr": 23.1,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      23.1,
+      33.3,
+      70.0,
+      42.9,
+      50.0
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 39.9,
+    "min_wr": 22.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      35.7,
+      22.2,
+      33.3,
+      66.7,
+      41.7
+    ],
+    "total_trades": 50
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 38.9,
+    "min_wr": 22.2,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      30.8,
+      22.2,
+      33.3,
+      66.7,
+      41.7
+    ],
+    "total_trades": 49
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 80,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 43.5,
+    "min_wr": 21.4,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      21.4,
+      33.3,
+      70.0,
+      42.9,
+      50.0
+    ],
+    "total_trades": 50
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 40.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      33.3,
+      50.0,
+      50.0
+    ],
+    "total_trades": 17
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 37.3,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      20.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 37.3,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      66.7,
+      0.0,
+      20.0,
+      50.0,
+      50.0
+    ],
+    "total_trades": 16
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 9
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 30.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 28.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 28.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 28.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      100.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 28.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 28.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      40.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 20,
+    "avg_wr": 20.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 20,
+    "avg_wr": 20.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 80,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 20,
+    "avg_wr": 20.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      100.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 2
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 12.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 12.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 70,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 30,
+    "avg_wr": 12.0,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      60.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 8
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 49.6,
+    "min_wr": 46.8,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      50.0,
+      52.4,
+      51.7,
+      46.8,
+      46.9
+    ],
+    "total_trades": 584
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 30,
+    "avg_wr": 49.3,
+    "min_wr": 42.3,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      49.7,
+      51.7,
+      52.7,
+      50.0,
+      42.3
+    ],
+    "total_trades": 673
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 70,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "rsi_oversold": 30,
+    "avg_wr": 48.7,
+    "min_wr": 41.9,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      47.7,
+      52.0,
+      48.9,
+      53.2,
+      41.9
+    ],
+    "total_trades": 418
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 49.4,
+    "min_wr": 41.5,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      49.1,
+      53.4,
+      50.9,
+      52.3,
+      41.5
+    ],
+    "total_trades": 267
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 72,
+    "contract_duration": 5,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 49.2,
+    "min_wr": 40.4,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      48.1,
+      53.4,
+      51.8,
+      52.3,
+      40.4
+    ],
+    "total_trades": 264
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 47.1,
+    "min_wr": 35.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      50.8,
+      50.8,
+      51.6,
+      47.1,
+      35.0
+    ],
+    "total_trades": 563
+  },
+  {
+    "rsi_period": 7,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 47.0,
+    "min_wr": 34.5,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      49.6,
+      52.0,
+      51.7,
+      47.3,
+      34.5
+    ],
+    "total_trades": 532
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 10,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 7
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 75,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 25,
+    "avg_wr": 10.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      50.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 0,
+    "rsi_oversold": 28,
+    "avg_wr": 0.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 3,
+    "rsi_oversold": 28,
+    "avg_wr": 0.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  },
+  {
+    "rsi_period": 14,
+    "rsi_overbought": 72,
+    "contract_duration": 3,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 0.8,
+    "loss_cooldown": 5,
+    "rsi_oversold": 28,
+    "avg_wr": 0.0,
+    "min_wr": 0.0,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 4
+  }
+]

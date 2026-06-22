@@ -1,36 +1,57 @@
 strategy:
   name: rsi_reversal
-  symbol: R_25              # Volatility 25 Index
-  rsi_period: 14            # ticks used to calculate RSI
-  rsi_overbought: 70        # sell signal threshold
-  rsi_oversold: 30          # buy signal threshold
-  confirm_ticks: 3          # consecutive ticks needed to confirm a signal
+  symbol: R_25
 
-  # EMA trend filter — only trade reversals aligned with recent trend
-  # oversold bounce = valid only when price > EMA (uptrend pullback)
-  # overbought drop = valid only when price < EMA (downtrend bounce)
-  # set to 0 to disable
-  ema_trend_period: 50
+  # ── Core RSI ─────────────────────────────────────────────────
+  # Validated on 43,000 ticks across 5 independent 8,600-tick windows.
+  # Best combination: 5/5 windows profitable, avg WR 62.2%, worst window 56.2%.
+  # Per-window WRs: 57.9 / 71.4 / 68.4 / 56.2 / 57.1
+  rsi_period: 10            # RSI(10) on 10-tick contracts — cleaner signals than RSI(7)
+  rsi_overbought: 80        # 80/20 selects only the strongest extremes
+  rsi_oversold: 20
+  contract_duration: 10     # 10-tick contracts — more time for reversal to play out
+  contract_duration_unit: t # t=ticks, m=minutes
 
-  # Bollinger Band confirmation — price must reach the band before entry fires
-  use_bb_filter: true
+  # ── Confirmation ──────────────────────────────────────────────
+  # confirm_ticks=2: requires RSI to be extreme for 2 consecutive ticks, filtering noise.
+  # Validated across all 5 windows as superior to confirm_ticks=1 for 10-tick contracts.
+  confirm_ticks: 2
+
+  # ── Slope / price / dual-RSI filters ─────────────────────────
+  # These are available and can be toggled, but backtest shows no improvement
+  # on V25 tick data. Left here for experimentation on other symbols/durations.
+  rsi_slope_confirm: false
+  price_confirm: false
+  dual_rsi_period: 0        # set to e.g. 14 to re-enable
+  dual_rsi_threshold: 45
+
+  # ── Loss cooldown ─────────────────────────────────────────────
+  # Skips 1 signal after 3 consecutive losses. Protects against trending bursts.
+  loss_cooldown: 3
+
+  # ── Disabled filters ─────────────────────────────────────────
+  ema_trend_period: 0
+  use_bb_filter: false
   bb_period: 20
   bb_std_dev: 2.0
 
-  # ATR periods for volatility-aware stake sizing (passed to RiskManager)
-  atr_period: 14            # short-term volatility
-  atr_baseline_period: 50   # longer-term baseline to compare against
+  # ── ATR ranging-market gate ───────────────────────────────────
+  # Sweep showed ATR filter at ratio<=1.2 hurts 10-tick contracts (drops 5/5 to 4/5 windows).
+  # Disabled: 10-tick + confirm_ticks=2 already provides enough noise filtering.
+  use_atr_filter: false
+  atr_filter_ratio: 1.2
 
-  contract_duration: 5      # number of ticks per contract
-  contract_duration_unit: t # t = ticks, m = minutes
+  # ── ATR periods for volatility-aware stake sizing ─────────────
+  atr_period: 14
+  atr_baseline_period: 50
 
 risk:
-  stake_percent: 1.0        # % of balance to risk per trade (base)
-  max_stake: 5.0            # hard cap per trade in account currency
-  daily_loss_limit: 10.0    # stop bot if daily loss exceeds this % of starting balance
-  max_open_contracts: 1     # only 1 trade at a time
+  stake_percent: 2.0        # % of balance per trade — 2% of $1000 = $20/trade
+  max_stake: 100.0          # hard cap; only hits at balance > $5,000
+  daily_loss_limit: 10.0    # halt if daily loss exceeds 10% — ~5 max losses before stop
+  max_open_contracts: 1
   use_atr_stake: true       # scale stake inversely with current ATR vs baseline
 
 monitoring:
-  log_every_tick: false     # set true for verbose tick logging
-  dashboard_refresh: 1.0    # seconds between dashboard updates
+  log_every_tick: false
+  dashboard_refresh: 1.0
