@@ -5,9 +5,11 @@ min_win_rate (the weakest window) — only truly robust params will
 stay above breakeven in every window.
 
 Usage:
-  python sweep_multi.py                   # 5 windows x 5k ticks (25k total)
-  python sweep_multi.py --dur10           # focused 10-tick sweep: 5 x 10k ticks (50k total)
-  python sweep_multi.py --fresh           # re-fetch ticks from Deriv
+  python sweep_multi.py                        # R_25, 5 x 5k ticks
+  python sweep_multi.py --dur10                # R_25 focused 10-tick sweep, 5 x 10k ticks
+  python sweep_multi.py --symbol R_50 --dur10  # sweep for R_50
+  python sweep_multi.py --symbol R_75 --dur10  # sweep for R_75
+  python sweep_multi.py --fresh                # re-fetch ticks (ignore cache)
 """
 import argparse, copy, itertools, json, os
 from loguru import logger
@@ -21,16 +23,24 @@ from src.backtest.engine import BacktestEngine
 load_dotenv()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dur10",  action="store_true", help="Focused 10-tick sweep on 50k ticks (5 x 10k windows)")
-parser.add_argument("--fresh",  action="store_true", help="Re-fetch ticks from Deriv (ignore cache)")
-parser.add_argument("--windows", type=int, default=5, help="Number of windows (default: 5)")
+parser.add_argument("--symbol",  type=str,  default=None,  help="Symbol to sweep (default: first enabled in config)")
+parser.add_argument("--dur10",   action="store_true",       help="Focused 10-tick sweep on 50k ticks (5 x 10k windows)")
+parser.add_argument("--fresh",   action="store_true",       help="Re-fetch ticks from Deriv (ignore cache)")
+parser.add_argument("--windows", type=int,  default=5,      help="Number of windows (default: 5)")
 args = parser.parse_args()
 
 # ── Load base config ───────────────────────────────────────────
 with open("config.yaml") as f:
     base_cfg = yaml.safe_load(f)
 
-SYMBOL   = base_cfg["strategy"]["symbol"]
+# Resolve symbol: CLI flag > first enabled in symbols list > fallback
+if args.symbol:
+    SYMBOL = args.symbol.upper()
+else:
+    sym_list = base_cfg.get("symbols", [])
+    enabled  = [s for s in sym_list if s.get("enabled", True)]
+    SYMBOL   = enabled[0]["symbol"] if enabled else "R_25"
+
 PAYOUT   = 0.87
 BALANCE  = 1000.0
 BE       = round((1 / (1 + PAYOUT)) * 100, 1)   # 53.5%
@@ -96,6 +106,7 @@ for idx, params in enumerate(combos(), 1):
     r_cfg = copy.deepcopy(base_cfg["risk"])
 
     s_cfg.update({
+        "symbol":            SYMBOL,
         "rsi_period":        params["rsi_period"],
         "rsi_overbought":    params["rsi_overbought"],
         "rsi_oversold":      params["rsi_oversold"],
@@ -104,7 +115,6 @@ for idx, params in enumerate(combos(), 1):
         "atr_filter_ratio":  params["atr_filter_ratio"],
         "loss_cooldown":     params["loss_cooldown"],
         "confirm_ticks":     params["confirm_ticks"],
-        # keep disabled filters off
         "rsi_slope_confirm": False,
         "price_confirm":     False,
         "dual_rsi_period":   0,
@@ -163,7 +173,8 @@ for r in results[:50]:
 
 # ── Save full results ──────────────────────────────────────────
 os.makedirs("data", exist_ok=True)
-out_file = "data/sweep_dur10_results.json" if args.dur10 else "data/sweep_multi_results.json"
+suffix   = "dur10" if args.dur10 else "std"
+out_file = f"data/sweep_{SYMBOL}_{suffix}.json"
 with open(out_file, "w") as f:
     json.dump(results, f, indent=2)
 print(f"\nFull results saved to {out_file}")

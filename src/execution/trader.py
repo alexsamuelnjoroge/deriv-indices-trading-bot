@@ -3,7 +3,7 @@ Trader — bridges strategy signals → API calls → risk manager updates.
 
 Flow:
   signal arrives → check risk → calculate stake → buy contract via API
-  contract closes (API callback) → update risk manager → log result
+  contract closes (API callback) → update risk manager → log result → alert
 """
 
 import asyncio
@@ -29,14 +29,16 @@ class Trader:
         duration: int,
         duration_unit: str,
         strategy=None,
+        alerter=None,
     ):
-        self.client = client
-        self.risk = risk
-        self.symbol = symbol
-        self.duration = duration
+        self.client        = client
+        self.risk          = risk
+        self.symbol        = symbol
+        self.duration      = duration
         self.duration_unit = duration_unit
-        self._open: dict[str, dict] = {}  # contract_id → metadata
-        self._strategy = strategy          # optional: receives on_result() callbacks
+        self._open: dict[str, dict] = {}
+        self._strategy = strategy
+        self._alerter  = alerter
 
         self.client.on_contract_update(self._on_contract_update)
 
@@ -47,6 +49,11 @@ class Trader:
         ok, reason = self.risk.can_trade()
         if not ok:
             logger.debug(f"Trade blocked: {reason}")
+            if "halted" in reason.lower() or "circuit" in reason.lower() or "performance" in reason.lower():
+                if self._alerter:
+                    asyncio.create_task(
+                        self._alerter.send_halt(self.symbol, reason, self.risk.current_balance)
+                    )
             return
 
         contract_type = CONTRACT_TYPE[signal.action]
@@ -62,6 +69,7 @@ class Trader:
             )
             contract_id = str(result["contract_id"])
             self._open[contract_id] = {
+                "signal_action": signal.action,
                 "contract_type": contract_type,
                 "stake": stake,
                 "buy_price": float(result.get("buy_price", stake)),
@@ -74,15 +82,13 @@ class Trader:
 
     async def _on_contract_update(self, contract: dict):
         contract_id = str(contract.get("contract_id", ""))
-        status = contract.get("status", "")
-
         if contract_id not in self._open:
             return
 
-        meta = self._open.pop(contract_id)
-        buy_price = meta["stake"]
+        meta       = self._open.pop(contract_id)
+        buy_price  = meta["stake"]
         sell_price = float(contract.get("sell_price", 0))
-        profit = sell_price - buy_price
+        profit     = sell_price - buy_price
 
         trade = TradeResult(
             contract_id=contract_id,
@@ -93,13 +99,20 @@ class Trader:
             status="won" if profit > 0 else "lost",
         )
 
-        # Sync balance from API for accuracy
-        try:
-            balance = await self.client.get_balance()
-            self.risk.update_balance(balance)
-        except Exception:
-            pass
-
         self.risk.on_contract_closed(trade)
+
         if self._strategy and hasattr(self._strategy, "on_result"):
             self._strategy.on_result(profit > 0)
+
+        if self._alerter:
+            asyncio.create_task(
+                self._alerter.send_trade(
+                    symbol=self.symbol,
+                    action=meta["signal_action"],
+                    stake=buy_price,
+                    profit=profit,
+                    balance=self.risk.current_balance,
+                    win_rate=self.risk.win_rate,
+                    total_trades=self.risk.total_trades,
+                )
+            )
