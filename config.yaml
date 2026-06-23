@@ -1,57 +1,114 @@
 strategy:
   name: rsi_reversal
-  symbol: R_25
 
   # ── Core RSI ─────────────────────────────────────────────────
-  # Validated on 43,000 ticks across 5 independent 8,600-tick windows.
-  # Best combination: 5/5 windows profitable, avg WR 62.2%, worst window 56.2%.
-  # Per-window WRs: 57.9 / 71.4 / 68.4 / 56.2 / 57.1
-  rsi_period: 10            # RSI(10) on 10-tick contracts — cleaner signals than RSI(7)
-  rsi_overbought: 80        # 80/20 selects only the strongest extremes
+  # Validated on 43,000 ticks across 5 independent windows.
+  # 5/5 windows profitable, avg WR 62.2%, worst window 56.2%.
+  rsi_period: 10
+  rsi_overbought: 80
   rsi_oversold: 20
-  contract_duration: 10     # 10-tick contracts — more time for reversal to play out
-  contract_duration_unit: t # t=ticks, m=minutes
+  contract_duration: 10
+  contract_duration_unit: t
 
-  # ── Confirmation ──────────────────────────────────────────────
-  # confirm_ticks=2: requires RSI to be extreme for 2 consecutive ticks, filtering noise.
-  # Validated across all 5 windows as superior to confirm_ticks=1 for 10-tick contracts.
   confirm_ticks: 2
 
-  # ── Slope / price / dual-RSI filters ─────────────────────────
-  # These are available and can be toggled, but backtest shows no improvement
-  # on V25 tick data. Left here for experimentation on other symbols/durations.
   rsi_slope_confirm: false
   price_confirm: false
-  dual_rsi_period: 0        # set to e.g. 14 to re-enable
+  dual_rsi_period: 0
   dual_rsi_threshold: 45
 
-  # ── Loss cooldown ─────────────────────────────────────────────
-  # Skips 1 signal after 3 consecutive losses. Protects against trending bursts.
   loss_cooldown: 3
 
-  # ── Disabled filters ─────────────────────────────────────────
   ema_trend_period: 0
   use_bb_filter: false
   bb_period: 20
   bb_std_dev: 2.0
 
-  # ── ATR ranging-market gate ───────────────────────────────────
-  # Sweep showed ATR filter at ratio<=1.2 hurts 10-tick contracts (drops 5/5 to 4/5 windows).
-  # Disabled: 10-tick + confirm_ticks=2 already provides enough noise filtering.
   use_atr_filter: false
   atr_filter_ratio: 1.2
 
-  # ── ATR periods for volatility-aware stake sizing ─────────────
   atr_period: 14
   atr_baseline_period: 50
 
 risk:
-  stake_percent: 2.0        # % of balance per trade — 2% of $1000 = $20/trade
-  max_stake: 100.0          # hard cap; only hits at balance > $5,000
-  daily_loss_limit: 10.0    # halt if daily loss exceeds 10% — ~5 max losses before stop
+  # ── Stake sizing ──────────────────────────────────────────────
+  stake_percent: 2.0        # fallback % when not enough trades for Kelly
+  max_stake: 100.0          # hard cap per trade (hits at balance > $5,000)
+
+  # ── Kelly Criterion ───────────────────────────────────────────
+  # Computes optimal stake fraction from live win rate once enough data.
+  # Kelly formula: f* = (p*b - q) / b  →  stake = balance * f* * kelly_fraction
+  use_kelly: true
+  kelly_fraction: 0.5       # half-Kelly for safety (full Kelly is too aggressive)
+  kelly_min_trades: 50      # trades before Kelly activates (~2-3 days of live data across 2 symbols)
+  payout_pct: 0.87          # your Deriv account payout (check: may vary 82-95%)
+
+  # ── Circuit breakers ──────────────────────────────────────────
+  daily_loss_limit: 10.0    # halt if daily loss > 10% of balance (resets at midnight)
   max_open_contracts: 1
-  use_atr_stake: true       # scale stake inversely with current ATR vs baseline
+
+  # ── Rolling performance monitor ───────────────────────────────
+  # Halts if win rate over the last N trades drops below threshold.
+  # Guards against market regime changes that the backtest didn't see.
+  rolling_window: 30        # number of recent trades to track
+  min_rolling_wr: 48.0      # halt if rolling WR drops below 48%
+
+  # ── ATR-adaptive stake ────────────────────────────────────────
+  use_atr_stake: true       # scale stake down when volatility spikes
 
 monitoring:
   log_every_tick: false
   dashboard_refresh: 1.0
+
+# ── Telegram alerts ───────────────────────────────────────────────
+# Set enabled: true then add to .env:
+#   TELEGRAM_BOT_TOKEN=<from @BotFather>
+#   TELEGRAM_CHAT_ID=<your chat id>
+telegram:
+  enabled: false
+  on_trade: true            # alert on every trade result
+  on_daily_summary: true    # alert once per day at midnight
+  on_halt: true             # alert when circuit breaker fires
+
+# ── Multi-symbol trading ──────────────────────────────────────────
+# Add symbols here to trade them simultaneously.
+# Each symbol can override any strategy param — if not specified, uses
+# the 'strategy' section above as the default.
+# WARNING: Only R_25 params have been validated. Run sweep_multi.py on
+# each new symbol before enabling it in live trading.
+symbols:
+  - symbol: R_25
+    enabled: true
+    # no overrides — uses strategy defaults above
+
+  - symbol: R_50
+    enabled: false          # sweep showed WG=4/5, best result only 44 trades — too small to trust
+    rsi_period: 10
+    rsi_overbought: 80
+    rsi_oversold: 20
+    contract_duration: 10
+    confirm_ticks: 2
+
+  - symbol: R_75
+    enabled: true           # validated: 5/5 windows profitable, AvgWR 63.2%, MinWR 56.5%
+    # Params validated on 43,196 ticks across 5 independent windows
+    # Per-window WRs: 60.9 / 75.0 / 56.0 / 63.2 / 60.9
+    rsi_period: 10
+    rsi_overbought: 80
+    rsi_oversold: 20
+    contract_duration: 10
+    contract_duration_unit: t
+    confirm_ticks: 2
+    use_atr_filter: true    # R_75 is more volatile — ATR filter prevents trending-burst losses
+    atr_filter_ratio: 1.2
+    loss_cooldown: 2
+
+  - symbol: R_100
+    enabled: false          # sweep showed WG=4/5, MinWR 50.0% (below breakeven) — too risky
+    rsi_period: 7
+    rsi_overbought: 80
+    rsi_oversold: 20
+    contract_duration: 10
+    confirm_ticks: 2
+    use_atr_filter: true
+    atr_filter_ratio: 1.0

@@ -56,6 +56,7 @@ def main():
     parser.add_argument("--no-bb",   action="store_true",          help="Disable Bollinger Band filter")
     parser.add_argument("--no-atr-filter", action="store_true",    help="Disable ATR ranging-market gate")
     parser.add_argument("--windows", type=int,   default=1,        help="Number of independent windows to validate across (default: 1)")
+    parser.add_argument("--symbol",  type=str,   default=None,     help="Symbol to backtest (e.g. R_75). Overrides config.")
     args = parser.parse_args()
 
     config = load_config()
@@ -72,7 +73,24 @@ def main():
 
     app_id    = os.getenv("DERIV_APP_ID", "1089")
     api_token = os.getenv("DERIV_API_TOKEN")
-    symbol    = strategy_cfg["symbol"]
+
+    # --symbol overrides: merge that symbol's config on top of base strategy
+    if args.symbol:
+        target = args.symbol.upper()
+        strategy_cfg["symbol"] = target
+        # apply any per-symbol overrides from the symbols list
+        for entry in config.get("symbols", []):
+            if entry["symbol"] == target:
+                for k, v in entry.items():
+                    if k not in ("symbol", "enabled"):
+                        strategy_cfg[k] = v
+                break
+    elif "symbol" not in strategy_cfg:
+        symbols_list = config.get("symbols", [])
+        enabled = [s for s in symbols_list if s.get("enabled", True)]
+        strategy_cfg["symbol"] = enabled[0]["symbol"] if enabled else "R_25"
+
+    symbol = strategy_cfg["symbol"]
 
     n_windows   = max(1, args.windows)
     total_ticks = args.count * n_windows
