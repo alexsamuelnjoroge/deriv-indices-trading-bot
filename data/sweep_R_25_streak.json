@@ -1,0 +1,812 @@
+[
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 2,
+    "avg_wr": 55.7,
+    "min_wr": 46.7,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      64.2,
+      56.9,
+      58.2,
+      46.7,
+      52.6
+    ],
+    "total_trades": 260
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 55.6,
+    "min_wr": 46.7,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      64.2,
+      56.1,
+      58.2,
+      46.7,
+      52.6
+    ],
+    "total_trades": 261
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "avg_wr": 53.0,
+    "min_wr": 40.7,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      63.0,
+      56.1,
+      52.6,
+      40.7,
+      52.7
+    ],
+    "total_trades": 240
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 52.8,
+    "min_wr": 40.7,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      63.0,
+      55.2,
+      52.6,
+      40.7,
+      52.7
+    ],
+    "total_trades": 241
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 52.9,
+    "min_wr": 30.8,
+    "wins_ge": 4,
+    "per_window_wrs": [
+      52.6,
+      52.6,
+      30.8,
+      72.2,
+      56.2
+    ],
+    "total_trades": 85
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 52.2,
+    "min_wr": 42.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      54.1,
+      57.8,
+      42.9,
+      57.6,
+      48.6
+    ],
+    "total_trades": 180
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 52.3,
+    "min_wr": 42.3,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      65.4,
+      42.3,
+      42.3,
+      58.1,
+      53.3
+    ],
+    "total_trades": 139
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "avg_wr": 52.3,
+    "min_wr": 42.3,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      65.4,
+      42.3,
+      42.3,
+      58.1,
+      53.3
+    ],
+    "total_trades": 139
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 49.9,
+    "min_wr": 40.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      54.1,
+      55.8,
+      40.9,
+      53.3,
+      45.5
+    ],
+    "total_trades": 165
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 52.1,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      65.4,
+      42.3,
+      40.0,
+      59.4,
+      53.3
+    ],
+    "total_trades": 134
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "avg_wr": 52.1,
+    "min_wr": 40.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      65.4,
+      42.3,
+      40.0,
+      59.4,
+      53.3
+    ],
+    "total_trades": 134
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "avg_wr": 52.6,
+    "min_wr": 39.1,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      63.6,
+      55.7,
+      52.8,
+      39.1,
+      51.8
+    ],
+    "total_trades": 240
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 52.4,
+    "min_wr": 39.1,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      63.6,
+      54.9,
+      52.8,
+      39.1,
+      51.8
+    ],
+    "total_trades": 241
+  },
+  {
+    "streak_length": 7,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 52.1,
+    "min_wr": 38.9,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      38.9,
+      59.1,
+      50.0,
+      59.4,
+      52.9
+    ],
+    "total_trades": 162
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 52.4,
+    "min_wr": 30.8,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      52.6,
+      50.0,
+      30.8,
+      72.2,
+      56.2
+    ],
+    "total_trades": 84
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 46.7,
+    "min_wr": 22.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.7,
+      56.9,
+      54.1,
+      53.7,
+      22.2
+    ],
+    "total_trades": 276
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "avg_wr": 46.7,
+    "min_wr": 22.2,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      46.7,
+      56.5,
+      54.5,
+      53.7,
+      22.2
+    ],
+    "total_trades": 258
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 47.0,
+    "min_wr": 20.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      56.8,
+      20.0,
+      56.7,
+      54.7,
+      46.7
+    ],
+    "total_trades": 354
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 46.3,
+    "min_wr": 20.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      56.8,
+      20.0,
+      52.4,
+      55.6,
+      46.7
+    ],
+    "total_trades": 220
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "avg_wr": 45.9,
+    "min_wr": 20.0,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.8,
+      20.0,
+      52.4,
+      54.7,
+      46.7
+    ],
+    "total_trades": 218
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 44.9,
+    "min_wr": 12.5,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      55.6,
+      12.5,
+      53.2,
+      56.4,
+      46.7
+    ],
+    "total_trades": 226
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 2,
+    "avg_wr": 44.5,
+    "min_wr": 12.5,
+    "wins_ge": 3,
+    "per_window_wrs": [
+      53.7,
+      12.5,
+      53.2,
+      56.6,
+      46.7
+    ],
+    "total_trades": 222
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 52.0,
+    "min_wr": 42.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      63.0,
+      46.7,
+      42.3,
+      60.0,
+      48.1
+    ],
+    "total_trades": 140
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 2,
+    "avg_wr": 52.0,
+    "min_wr": 42.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      63.0,
+      46.7,
+      42.3,
+      60.0,
+      48.1
+    ],
+    "total_trades": 140
+  },
+  {
+    "streak_length": 8,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 53.7,
+    "min_wr": 40.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      50.0,
+      50.0,
+      40.0,
+      72.2,
+      56.2
+    ],
+    "total_trades": 90
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 45.0,
+    "min_wr": 38.9,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      52.6,
+      40.9,
+      40.0,
+      52.8,
+      38.9
+    ],
+    "total_trades": 151
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "avg_wr": 46.0,
+    "min_wr": 20.0,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      55.8,
+      20.0,
+      51.9,
+      55.6,
+      46.7
+    ],
+    "total_trades": 216
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 44.9,
+    "min_wr": 14.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.7,
+      58.6,
+      54.7,
+      50.0,
+      14.3
+    ],
+    "total_trades": 238
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 2,
+    "avg_wr": 44.7,
+    "min_wr": 14.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      46.7,
+      57.9,
+      54.5,
+      50.0,
+      14.3
+    ],
+    "total_trades": 227
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 43.6,
+    "min_wr": 14.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      41.7,
+      58.5,
+      50.0,
+      53.3,
+      14.3
+    ],
+    "total_trades": 194
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 43.4,
+    "min_wr": 14.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      41.7,
+      59.3,
+      48.6,
+      53.3,
+      14.3
+    ],
+    "total_trades": 192
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 42.8,
+    "min_wr": 14.3,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      40.9,
+      55.3,
+      52.4,
+      51.2,
+      14.3
+    ],
+    "total_trades": 190
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "avg_wr": 43.3,
+    "min_wr": 12.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      43.3,
+      56.4,
+      54.5,
+      50.0,
+      12.5
+    ],
+    "total_trades": 233
+  },
+  {
+    "streak_length": 6,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 43.2,
+    "min_wr": 12.5,
+    "wins_ge": 2,
+    "per_window_wrs": [
+      43.3,
+      57.1,
+      53.2,
+      50.0,
+      12.5
+    ],
+    "total_trades": 238
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 46.1,
+    "min_wr": 35.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      52.8,
+      46.7,
+      46.7,
+      35.7,
+      48.8
+    ],
+    "total_trades": 187
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 45.8,
+    "min_wr": 35.7,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.5,
+      42.9,
+      46.7,
+      35.7,
+      50.0
+    ],
+    "total_trades": 185
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "avg_wr": 45.8,
+    "min_wr": 35.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      46.7,
+      35.3,
+      42.9,
+      48.6,
+      55.6
+    ],
+    "total_trades": 157
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 0,
+    "avg_wr": 45.6,
+    "min_wr": 35.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      46.7,
+      35.3,
+      42.9,
+      48.6,
+      54.5
+    ],
+    "total_trades": 156
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 44.4,
+    "min_wr": 30.8,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      53.5,
+      42.9,
+      44.8,
+      30.8,
+      50.0
+    ],
+    "total_trades": 183
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 45.1,
+    "min_wr": 27.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.0,
+      27.3,
+      43.3,
+      51.4,
+      52.4
+    ],
+    "total_trades": 171
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 2,
+    "avg_wr": 41.4,
+    "min_wr": 27.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.4,
+      27.3,
+      40.9,
+      54.0,
+      33.3
+    ],
+    "total_trades": 135
+  },
+  {
+    "streak_length": 5,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 40.1,
+    "min_wr": 27.3,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      51.4,
+      27.3,
+      40.0,
+      54.7,
+      27.3
+    ],
+    "total_trades": 132
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 3,
+    "avg_wr": 36.3,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      35.3,
+      40.7,
+      48.4,
+      57.1
+    ],
+    "total_trades": 130
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 3,
+    "avg_wr": 36.1,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      0.0,
+      35.3,
+      40.7,
+      48.4,
+      56.2
+    ],
+    "total_trades": 129
+  },
+  {
+    "streak_length": 4,
+    "contract_duration": 10,
+    "use_atr_filter": true,
+    "atr_filter_ratio": 1.2,
+    "loss_cooldown": 2,
+    "avg_wr": 44.6,
+    "min_wr": 27.3,
+    "wins_ge": 0,
+    "per_window_wrs": [
+      50.0,
+      27.3,
+      43.3,
+      51.4,
+      51.2
+    ],
+    "total_trades": 171
+  }
+]

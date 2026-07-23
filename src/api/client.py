@@ -201,8 +201,10 @@ class DerivClient:
         self._pending.clear()
 
         delay = 2
-        for attempt in range(1, 6):
-            logger.warning(f"Reconnecting... attempt {attempt}/5 (in {delay}s)")
+        attempt = 0
+        while self._running:
+            attempt += 1
+            logger.warning(f"Reconnecting... attempt {attempt} (retry in {delay}s)")
             await asyncio.sleep(delay)
             try:
                 if self._use_new_api:
@@ -215,14 +217,11 @@ class DerivClient:
                 for symbol in self._subscribed_symbols:
                     await self._send({"ticks": symbol, "subscribe": 1})
                     logger.info(f"Re-subscribed to ticks: {symbol}")
-                logger.info("Reconnected successfully")
+                logger.info(f"Reconnected successfully after {attempt} attempt(s)")
                 return
             except Exception as e:
                 logger.warning(f"Reconnect attempt {attempt} failed: {e}")
-                delay = min(delay * 2, 60)
-
-        logger.error("All reconnect attempts failed. Bot stopping.")
-        self._running = False
+                delay = min(delay * 2, 60)  # cap at 60s between retries
 
     # ------------------------------------------------------------------ #
     #  Request helper

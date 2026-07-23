@@ -17,6 +17,7 @@ from typing import Optional
 
 from src.data.tick_store import TickStore
 from src.strategies.rsi_reversal import RSIReversalStrategy
+from src.strategies.zscore_reversal import ZScoreReversalStrategy
 from src.risk.manager import RiskManager, TradeResult
 
 
@@ -104,11 +105,13 @@ class BacktestEngine:
         strategy_cfg: dict,
         risk_cfg: dict,
         payout_pct: float = 0.87,
+        strategy_class=None,
     ):
         self.strategy_cfg = strategy_cfg
         self.risk_cfg = risk_cfg
         self.payout_pct = payout_pct
         self.duration: int = strategy_cfg.get("contract_duration", 5)
+        self._strategy_class = strategy_class or RSIReversalStrategy
 
     def run(
         self,
@@ -123,9 +126,12 @@ class BacktestEngine:
             payout_pct=self.payout_pct,
         )
 
-        tick_store = TickStore(rsi_period=self.strategy_cfg.get("rsi_period", 14))
-        strategy = RSIReversalStrategy(self.strategy_cfg)
-        risk = RiskManager(self.risk_cfg, starting_balance=starting_balance)
+        tick_store = TickStore(
+            rsi_period=self.strategy_cfg.get("rsi_period", 14),
+            bar_size=self.strategy_cfg.get("bar_size", 1),
+        )
+        strategy = self._strategy_class(self.strategy_cfg)
+        risk = RiskManager(self.risk_cfg, starting_balance=starting_balance, persist_halt=False)
 
         # pending contract: set when a signal fires, settled `duration` ticks later
         pending: Optional[dict] = None
@@ -181,9 +187,10 @@ class BacktestEngine:
                             atr=signal.atr,
                             atr_baseline=signal.atr_baseline,
                         )
+                        dur = signal.contract_duration if signal.contract_duration is not None else self.duration
                         pending = {
                             "entry_idx":    i,
-                            "exit_idx":     i + self.duration,
+                            "exit_idx":     i + dur,
                             "entry_price":  current_price,
                             "contract_type": CONTRACT_TYPE[signal.action],
                             "stake":        stake,

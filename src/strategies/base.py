@@ -10,6 +10,7 @@ class Signal:
     rsi: Optional[float] = None
     atr: Optional[float] = None           # current ATR at signal time
     atr_baseline: Optional[float] = None  # longer-period ATR for comparison
+    contract_duration: Optional[int] = None  # override symbol default when RSI is extreme
 
 
 class BaseStrategy(ABC):

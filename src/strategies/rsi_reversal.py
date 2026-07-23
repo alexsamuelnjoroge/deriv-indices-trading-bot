@@ -62,10 +62,46 @@ class RSIReversalStrategy(BaseStrategy):
         self.dual_rsi_period:    int   = config.get("dual_rsi_period", 14)
         self.dual_rsi_threshold: float = config.get("dual_rsi_threshold", 45.0)
 
+        # ── Layer 4b: RSI Divergence ──────────────────────────────
+        # Only trade when price and RSI are diverging: price reaches a new
+        # extreme but RSI fails to confirm it — the classic reversal setup.
+        # use_divergence=False means divergence is ignored (same as before).
+        self.use_divergence:       bool = config.get("use_divergence", False)
+        self.divergence_lookback:  int  = config.get("divergence_lookback", 20)
+
+        # ── Adaptive RSI thresholds ───────────────────────────────
+        # Dynamically set overbought/oversold as percentiles of recent RSI history.
+        # Adapts to slow/fast market regimes. Falls back to fixed thresholds during
+        # warmup (first `adaptive_window` ticks).
+        # Set adaptive_threshold=False to keep fixed 80/20 (default).
+        self.adaptive_threshold: bool  = config.get("adaptive_threshold", False)
+        self.adaptive_window:    int   = config.get("adaptive_window", 500)
+        self.adaptive_pct:       float = config.get("adaptive_pct", 95.0)
+
+        # ── RSI-depth contract duration ───────────────────────────
+        # When RSI is more extreme than `rsi_extreme_threshold`, use a longer
+        # contract duration (`rsi_extreme_duration` ticks) to give more time to
+        # revert. Set rsi_extreme_threshold=0 to disable.
+        self.rsi_extreme_threshold: float = config.get("rsi_extreme_threshold", 0.0)
+        self.rsi_extreme_duration:  int   = config.get("rsi_extreme_duration", 15)
+
         # ── Layer 7: Loss cooldown ────────────────────────────────
         # After `loss_cooldown` consecutive losses skip the next signal entirely.
         # Set to 0 to disable.
         self.loss_cooldown: int = config.get("loss_cooldown", 3)
+
+        # ── Midline crossover mode ────────────────────────────────
+        # When True: trade momentum at RSI 50 crossover instead of
+        # reversal at RSI extremes. BUY_RISE when RSI crosses above 50,
+        # BUY_FALL when RSI crosses below 50.
+        self.use_midline_cross: bool = config.get("use_midline_cross", False)
+
+        # ── Momentum mode ─────────────────────────────────────────
+        # When True: trade WITH momentum instead of against it.
+        # RSI > overbought → BUY_RISE (riding upward momentum)
+        # RSI < oversold   → BUY_FALL (riding downward momentum)
+        # Pair with asymmetric thresholds e.g. rsi_overbought:50, rsi_oversold:30
+        self.momentum_mode: bool = config.get("momentum_mode", False)
 
         # ── ATR periods (passed through to Signal for stake sizing) ──
         self.atr_period:          int = config.get("atr_period", 14)
@@ -104,7 +140,7 @@ class RSIReversalStrategy(BaseStrategy):
 
         # ── Warmup ───────────────────────────────────────────────
         if rsi is None or price is None:
-            needed = tick_store.rsi_period + 1
+            needed = tick_store.warmup_ticks
             return Signal(
                 action="HOLD",
                 reason=f"Warming up ({tick_store.tick_count}/{needed} ticks)",
@@ -113,6 +149,16 @@ class RSIReversalStrategy(BaseStrategy):
         # ── Collect ATR for ranging filter + stake sizing ────────
         atr          = tick_store.atr(self.atr_period)
         atr_baseline = tick_store.atr(self.atr_baseline_period)
+
+        # ── Adaptive RSI thresholds ───────────────────────────────
+        if self.adaptive_threshold:
+            dyn_ob = tick_store.rsi_percentile(self.adaptive_window, self.adaptive_pct)
+            dyn_os = tick_store.rsi_percentile(self.adaptive_window, 100.0 - self.adaptive_pct)
+            effective_ob = dyn_ob if dyn_ob is not None else self.overbought
+            effective_os = dyn_os if dyn_os is not None else self.oversold
+        else:
+            effective_ob = self.overbought
+            effective_os = self.oversold
 
         # ── Layer 0: ATR ranging-market gate ─────────────────────
         # Skip everything when the market is trending (ATR spiking above baseline).
@@ -134,18 +180,39 @@ class RSIReversalStrategy(BaseStrategy):
 
         prices = tick_store.prices
 
-        # ── Step 1: RSI zone ─────────────────────────────────────
-        if rsi > self.overbought:
-            candidate = "BUY_FALL"
-        elif rsi < self.oversold:
-            candidate = "BUY_RISE"
+        # ── Step 1: RSI zone / crossover detection ───────────────
+        if self.use_midline_cross:
+            # Momentum mode: fire when RSI crosses the 50 midline.
+            if prev_rsi is None:
+                return Signal(action="HOLD", reason="Crossover: waiting for prev RSI",
+                              rsi=rsi, atr=atr, atr_baseline=atr_baseline)
+            above      = rsi      >= 50
+            prev_above = prev_rsi >= 50
+            if above and not prev_above:
+                candidate = "BUY_RISE"          # fresh cross above 50
+            elif not above and prev_above:
+                candidate = "BUY_FALL"          # fresh cross below 50
+            elif above and self._consecutive_signal == "BUY_RISE":
+                candidate = "BUY_RISE"          # confirming above 50
+            elif not above and self._consecutive_signal == "BUY_FALL":
+                candidate = "BUY_FALL"          # confirming below 50
+            else:
+                self._reset_confirmation()
+                return Signal(action="HOLD",
+                              reason=f"RSI {rsi} — no crossover signal",
+                              rsi=rsi, atr=atr, atr_baseline=atr_baseline)
         else:
-            self._reset_confirmation()
-            return Signal(
-                action="HOLD",
-                reason=f"RSI {rsi} neutral ({self.oversold}-{self.overbought})",
-                rsi=rsi, atr=atr, atr_baseline=atr_baseline,
-            )
+            if rsi > effective_ob:
+                candidate = "BUY_RISE" if self.momentum_mode else "BUY_FALL"
+            elif rsi < effective_os:
+                candidate = "BUY_FALL" if self.momentum_mode else "BUY_RISE"
+            else:
+                self._reset_confirmation()
+                return Signal(
+                    action="HOLD",
+                    reason=f"RSI {rsi} neutral ({effective_os:.0f}-{effective_ob:.0f})",
+                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                )
 
         # ── Loss cooldown ─────────────────────────────────────────
         if self._cooldown_remaining > 0:
@@ -221,20 +288,50 @@ class RSIReversalStrategy(BaseStrategy):
                 rsi=rsi, atr=atr, atr_baseline=atr_baseline,
             )
 
+        # ── Step 5b: RSI divergence (final gate on fire tick) ────
+        # Checked after confirm so confirmation state is never disrupted.
+        # If divergence not present, keep waiting — next tick re-checks.
+        if self.use_divergence:
+            if candidate == "BUY_FALL":
+                has_div = tick_store.bearish_divergence(self.divergence_lookback)
+            else:
+                has_div = tick_store.bullish_divergence(self.divergence_lookback)
+            if not has_div:
+                return Signal(
+                    action="HOLD",
+                    reason=f"RSI {rsi} confirmed but waiting for divergence (lookback={self.divergence_lookback})",
+                    rsi=rsi, atr=atr, atr_baseline=atr_baseline,
+                )
+
         # ── Signal confirmed ──────────────────────────────────────
         self._last_fired = candidate
-        direction = "OS->rise" if candidate == "BUY_RISE" else "OB->fall"
+        if self.use_midline_cross:
+            direction = "cross>50->rise" if candidate == "BUY_RISE" else "cross<50->fall"
+        elif self.momentum_mode:
+            direction = "MOM->rise" if candidate == "BUY_RISE" else "MOM->fall"
+        else:
+            direction = "OS->rise" if candidate == "BUY_RISE" else "OB->fall"
         slow_tag  = ""
         if self.dual_rsi_period > 0:
             rs = tick_store.rsi_simple(self.dual_rsi_period)
             slow_tag = f" | RSI{self.dual_rsi_period}:{rs}"
 
+        # RSI-depth duration: deeper extreme → longer contract
+        duration = None
+        if self.rsi_extreme_threshold > 0:
+            deep = (candidate == "BUY_FALL" and rsi >= self.rsi_extreme_threshold) or \
+                   (candidate == "BUY_RISE" and rsi <= (100.0 - self.rsi_extreme_threshold))
+            if deep:
+                duration = self.rsi_extreme_duration
+
+        dur_tag = f" | dur:{duration}t" if duration is not None else ""
         return Signal(
             action=candidate,
-            reason=f"RSI{tick_store.rsi_period}:{rsi} {direction}{slow_tag} | confirmed {self._consecutive_count}/{self.confirm_ticks}",
+            reason=f"RSI{tick_store.rsi_period}:{rsi} {direction}{slow_tag}{dur_tag} | confirmed {self._consecutive_count}/{self.confirm_ticks}",
             rsi=rsi,
             atr=atr,
             atr_baseline=atr_baseline,
+            contract_duration=duration,
         )
 
     def _reset_confirmation(self):
