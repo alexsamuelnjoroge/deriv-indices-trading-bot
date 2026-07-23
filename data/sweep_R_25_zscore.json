@@ -1,0 +1,22 @@
+[
+  {
+    "zscore_period": 10,
+    "zscore_threshold": 2.0,
+    "confirm_ticks": 1,
+    "use_atr_filter": false,
+    "atr_filter_ratio": 1.0,
+    "loss_cooldown": 0,
+    "contract_duration": 10,
+    "avg_wr": 11.3,
+    "min_wr": 0.0,
+    "wins_ge": 1,
+    "per_window_wrs": [
+      56.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "total_trades": 46
+  }
+]

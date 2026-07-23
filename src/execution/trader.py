@@ -58,12 +58,13 @@ class Trader:
 
         contract_type = CONTRACT_TYPE[signal.action]
         stake = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
+        duration = signal.contract_duration if signal.contract_duration is not None else self.duration
 
         try:
             result = await self.client.buy_contract(
                 symbol=self.symbol,
                 contract_type=contract_type,
-                duration=self.duration,
+                duration=duration,
                 duration_unit=self.duration_unit,
                 stake=stake,
             )

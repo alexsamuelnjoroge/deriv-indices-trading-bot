@@ -34,7 +34,7 @@ os.makedirs("logs", exist_ok=True)
 logger.remove()
 logger.add(
     "logs/bot_{time:YYYY-MM-DD}.log",
-    rotation="1 day",
+    rotation="00:00",
     retention="7 days",
     level="INFO",
     format="{time:HH:mm:ss} | {level:<7} | {message}",
@@ -143,9 +143,12 @@ async def run(watch_only: bool = False):
         sym_cfg  = build_symbol_config(entry, base_strategy)
         symbol   = sym_cfg["symbol"]
 
-        tick_store = TickStore(rsi_period=sym_cfg["rsi_period"])
+        tick_store = TickStore(
+            rsi_period=sym_cfg["rsi_period"],
+            bar_size=sym_cfg.get("bar_size", 1),
+        )
         strategy   = RSIReversalStrategy(sym_cfg)
-        risk       = RiskManager(risk_cfg, starting_balance=balance_per)
+        risk       = RiskManager(risk_cfg, starting_balance=balance_per, symbol=symbol)
         trader     = Trader(
             client, risk, symbol,
             sym_cfg["contract_duration"],
@@ -154,19 +157,32 @@ async def run(watch_only: bool = False):
             alerter=alerter,
         )
 
+        _CONTRACT_TYPE = {"BUY_RISE": "CALL", "BUY_FALL": "PUT"}
+
         # Register per-symbol tick handler
-        async def make_handler(b: SymbolBot, wonly: bool):
+        async def make_handler(b: SymbolBot, wonly: bool, contract_duration: int):
             async def handler(tick: dict):
                 b.tick_store.add(tick)
+                b.risk.check_auto_reset()
+                current_price = float(tick["quote"])
                 signal = b.strategy.evaluate(b.tick_store)
-                if not wonly and signal.action != "HOLD":
+                if b.risk.is_halted:
+                    dur = signal.contract_duration if signal.contract_duration is not None \
+                          else contract_duration
+                    b.risk.on_tick_halted(
+                        current_price,
+                        signal.action,
+                        _CONTRACT_TYPE.get(signal.action, ""),
+                        dur,
+                    )
+                elif not wonly and signal.action != "HOLD":
                     await b.trader.execute(signal)
             return handler
 
         bot = SymbolBot(symbol=symbol, tick_store=tick_store,
                         strategy=strategy, risk=risk, trader=trader)
         bots.append(bot)
-        client.on_tick(symbol, await make_handler(bot, watch_only))
+        client.on_tick(symbol, await make_handler(bot, watch_only, sym_cfg["contract_duration"]))
 
     # ── Dashboard (tracks first symbol for display) ───────────────
     primary = bots[0]
@@ -195,13 +211,16 @@ async def run(watch_only: bool = False):
     asyncio.create_task(midnight_reset_loop(bots, alerter))
 
     # ── Keep running ─────────────────────────────────────────────
+    _last_halted_log = 0.0
     try:
         while True:
             dashboard.refresh()
             all_halted = all(b.risk.is_halted for b in bots)
             if all_halted:
-                logger.warning("All symbols halted. Restart to resume.")
-                break
+                now = asyncio.get_event_loop().time()
+                if now - _last_halted_log >= 300:  # log at most once per 5 minutes
+                    logger.info("All symbols halted — waiting for 4h auto-reset.")
+                    _last_halted_log = now
             await asyncio.sleep(1)
     except (KeyboardInterrupt, asyncio.CancelledError):
         logger.info("Bot stopped by user")

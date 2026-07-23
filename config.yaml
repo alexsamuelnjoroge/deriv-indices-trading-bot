@@ -10,7 +10,13 @@ strategy:
   contract_duration: 10
   contract_duration_unit: t
 
+  bar_size: 1           # 1 = raw ticks (no aggregation); sweep confirmed bar>1 hurts signal count
   confirm_ticks: 2
+
+  # RSI-depth duration: disabled — Deriv caps tick contracts at 10 ticks max.
+  # Sweep showed improvement (MinWR +6.2%) but API rejects >10 ticks (ContractBuyValidationError).
+  rsi_extreme_threshold: 0
+  rsi_extreme_duration: 10
 
   rsi_slope_confirm: false
   price_confirm: false
@@ -41,7 +47,7 @@ risk:
   use_kelly: true
   kelly_fraction: 0.5       # half-Kelly for safety (full Kelly is too aggressive)
   kelly_min_trades: 50      # trades before Kelly activates (~2-3 days of live data across 2 symbols)
-  payout_pct: 0.87          # your Deriv account payout (check: may vary 82-95%)
+  payout_pct: 0.9232        # verified 23 Jun 2026: R_25 10-tick Rise/Fall = $192.32 on $100
 
   # ── Circuit breakers ──────────────────────────────────────────
   daily_loss_limit: 10.0    # halt if daily loss > 10% of balance (resets at midnight)
@@ -52,6 +58,13 @@ risk:
   # Guards against market regime changes that the backtest didn't see.
   rolling_window: 30        # number of recent trades to track
   min_rolling_wr: 48.0      # halt if rolling WR drops below 48%
+
+  # ── Paper trade recovery (all halts) ─────────────────────────
+  # While halted the bot tracks simulated signal outcomes.
+  # If paper WR recovers above paper_resume_wr over enough signals,
+  # the halt clears early — applies to both rolling-WR and daily-loss halts.
+  paper_resume_min_trades: 5   # signals needed before evaluating resumption
+  paper_resume_wr: 60.0        # paper WR % required to resume
 
   # ── ATR-adaptive stake ────────────────────────────────────────
   use_atr_stake: true       # scale stake down when volatility spikes
@@ -90,9 +103,10 @@ symbols:
     confirm_ticks: 2
 
   - symbol: R_75
-    enabled: true           # validated: 5/5 windows profitable, AvgWR 63.2%, MinWR 56.5%
+    enabled: false          # disabled 2026-07-13: 245 live trades, 48.2% WR — below breakeven
     # Params validated on 43,196 ticks across 5 independent windows
     # Per-window WRs: 60.9 / 75.0 / 56.0 / 63.2 / 60.9
+    # Sweep 2026-06-26: tightened atr_filter_ratio 1.2 -> 1.0 (top result: MinWR 61.5% vs 56.0%)
     rsi_period: 10
     rsi_overbought: 80
     rsi_oversold: 20
@@ -100,7 +114,7 @@ symbols:
     contract_duration_unit: t
     confirm_ticks: 2
     use_atr_filter: true    # R_75 is more volatile — ATR filter prevents trending-burst losses
-    atr_filter_ratio: 1.2
+    atr_filter_ratio: 1.0   # tightened from 1.2: only trade at normal/below-normal volatility
     loss_cooldown: 2
 
   - symbol: R_100
