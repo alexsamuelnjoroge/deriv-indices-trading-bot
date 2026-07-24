@@ -56,7 +56,8 @@ class DerivClient:
             "Deriv-App-ID": app_id_header,
         }
 
-        async with aiohttp.ClientSession() as session:
+        _timeout = aiohttp.ClientTimeout(total=30)
+        async with aiohttp.ClientSession(timeout=_timeout) as session:
             # Step 1 — discover account_id
             async with session.get(
                 f"{self.NEW_REST_BASE}/trading/v1/options/accounts",
@@ -210,7 +211,7 @@ class DerivClient:
                 if self._use_new_api:
                     # OTP tokens are single-use; need a fresh URL each reconnect
                     self._ws_url = await self._resolve_ws_url()
-                self.ws = await websockets.connect(self._ws_url)
+                self.ws = await websockets.connect(self._ws_url, open_timeout=15)
                 asyncio.create_task(self._listen())
                 if not self._use_new_api:
                     await self._authorize()
