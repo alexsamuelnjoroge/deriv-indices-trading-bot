@@ -59,6 +59,12 @@ risk:
   rolling_window: 30        # number of recent trades to track
   min_rolling_wr: 48.0      # halt if rolling WR drops below 48%
 
+  # ── Time filter (VPS clock = EAT, UTC+3) ─────────────────────
+  # Block trading during hours with consistently poor live WR.
+  # Based on 278 live trades — only hours with WR < 40% and >= 10 trades blocked.
+  # 10:00=25%(20t) 13:00=30%(10t) 19:00=31%(13t) 20:00=38%(21t) 22:00=30%(10t) 23:00=33%(9t)
+  blocked_hours_eat: [10, 13, 19, 20, 22, 23]
+
   # ── Paper trade recovery (all halts) ─────────────────────────
   # While halted the bot tracks simulated signal outcomes.
   # If paper WR recovers above paper_resume_wr over enough signals,
