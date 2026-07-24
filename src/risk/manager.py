@@ -51,6 +51,9 @@ class RiskManager:
         self.min_rolling_wr: float  = config.get("min_rolling_wr", 48.0)
         self.perf_halt_reset_hours: float = config.get("perf_halt_reset_hours", 4.0)
 
+        # ── Time filter ───────────────────────────────────────────────
+        self.blocked_hours_eat: list = config.get("blocked_hours_eat", [])
+
         # ── Paper trade recovery ──────────────────────────────────────
         self.paper_resume_min_trades: int = config.get("paper_resume_min_trades", 5)
         self.paper_resume_wr: float       = config.get("paper_resume_wr", 60.0)
@@ -101,6 +104,11 @@ class RiskManager:
     def can_trade(self) -> tuple[bool, str]:
         if self.is_halted:
             return False, f"Bot halted: {self._halt_reason}"
+
+        if self.blocked_hours_eat:
+            current_hour = datetime.now().hour
+            if current_hour in self.blocked_hours_eat:
+                return False, f"time filter: {current_hour:02d}:00 EAT blocked"
 
         if self.open_contracts >= self.max_open_contracts:
             return False, f"Max open contracts reached ({self.open_contracts}/{self.max_open_contracts})"
