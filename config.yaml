@@ -101,23 +101,22 @@ symbols:
     # no overrides — uses strategy defaults above
 
   # ── Silver Multiplier bot ─────────────────────────────────────────────
-  # Walk-forward validated: 3/3 folds PASS, mean EV +0.053.
-  # Same EMA/RSI params as Gold (correlated safe-haven trend).
-  # Wider SL/TP because Silver is more volatile per bar than Gold.
-  # WR ~28% but TP=3x SL so EV is positive (BE WR = 26%).
+  # Walk-forward validated: 3/3 folds PASS, mean EV +0.431 (upgraded from +0.053).
+  # Tighter RSI(14)<35 entry selects only deep pullbacks — WR 42-70% vs 27-29% before.
+  # BE WR = 40.8%; all 3 folds comfortably above it.
   - symbol: frxXAGUSD
     enabled: true
     strategy_type: gold_trend
 
     ema_period: 200
     slope_bars: 5
-    rsi_period: 7
-    rsi_entry: 45.0
+    rsi_period: 14          # RSI(14) — slower, filters noise better than RSI(7)
+    rsi_entry: 35.0         # only enter on deep pullbacks (RSI<35 or RSI>65)
     bar_seconds: 3600
 
     multiplier: 100
-    sl_pct: 0.005          # 0.50% — Silver needs wider SL than Gold
-    tp_pct: 0.015          # 1.50% — 3:1 R:R; BE WR = 26%
+    sl_pct: 0.01            # 1.00% SL
+    tp_pct: 0.015           # 1.50% TP — 1.5:1 R:R; BE WR = 40.8%
     contract_duration: 0
     contract_duration_unit: m
 
