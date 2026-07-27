@@ -100,6 +100,59 @@ symbols:
     enabled: true
     # no overrides — uses strategy defaults above
 
+  # ── Silver Multiplier bot ─────────────────────────────────────────────
+  # Walk-forward validated: 3/3 folds PASS, mean EV +0.053.
+  # Same EMA/RSI params as Gold (correlated safe-haven trend).
+  # Wider SL/TP because Silver is more volatile per bar than Gold.
+  # WR ~28% but TP=3x SL so EV is positive (BE WR = 26%).
+  - symbol: frxXAGUSD
+    enabled: true
+    strategy_type: gold_trend
+
+    ema_period: 200
+    slope_bars: 5
+    rsi_period: 7
+    rsi_entry: 45.0
+    bar_seconds: 3600
+
+    multiplier: 100
+    sl_pct: 0.005          # 0.50% — Silver needs wider SL than Gold
+    tp_pct: 0.015          # 1.50% — 3:1 R:R; BE WR = 26%
+    contract_duration: 0
+    contract_duration_unit: m
+
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+
+  # ── Gold Multiplier bot ───────────────────────────────────────────────
+  # Strategy validated on frxXAUUSD 1h bars (walk-forward 3/3 folds, p=0.028).
+  # Run in demo for 2-4 weeks before enabling live.
+  - symbol: frxXAUUSD
+    enabled: true
+    strategy_type: gold_trend
+
+    # EMA trend filter + RSI pullback (validated params)
+    ema_period: 200
+    slope_bars: 5
+    rsi_period: 7
+    rsi_entry: 45.0        # BUY_RISE when RSI < 45; BUY_FALL when RSI > 55
+    bar_seconds: 3600      # 1-hour bars
+
+    # Multiplier contract params
+    multiplier: 100
+    sl_pct: 0.003          # 0.30% price move → SL hit
+    tp_pct: 0.0075         # 0.75% price move → TP hit
+    contract_duration: 0   # placeholder (not used for multipliers)
+    contract_duration_unit: m
+
+    # Risk overrides: multipliers need min $1 stake; start conservative
+    min_stake: 1.0
+    max_stake: 1.0         # fixed $1 demo stake (raise to 2% of balance when validated)
+    stake_percent: 1.0
+    use_kelly: false       # no Kelly until we have live win rate data
+
   - symbol: R_50
     enabled: false          # sweep showed WG=4/5, best result only 44 trades — too small to trust
     rsi_period: 10

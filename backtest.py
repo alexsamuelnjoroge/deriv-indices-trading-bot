@@ -79,7 +79,7 @@ def main():
         target = args.symbol.upper()
         strategy_cfg["symbol"] = target
         # apply any per-symbol overrides from the symbols list
-        for entry in config.get("symbols", []):
+        for entry in config.get("symbols", []): 
             if entry["symbol"] == target:
                 for k, v in entry.items():
                     if k not in ("symbol", "enabled"):

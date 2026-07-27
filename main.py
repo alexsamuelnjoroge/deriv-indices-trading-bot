@@ -19,7 +19,10 @@ from loguru import logger
 
 from src.api.client import DerivClient
 from src.data.tick_store import TickStore
+from src.data.history import fetch_candles_async
+from src.strategies.base import BaseStrategy
 from src.strategies.rsi_reversal import RSIReversalStrategy
+from src.strategies.gold_trend import GoldTrendStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -53,7 +56,7 @@ def load_config(path: str = "config.yaml") -> dict:
 class SymbolBot:
     symbol: str
     tick_store: TickStore
-    strategy: RSIReversalStrategy
+    strategy: BaseStrategy
     risk: RiskManager
     trader: Trader
 
@@ -65,6 +68,17 @@ def build_symbol_config(symbol_entry: dict, base_strategy: dict) -> dict:
         if k not in ("symbol", "enabled"):
             cfg[k] = v
     cfg["symbol"] = symbol_entry["symbol"]
+    return cfg
+
+
+def build_risk_config(symbol_entry: dict, base_risk: dict) -> dict:
+    """Merge per-symbol risk overrides (max_stake, min_stake, etc.) onto global risk config."""
+    cfg = dict(base_risk)
+    risk_keys = {"max_stake", "min_stake", "stake_percent", "use_kelly",
+                 "daily_loss_limit", "payout_pct"}
+    for k in risk_keys:
+        if k in symbol_entry:
+            cfg[k] = symbol_entry[k]
     return cfg
 
 
@@ -102,9 +116,9 @@ async def midnight_reset_loop(bots: list[SymbolBot], alerter):
 # ── Main bot loop ───────────────────────────────────────────────────────
 
 async def run(watch_only: bool = False):
-    config       = load_config()
+    config        = load_config()
     base_strategy = config["strategy"]
-    risk_cfg     = config["risk"]
+    risk_cfg      = config["risk"]
 
     api_token = os.getenv("DERIV_API_TOKEN")
     _raw_app_id = os.getenv("DERIV_APP_ID", "1089")
@@ -134,30 +148,55 @@ async def run(watch_only: bool = False):
         logger.error("No symbols enabled in config.yaml")
         return
 
-    num_symbols    = len(active_entries)
-    balance_per    = total_balance / num_symbols
+    num_symbols = len(active_entries)
+    balance_per = total_balance / num_symbols
     logger.info(f"Trading {num_symbols} symbol(s) | {balance_per:.2f} balance allocated each")
 
     bots: list[SymbolBot] = []
     for entry in active_entries:
         sym_cfg  = build_symbol_config(entry, base_strategy)
+        sym_risk = build_risk_config(entry, risk_cfg)
         symbol   = sym_cfg["symbol"]
+        strategy_type = sym_cfg.get("strategy_type", "rsi_reversal")
 
         tick_store = TickStore(
-            rsi_period=sym_cfg["rsi_period"],
+            rsi_period=sym_cfg.get("rsi_period", 14),
             bar_size=sym_cfg.get("bar_size", 1),
         )
-        strategy   = RSIReversalStrategy(sym_cfg)
-        risk       = RiskManager(risk_cfg, starting_balance=balance_per, symbol=symbol)
-        trader     = Trader(
+
+        # ── Strategy instantiation ────────────────────────────────
+        if strategy_type == "gold_trend":
+            strategy = GoldTrendStrategy(sym_cfg)
+            # Seed with historical hourly closes so EMA warms up immediately
+            candle_count = sym_cfg.get("ema_period", 200) + sym_cfg.get("slope_bars", 5) + 20
+            logger.info(f"[{symbol}] Fetching {candle_count} hourly candles to seed EMA...")
+            try:
+                closes = await fetch_candles_async(
+                    symbol,
+                    count=candle_count,
+                    granularity=sym_cfg.get("bar_seconds", 3600),
+                )
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}] Seeded with {len(closes)} historical closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}] Could not fetch seed candles: {e} — strategy will warm up live")
+        else:
+            strategy = RSIReversalStrategy(sym_cfg)
+
+        risk = RiskManager(sym_risk, starting_balance=balance_per, symbol=symbol)
+
+        trader = Trader(
             client, risk, symbol,
-            sym_cfg["contract_duration"],
-            sym_cfg["contract_duration_unit"],
+            sym_cfg.get("contract_duration", 10),
+            sym_cfg.get("contract_duration_unit", "t"),
+            multiplier=sym_cfg.get("multiplier", 0),
             strategy=strategy,
             alerter=alerter,
         )
 
-        _CONTRACT_TYPE = {"BUY_RISE": "CALL", "BUY_FALL": "PUT"}
+        # Map any signal to CALL/PUT for paper-trade direction tracking
+        _PAPER_CT = {"BUY_RISE": "CALL", "BUY_FALL": "PUT"}
+        _is_multi = strategy_type == "gold_trend"
 
         # Register per-symbol tick handler
         async def make_handler(b: SymbolBot, wonly: bool, contract_duration: int):
@@ -167,14 +206,10 @@ async def run(watch_only: bool = False):
                 current_price = float(tick["quote"])
                 signal = b.strategy.evaluate(b.tick_store)
                 if b.risk.is_halted:
+                    ct  = _PAPER_CT.get(signal.action, "")
                     dur = signal.contract_duration if signal.contract_duration is not None \
                           else contract_duration
-                    b.risk.on_tick_halted(
-                        current_price,
-                        signal.action,
-                        _CONTRACT_TYPE.get(signal.action, ""),
-                        dur,
-                    )
+                    b.risk.on_tick_halted(current_price, signal.action, ct, dur)
                 elif not wonly and signal.action != "HOLD":
                     await b.trader.execute(signal)
             return handler
@@ -182,7 +217,9 @@ async def run(watch_only: bool = False):
         bot = SymbolBot(symbol=symbol, tick_store=tick_store,
                         strategy=strategy, risk=risk, trader=trader)
         bots.append(bot)
-        client.on_tick(symbol, await make_handler(bot, watch_only, sym_cfg["contract_duration"]))
+        client.on_tick(symbol, await make_handler(
+            bot, watch_only, sym_cfg.get("contract_duration", 10)
+        ))
 
     # ── Dashboard (tracks first symbol for display) ───────────────
     primary = bots[0]
@@ -192,7 +229,7 @@ async def run(watch_only: bool = False):
         ema_period=base_strategy.get("ema_trend_period", 0),
     )
 
-    mode_label = "WATCH ONLY" if watch_only else "LIVE TRADING"
+    mode_label    = "WATCH ONLY" if watch_only else "LIVE TRADING"
     symbols_label = ", ".join(b.symbol for b in bots)
     logger.info(f"Bot started | Mode: {mode_label} | Symbols: {symbols_label}")
 
@@ -218,8 +255,8 @@ async def run(watch_only: bool = False):
             all_halted = all(b.risk.is_halted for b in bots)
             if all_halted:
                 now = asyncio.get_event_loop().time()
-                if now - _last_halted_log >= 300:  # log at most once per 5 minutes
-                    logger.info("All symbols halted — waiting for 4h auto-reset.")
+                if now - _last_halted_log >= 300:
+                    logger.info("All symbols halted — waiting for auto-reset.")
                     _last_halted_log = now
             await asyncio.sleep(1)
     except (KeyboardInterrupt, asyncio.CancelledError):

@@ -17,6 +17,7 @@ from loguru import logger
 
 CACHE_DIR = Path("data")
 API_BATCH  = 5000   # Deriv hard limit per ticks_history call
+LEGACY_WS  = "wss://ws.derivws.com/websockets/v3?app_id=1089"
 
 
 def _cache_path(symbol: str, count: int) -> Path:
@@ -83,6 +84,32 @@ async def _fetch_paginated(symbol: str, total: int) -> list[dict]:
 
     logger.info(f"Pagination complete: {len(all_ticks)} ticks fetched for {symbol}")
     return all_ticks
+
+
+async def fetch_candles_async(
+    symbol: str,
+    count: int = 250,
+    granularity: int = 3600,
+) -> list[float]:
+    """
+    Fetch the last `count` candle closes for `symbol` from the Deriv legacy API.
+    Returns closes oldest-first.  Used to pre-seed EMA/RSI on startup.
+    """
+    async with websockets.connect(LEGACY_WS) as ws:
+        payload = {
+            "ticks_history": symbol,
+            "style": "candles",
+            "granularity": granularity,
+            "count": count,
+            "end": "latest",
+            "req_id": 1,
+        }
+        await ws.send(json.dumps(payload))
+        raw = await asyncio.wait_for(ws.recv(), timeout=30)
+        msg = json.loads(raw)
+        if msg.get("error"):
+            raise RuntimeError(msg["error"]["message"])
+        return [float(c["close"]) for c in msg["candles"]]
 
 
 def fetch_ticks(
