@@ -4,6 +4,9 @@ Trader — bridges strategy signals → API calls → risk manager updates.
 Flow:
   signal arrives → check risk → calculate stake → buy contract via API
   contract closes (API callback) → update risk manager → log result → alert
+
+Supports both binary options (CALL/PUT) and multiplier contracts (MULTUP/MULTDOWN).
+Multiplier signals carry sl_pct and tp_pct; binary signals do not.
 """
 
 import asyncio
@@ -14,10 +17,17 @@ from src.risk.manager import RiskManager, TradeResult
 from src.strategies.base import Signal
 
 
-CONTRACT_TYPE = {
+_BINARY_TYPE = {
     "BUY_RISE": "CALL",
     "BUY_FALL": "PUT",
 }
+_MULTI_TYPE = {
+    "BUY_RISE": "MULTUP",
+    "BUY_FALL": "MULTDOWN",
+}
+
+# Keep for backward-compat with any code that imports CONTRACT_TYPE
+CONTRACT_TYPE = _BINARY_TYPE
 
 
 class Trader:
@@ -28,6 +38,7 @@ class Trader:
         symbol: str,
         duration: int,
         duration_unit: str,
+        multiplier: int = 0,
         strategy=None,
         alerter=None,
     ):
@@ -36,6 +47,7 @@ class Trader:
         self.symbol        = symbol
         self.duration      = duration
         self.duration_unit = duration_unit
+        self.multiplier    = multiplier   # 0 = binary options mode
         self._open: dict[str, dict] = {}
         self._strategy = strategy
         self._alerter  = alerter
@@ -56,27 +68,47 @@ class Trader:
                     )
             return
 
-        contract_type = CONTRACT_TYPE[signal.action]
-        stake = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
-        duration = signal.contract_duration if signal.contract_duration is not None else self.duration
+        stake        = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
+        is_multi     = signal.sl_pct is not None and self.multiplier > 0
 
         try:
-            result = await self.client.buy_contract(
-                symbol=self.symbol,
-                contract_type=contract_type,
-                duration=duration,
-                duration_unit=self.duration_unit,
-                stake=stake,
-            )
+            if is_multi:
+                contract_type = _MULTI_TYPE[signal.action]
+                sl_amount     = round(stake * self.multiplier * signal.sl_pct, 2)
+                tp_amount     = round(stake * self.multiplier * signal.tp_pct, 2)
+
+                result = await self.client.buy_multiplier(
+                    symbol=self.symbol,
+                    contract_type=contract_type,
+                    stake=stake,
+                    multiplier=self.multiplier,
+                    sl_amount=sl_amount,
+                    tp_amount=tp_amount,
+                )
+            else:
+                contract_type = _BINARY_TYPE[signal.action]
+                duration      = signal.contract_duration if signal.contract_duration is not None else self.duration
+
+                result = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type=contract_type,
+                    duration=duration,
+                    duration_unit=self.duration_unit,
+                    stake=stake,
+                )
+
             contract_id = str(result["contract_id"])
             self._open[contract_id] = {
                 "signal_action": signal.action,
                 "contract_type": contract_type,
-                "stake": stake,
-                "buy_price": float(result.get("buy_price", stake)),
+                "stake":         stake,
+                "buy_price":     float(result.get("buy_price", stake)),
+                "is_multiplier": is_multi,
             }
             self.risk.on_contract_opened()
-            logger.info(f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}")
+            logger.info(
+                f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
+            )
 
         except Exception as e:
             logger.error(f"Failed to open contract: {e}")
@@ -86,10 +118,16 @@ class Trader:
         if contract_id not in self._open:
             return
 
-        meta       = self._open.pop(contract_id)
-        buy_price  = meta["stake"]
-        sell_price = float(contract.get("sell_price", 0))
-        profit     = sell_price - buy_price
+        meta      = self._open.pop(contract_id)
+        buy_price = meta["stake"]
+
+        # Multiplier contracts carry a direct 'profit' field; binary use sell_price - buy_price
+        if meta.get("is_multiplier") and "profit" in contract:
+            profit    = float(contract["profit"])
+            sell_price = buy_price + profit
+        else:
+            sell_price = float(contract.get("sell_price", 0))
+            profit     = sell_price - buy_price
 
         trade = TradeResult(
             contract_id=contract_id,

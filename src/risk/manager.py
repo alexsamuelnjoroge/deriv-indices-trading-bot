@@ -36,6 +36,7 @@ class RiskManager:
         self.symbol = symbol
         self.stake_percent: float  = config.get("stake_percent", 2.0)
         self.max_stake: float      = config.get("max_stake", 100.0)
+        self.min_stake: float      = config.get("min_stake", 0.35)
         self.daily_loss_limit: float = config.get("daily_loss_limit", 10.0)
         self.max_open_contracts: int = config.get("max_open_contracts", 1)
         self.use_atr_stake: bool   = config.get("use_atr_stake", True)
@@ -175,7 +176,7 @@ class RiskManager:
             )
 
         stake = min(stake, self.max_stake)
-        stake = max(stake, 0.35)
+        stake = max(stake, self.min_stake)
         return round(stake, 2)
 
     # ------------------------------------------------------------------ #

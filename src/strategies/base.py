@@ -11,6 +11,8 @@ class Signal:
     atr: Optional[float] = None           # current ATR at signal time
     atr_baseline: Optional[float] = None  # longer-period ATR for comparison
     contract_duration: Optional[int] = None  # override symbol default when RSI is extreme
+    sl_pct: Optional[float] = None   # SL as fraction of price (multiplier contracts)
+    tp_pct: Optional[float] = None   # TP as fraction of price (multiplier contracts)
 
 
 class BaseStrategy(ABC):

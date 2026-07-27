@@ -70,6 +70,10 @@ class TickStore:
         return self._ticks[-1].price if self._ticks else None
 
     @property
+    def latest_epoch(self) -> Optional[int]:
+        return self._ticks[-1].epoch if self._ticks else None
+
+    @property
     def tick_count(self) -> int:
         return len(self._ticks)
 

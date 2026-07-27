@@ -281,6 +281,47 @@ class DerivClient:
     #  Contracts
     # ------------------------------------------------------------------ #
 
+    async def buy_multiplier(
+        self,
+        symbol: str,
+        contract_type: str,   # "MULTUP" or "MULTDOWN"
+        stake: float,
+        multiplier: int,
+        sl_amount: float,
+        tp_amount: float,
+        currency: str = "USD",
+    ) -> dict:
+        """Buy a Multiplier contract with fixed-dollar SL and TP."""
+        proposal_resp = await self._send({
+            "proposal": 1,
+            "amount": round(stake, 2),
+            "basis": "stake",
+            "contract_type": contract_type,
+            "currency": currency,
+            "multiplier": multiplier,
+            "underlying_symbol": symbol,
+            "limit_order": {
+                "stop_loss":   round(sl_amount, 2),
+                "take_profit": round(tp_amount, 2),
+            },
+        })
+
+        proposal_id = proposal_resp["proposal"]["id"]
+        logger.debug(
+            f"Multiplier proposal {proposal_id} | {contract_type} | "
+            f"Stake: {stake} | x{multiplier} | SL: {sl_amount:.2f} TP: {tp_amount:.2f}"
+        )
+
+        buy_resp    = await self._send({"buy": proposal_id, "price": stake})
+        contract_id = buy_resp["buy"]["contract_id"]
+        logger.info(
+            f"Multiplier bought: {contract_id} | {contract_type} | "
+            f"Stake: {stake} x{multiplier} | SL ${sl_amount:.2f} / TP ${tp_amount:.2f}"
+        )
+
+        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        return buy_resp["buy"]
+
     async def buy_contract(
         self,
         symbol: str,
