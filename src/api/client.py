@@ -234,7 +234,7 @@ class DerivClient:
         future: asyncio.Future = asyncio.get_running_loop().create_future()
         self._pending[self._req_id] = future
         await self.ws.send(json.dumps(payload))
-        return await asyncio.wait_for(future, timeout=15)
+        return await asyncio.wait_for(future, timeout=45)
 
     # ------------------------------------------------------------------ #
     #  Auth
