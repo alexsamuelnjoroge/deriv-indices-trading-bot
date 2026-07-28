@@ -23,6 +23,10 @@ from src.data.history import fetch_candles_async
 from src.strategies.base import BaseStrategy
 from src.strategies.rsi_reversal import RSIReversalStrategy
 from src.strategies.gold_trend import GoldTrendStrategy
+from src.strategies.macd_trend import MACDTrendStrategy
+from src.strategies.bb_squeeze import BBSqueezeStrategy
+from src.strategies.ema_cross import EMACrossStrategy
+from src.strategies.donchian import DonchianStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -75,7 +79,7 @@ def build_risk_config(symbol_entry: dict, base_risk: dict) -> dict:
     """Merge per-symbol risk overrides (max_stake, min_stake, etc.) onto global risk config."""
     cfg = dict(base_risk)
     risk_keys = {"max_stake", "min_stake", "stake_percent", "use_kelly",
-                 "daily_loss_limit", "payout_pct"}
+                 "daily_loss_limit", "payout_pct", "max_open_contracts"}
     for k in risk_keys:
         if k in symbol_entry:
             cfg[k] = symbol_entry[k]
@@ -165,23 +169,70 @@ async def run(watch_only: bool = False):
         )
 
         # ── Strategy instantiation ────────────────────────────────
+        granularity = sym_cfg.get("bar_seconds", 3600)
+
         if strategy_type == "gold_trend":
-            strategy = GoldTrendStrategy(sym_cfg)
-            # Seed with historical hourly closes so EMA warms up immediately
+            strategy     = GoldTrendStrategy(sym_cfg)
             candle_count = sym_cfg.get("ema_period", 200) + sym_cfg.get("slope_bars", 5) + 20
-            logger.info(f"[{symbol}] Fetching {candle_count} hourly candles to seed EMA...")
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
             try:
-                closes = await fetch_candles_async(
-                    symbol,
-                    count=candle_count,
-                    granularity=sym_cfg.get("bar_seconds", 3600),
-                )
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
                 strategy.seed_candles(closes)
-                logger.info(f"[{symbol}] Seeded with {len(closes)} historical closes")
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(closes)} closes")
             except Exception as e:
-                logger.warning(f"[{symbol}] Could not fetch seed candles: {e} — strategy will warm up live")
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
+        elif strategy_type == "macd_trend":
+            strategy     = MACDTrendStrategy(sym_cfg)
+            candle_count = sym_cfg.get("macd_slow", 26) + sym_cfg.get("macd_signal", 9) + 20
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
+            try:
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(closes)} closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
+        elif strategy_type == "bb_squeeze":
+            strategy     = BBSqueezeStrategy(sym_cfg)
+            candle_count = sym_cfg.get("bb_period", 50) + 120
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
+            try:
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(closes)} closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
+        elif strategy_type == "ema_cross":
+            strategy     = EMACrossStrategy(sym_cfg)
+            candle_count = sym_cfg.get("ema_slow", 50) + 20
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
+            try:
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(closes)} closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
+        elif strategy_type == "donchian":
+            strategy     = DonchianStrategy(sym_cfg)
+            candle_count = sym_cfg.get("donchian_period", 30) + 10
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
+            try:
+                from src.data.history import fetch_candles_async as _fetch_ohlcv
+                candles = await _fetch_ohlcv(symbol, count=candle_count,
+                                             granularity=granularity, return_full=True)
+                strategy.seed_candles(candles)
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(candles)} OHLCV bars")
+            except Exception as e:
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
         else:
             strategy = RSIReversalStrategy(sym_cfg)
+
+        _is_multi = strategy_type in ("gold_trend", "macd_trend", "bb_squeeze",
+                                       "ema_cross", "donchian")
 
         risk = RiskManager(sym_risk, starting_balance=balance_per, symbol=symbol)
 
@@ -196,7 +247,6 @@ async def run(watch_only: bool = False):
 
         # Map any signal to CALL/PUT for paper-trade direction tracking
         _PAPER_CT = {"BUY_RISE": "CALL", "BUY_FALL": "PUT"}
-        _is_multi = strategy_type == "gold_trend"
 
         # Register per-symbol tick handler
         async def make_handler(b: SymbolBot, wonly: bool, contract_duration: int):
