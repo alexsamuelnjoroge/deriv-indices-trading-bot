@@ -111,7 +111,7 @@ class Trader:
             )
 
         except Exception as e:
-            logger.error(f"Failed to open contract: {e}")
+            logger.error(f"Failed to open contract [{type(e).__name__}]: {e}")
 
     async def _on_contract_update(self, contract: dict):
         contract_id = str(contract.get("contract_id", ""))
