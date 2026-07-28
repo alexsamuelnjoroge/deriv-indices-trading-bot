@@ -90,10 +90,14 @@ async def fetch_candles_async(
     symbol: str,
     count: int = 250,
     granularity: int = 3600,
-) -> list[float]:
+    return_full: bool = False,
+) -> list:
     """
-    Fetch the last `count` candle closes for `symbol` from the Deriv legacy API.
-    Returns closes oldest-first.  Used to pre-seed EMA/RSI on startup.
+    Fetch the last `count` candle closes (or full OHLCV dicts) from Deriv.
+
+    return_full=False (default): returns list[float] of closes, oldest-first.
+    return_full=True:            returns list[dict] with open/high/low/close/epoch.
+    Used to pre-seed strategies on startup.
     """
     async with websockets.connect(LEGACY_WS) as ws:
         payload = {
@@ -109,6 +113,17 @@ async def fetch_candles_async(
         msg = json.loads(raw)
         if msg.get("error"):
             raise RuntimeError(msg["error"]["message"])
+        if return_full:
+            return [
+                {
+                    "epoch": int(c["epoch"]),
+                    "open":  float(c["open"]),
+                    "high":  float(c["high"]),
+                    "low":   float(c["low"]),
+                    "close": float(c["close"]),
+                }
+                for c in msg["candles"]
+            ]
         return [float(c["close"]) for c in msg["candles"]]
 
 
