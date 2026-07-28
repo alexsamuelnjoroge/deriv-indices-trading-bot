@@ -290,9 +290,12 @@ async def run(watch_only: bool = False):
 
     dashboard.start()
 
-    # ── Subscribe ticks for all symbols ──────────────────────────
+    # ── Subscribe ticks for all symbols (once per unique symbol) ─
+    seen_symbols: set[str] = set()
     for bot in bots:
-        await client.subscribe_ticks(bot.symbol)
+        if bot.symbol not in seen_symbols:
+            await client.subscribe_ticks(bot.symbol)
+            seen_symbols.add(bot.symbol)
 
     # ── Start midnight reset loop ─────────────────────────────────
     asyncio.create_task(midnight_reset_loop(bots, alerter))
