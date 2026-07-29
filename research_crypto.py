@@ -89,19 +89,13 @@ async def fetch_active_crypto(ws) -> list[dict]:
     print(f"  Available markets: {markets}")
 
     # Crypto may be listed under different market names on different accounts
-    crypto_keywords = {"cryptocurrency", "crypto", "digital"}
     crypto = [
         s for s in symbols
-        if isinstance(s, dict) and (
-            any(kw in str(s.get("market", "")).lower() for kw in crypto_keywords)
-            or any(kw in str(s.get("submarket", "")).lower() for kw in crypto_keywords)
-            or any(kw in str(s.get("display_name", "")).lower() for kw in {"btc", "eth", "ltc", "xrp", "doge", "bnb", "sol"})
-        )
+        if isinstance(s, dict) and s.get("market") == "cryptocurrency"
     ]
 
     if not crypto:
-        # Fallback: print first 5 symbols so we can see the structure
-        print(f"  No crypto found. Sample symbols: {symbols[:3]}")
+        print(f"  No crypto found. Sample: {symbols[:2]}")
 
     return crypto
 
@@ -153,11 +147,11 @@ async def phase1_discover() -> dict:
 
         req_id = 10
         for sym_info in crypto_syms:
-            sym = sym_info.get("symbol") or sym_info.get("symbol_name")
+            sym = sym_info.get("underlying_symbol")
             if not sym:
                 print(f"  Skipping — no symbol key. Keys: {list(sym_info.keys())}")
                 continue
-            display = sym_info.get("display_name", sym)
+            display = sym_info.get("underlying_symbol_name", sym)
             print(f"  {display:30s} ({sym})")
 
             best_payout   = None
