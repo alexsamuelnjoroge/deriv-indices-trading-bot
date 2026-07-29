@@ -83,8 +83,26 @@ async def fetch_active_crypto(ws) -> list[dict]:
         raise RuntimeError(msg["error"]["message"])
 
     symbols = msg.get("active_symbols", [])
-    # Deriv crypto symbols have market = "cryptocurrency"
-    crypto = [s for s in symbols if s.get("market") == "cryptocurrency"]
+
+    # Debug: show all unique markets to find the right filter
+    markets = sorted(set(s.get("market", "?") for s in symbols if isinstance(s, dict)))
+    print(f"  Available markets: {markets}")
+
+    # Crypto may be listed under different market names on different accounts
+    crypto_keywords = {"cryptocurrency", "crypto", "digital"}
+    crypto = [
+        s for s in symbols
+        if isinstance(s, dict) and (
+            any(kw in str(s.get("market", "")).lower() for kw in crypto_keywords)
+            or any(kw in str(s.get("submarket", "")).lower() for kw in crypto_keywords)
+            or any(kw in str(s.get("display_name", "")).lower() for kw in {"btc", "eth", "ltc", "xrp", "doge", "bnb", "sol"})
+        )
+    ]
+
+    if not crypto:
+        # Fallback: print first 5 symbols so we can see the structure
+        print(f"  No crypto found. Sample symbols: {symbols[:3]}")
+
     return crypto
 
 
@@ -135,7 +153,10 @@ async def phase1_discover() -> dict:
 
         req_id = 10
         for sym_info in crypto_syms:
-            sym     = sym_info["symbol"]
+            sym = sym_info.get("symbol") or sym_info.get("symbol_name")
+            if not sym:
+                print(f"  Skipping — no symbol key. Keys: {list(sym_info.keys())}")
+                continue
             display = sym_info.get("display_name", sym)
             print(f"  {display:30s} ({sym})")
 
