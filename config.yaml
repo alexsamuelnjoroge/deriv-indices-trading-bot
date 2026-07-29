@@ -336,6 +336,45 @@ symbols:
     use_kelly: false
     max_open_contracts: 1
 
+  # ── Vol 10 (1s) RSI Binary ───────────────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.1822. WRs: 65.8/62.5/68.8% (~2.1 trades/day)
+  # BE WR = 55.6% @80% payout — verify actual payout in live API before scaling.
+  - symbol: 1HZ10V
+    enabled: true
+    strategy_type: rsi_binary
+    rsi_period: 14
+    rsi_os: 30.0
+    rsi_ob: 70.0
+    bar_seconds: 300
+    contract_duration: 10
+    contract_duration_unit: m
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.80
+    max_open_contracts: 1
+
+  # ── Jump 10 RSI Binary ────────────────────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.0926. WRs: 61.9/59.1/61.1% (~1.2 trades/day)
+  - symbol: JD10
+    enabled: true
+    strategy_type: rsi_binary
+    rsi_period: 14
+    rsi_os: 25.0
+    rsi_ob: 75.0
+    bar_seconds: 300
+    contract_duration: 10
+    contract_duration_unit: m
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.80
+    max_open_contracts: 1
+
   - symbol: R_50
     enabled: false          # sweep showed WG=4/5, best result only 44 trades — too small to trust
     rsi_period: 10
