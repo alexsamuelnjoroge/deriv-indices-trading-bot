@@ -265,6 +265,77 @@ symbols:
     use_kelly: false
     max_open_contracts: 1
 
+  # ── Gold 15-min EMA Cross ────────────────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.1498. Lower timeframe = more crossovers than 1h.
+  - symbol: frxXAUUSD
+    enabled: true
+    strategy_type: ema_cross
+    ema_fast: 20
+    ema_slow: 50
+    bar_seconds: 900
+    multiplier: 100
+    sl_pct: 0.005           # 0.50% SL
+    tp_pct: 0.015           # 1.50% TP | BE WR 26.7%
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+
+  # ── Silver 15-min EMA Cross ───────────────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.7527. Best mean EV of all research results.
+  - symbol: frxXAGUSD
+    enabled: true
+    strategy_type: ema_cross
+    ema_fast: 20
+    ema_slow: 50
+    bar_seconds: 900
+    multiplier: 100
+    sl_pct: 0.015           # 1.50% SL
+    tp_pct: 0.025           # 2.50% TP | BE WR 38.5%
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+
+  # ── Gold 15-min RSI+EMA Filter ────────────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.4111. EMA(50) slope filters RSI(14)<40 pullbacks.
+  - symbol: frxXAUUSD
+    enabled: true
+    strategy_type: gold_trend
+    ema_period: 50
+    slope_bars: 3
+    rsi_period: 14
+    rsi_entry: 40.0
+    bar_seconds: 900
+    multiplier: 100
+    sl_pct: 0.003           # 0.30% SL
+    tp_pct: 0.025           # 2.50% TP | BE WR 11.2%
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+
+  # ── Silver 5-min RSI Mean Reversion ──────────────────────────────────────
+  # Walk-forward 3/3, MeanEV +0.1093. ~3 trades/day — highest frequency financial strategy.
+  - symbol: frxXAGUSD
+    enabled: true
+    strategy_type: rsi_multiplier
+    rsi_period: 14
+    rsi_os: 30.0
+    rsi_ob: 70.0
+    bar_seconds: 300
+    multiplier: 100
+    sl_pct: 0.005           # 0.50% SL
+    tp_pct: 0.010           # 1.00% TP | MeanEV +0.1093
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+
   - symbol: R_50
     enabled: false          # sweep showed WG=4/5, best result only 44 trades — too small to trust
     rsi_period: 10
