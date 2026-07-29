@@ -74,7 +74,6 @@ async def fetch_active_crypto(ws) -> list[dict]:
     """Return active_symbols filtered to crypto pairs."""
     await ws.send(json.dumps({
         "active_symbols": "brief",
-        "product_type":   "basic",
         "req_id":         1,
     }))
     raw = await asyncio.wait_for(ws.recv(), timeout=30)
