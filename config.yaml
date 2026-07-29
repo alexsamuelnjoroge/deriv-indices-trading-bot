@@ -39,7 +39,7 @@ strategy:
 risk:
   # ── Stake sizing ──────────────────────────────────────────────
   stake_percent: 2.0        # fallback % when not enough trades for Kelly
-  max_stake: 0.35           # minimum stake — validation mode until edge confirmed
+  max_stake: 1.0            # raised 2026-07-29: edge confirmed on R_25 live data
 
   # ── Kelly Criterion ───────────────────────────────────────────
   # Computes optimal stake fraction from live win rate once enough data.
