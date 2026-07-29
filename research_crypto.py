@@ -37,11 +37,13 @@ MIN_TRADES = 10
 
 # Test these durations for each symbol
 TEST_DURATIONS = [
+    (5,  "t", "5tick"),
+    (10, "t", "10tick"),
     (5,  "m", "5min"),
-    (10, "m", "10min"),
     (15, "m", "15min"),
     (30, "m", "30min"),
     (60, "m", "60min"),
+    (1,  "d", "1day"),
 ]
 
 RUN_DISCOVER = "--sweep"  not in sys.argv
@@ -89,9 +91,16 @@ async def fetch_active_crypto(ws) -> list[dict]:
     print(f"  Available markets: {markets}")
 
     # Crypto may be listed under different market names on different accounts
+    # Include cryptocurrency market + any indices with crypto in the name
     crypto = [
         s for s in symbols
-        if isinstance(s, dict) and s.get("market") == "cryptocurrency"
+        if isinstance(s, dict) and (
+            s.get("market") == "cryptocurrency"
+            or any(kw in str(s.get("underlying_symbol", "")).lower()
+                   for kw in ("btc", "eth", "cry", "crypto"))
+            or any(kw in str(s.get("underlying_symbol_name", "")).lower()
+                   for kw in ("bitcoin", "ethereum", "crypto"))
+        )
     ]
 
     if not crypto:
