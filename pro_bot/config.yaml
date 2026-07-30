@@ -1,0 +1,82 @@
+# pro_bot configuration
+# Target platforms: MT4/MT5, Binance, Bybit, IBKR
+# These strategies use dynamic SL/TP — NOT fixed-expiry binary options.
+
+strategies:
+
+  # ── 1. Multi-Timeframe Trend Pullback ──────────────────────────
+  # HTF: 1h EMA(200) slope | LTF: 15min RSI pullback
+  # Best: MT4/MT5 on EUR/USD, Gold, USD/JPY
+  - name: mtf_pullback
+    enabled: true
+    symbols: [EURUSD, XAUUSD, USDJPY]
+    htf_granularity: 3600    # 1h bars for trend
+    ltf_granularity: 900     # 15min bars for entry
+    ema_period: 200
+    slope_bars: 3
+    rsi_period: 14
+    rsi_entry: 40.0
+    tp_rr: 2.0               # risk:reward ratio
+
+  # ── 2. Stochastic + EMA ────────────────────────────────────────
+  # Stoch(5,3,3) OB/OS cross filtered by EMA(50) slope
+  # Best: Binance/Bybit on BTC/ETH or MT4 on Gold
+  - name: stoch_ema
+    enabled: true
+    symbols: [BTCUSDT, ETHUSDT, XAUUSD]
+    granularity: 900         # 15min bars
+    k_period: 5
+    d_period: 3
+    ob: 80.0
+    os_level: 20.0
+    ema_period: 50
+    slope_bars: 3
+    tp_rr: 1.5
+
+  # ── 3. Session Open Breakout ───────────────────────────────────
+  # Asian range → London/NY breakout
+  # Best: MT4/MT5 with pending orders on EUR/USD, GBP/USD
+  - name: session_breakout
+    enabled: true
+    symbols: [EURUSD, GBPUSD, USDJPY, XAUUSD]
+    granularity: 300         # 5min bars to track range
+    asian_start_h: 0         # UTC
+    asian_end_h: 7
+    london_start_h: 7
+    london_end_h: 9
+    ny_start_h: 13
+    ny_end_h: 15
+    breakout_buffer: 0.10    # 10% of range width for confirmation
+    tp_rr: 1.5
+
+  # ── 4. RSI Divergence ─────────────────────────────────────────
+  # Classic + hidden divergence on 4h/daily charts
+  # Best: BTC/ETH on Binance 4h, Gold daily, EUR/USD 4h
+  - name: rsi_divergence
+    enabled: true
+    symbols: [BTCUSDT, ETHUSD, XAUUSD, EURUSD]
+    granularity: 14400       # 4h bars
+    rsi_period: 14
+    lookback: 12             # bars to scan for divergence
+    os_level: 40.0
+    ob_level: 60.0
+    hidden_divergence: true  # also trade trend-continuation divergence
+    tp_rr: 2.0
+
+  # ── 5. Pivot Point Bounce ─────────────────────────────────────
+  # Daily pivots + RSI confirmation
+  # Best: MT4/MT5 or NinjaTrader on US500, Gold, CME futures
+  - name: pivot_bounce
+    enabled: true
+    symbols: [US500, NAS100, XAUUSD]
+    granularity: 900         # 15min bars for entry
+    rsi_period: 14
+    rsi_os: 40.0             # oversold threshold for support entries
+    tol_pct: 0.001           # pivot zone = ±0.1% of price
+    tp_rr: 1.5
+
+risk:
+  max_risk_per_trade_pct: 1.0    # % of account per trade
+  max_daily_loss_pct: 5.0        # halt if daily drawdown exceeds this
+  max_open_trades: 3             # across all strategies
+  use_atr_sizing: true           # size position using ATR for SL distance
