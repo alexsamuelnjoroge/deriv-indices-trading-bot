@@ -261,65 +261,217 @@ def print_metrics(m: dict) -> None:
 
 
 # ═══════════════════════════════════════════════════════════════
-# Strategy runners
+# Strategy runners — all precompute indicators once (O(n), not O(n²))
 # ═══════════════════════════════════════════════════════════════
 
+from pro_bot.indicators import ema as _ema, rsi as _rsi, stochastic as _stoch
+from pro_bot.indicators import pivot_levels as _pivots
+
+
 def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
-    cfg      = config or {"ema_period": 200, "slope_bars": 3,
-                          "rsi_period": 14, "rsi_entry": 40.0, "tp_rr": 2.0}
-    strat    = MTFPullbackStrategy(cfg)
+    cfg       = config or {}
+    ema_p     = cfg.get("ema_period", 200)
+    slope_b   = cfg.get("slope_bars", 3)
+    rsi_p     = cfg.get("rsi_period", 14)
+    rsi_entry = cfg.get("rsi_entry", 40.0)
+    tp_rr     = cfg.get("tp_rr", 2.0)
+    ob        = 100.0 - rsi_entry
+    ratio     = GRAN_1H // GRAN_5M
+
     closes_1h = [b["close"] for b in bars_1h]
-    from pro_bot.indicators import ema, rsi
-    ema_1h = ema(closes_1h, cfg.get("ema_period", 200))
+    closes_5m = [b["close"] for b in bars_5m]
+    ema_1h    = _ema(closes_1h, ema_p)
+    rsi_5m    = _rsi(closes_5m, rsi_p)
 
     results = []
-    ratio   = GRAN_1H // GRAN_5M
-    for i, bar in enumerate(bars_5m):
+    for i in range(rsi_p + 2, len(bars_5m)):
         j = min(i // ratio, len(bars_1h) - 1)
-        strat._htf_bars = bars_1h[:j + 1]
-        sig = strat.feed(bar)
-        if sig.action in ("BUY", "SELL"):
-            results.append((i, sig))
+        if j < slope_b:
+            continue
+        e_now  = ema_1h[j]
+        e_prev = ema_1h[j - slope_b]
+        r_now  = rsi_5m[i]
+        r_prev = rsi_5m[i - 1]
+        if any(x is None for x in [e_now, e_prev, r_now, r_prev]):
+            continue
+        trend_up   = e_now > e_prev
+        trend_down = e_now < e_prev
+        price = closes_5m[i]
+        sl = abs(price - bars_5m[i]["low"]) + price * 0.0002
+        if sl <= 0:
+            sl = price * 0.003
+        if trend_up and r_prev >= rsi_entry > r_now:
+            results.append((i, Signal("BUY", sl_pips=sl, tp_pips=sl * tp_rr)))
+        elif trend_down and r_prev <= ob < r_now:
+            results.append((i, Signal("SELL", sl_pips=sl, tp_pips=sl * tp_rr)))
     return results
 
 
 def run_stoch(bars_5m, config=None) -> list[tuple]:
-    cfg   = config or {"k_period": 5, "d_period": 3, "ob": 80.0,
-                       "os_level": 20.0, "ema_period": 50,
-                       "slope_bars": 3, "tp_rr": 1.5}
-    strat = StochEMAStrategy(cfg)
-    return strat.evaluate(bars_5m)
+    cfg     = config or {}
+    kp      = cfg.get("k_period", 5)
+    dp      = cfg.get("d_period", 3)
+    ob      = cfg.get("ob", 80.0)
+    os_     = cfg.get("os_level", 20.0)
+    ema_p   = cfg.get("ema_period", 50)
+    slope_b = cfg.get("slope_bars", 3)
+    tp_rr   = cfg.get("tp_rr", 1.5)
+
+    closes  = [b["close"] for b in bars_5m]
+    sk, sd  = _stoch(bars_5m, kp, dp)
+    ema_s   = _ema(closes, ema_p)
+    start   = max(kp + 2 * dp, ema_p + slope_b) + 2
+
+    results = []
+    for i in range(start, len(bars_5m)):
+        if any(x is None for x in [sk[i], sd[i], sk[i-1], sd[i-1],
+                                    ema_s[i], ema_s[i - slope_b]]):
+            continue
+        trend_up   = ema_s[i] > ema_s[i - slope_b]
+        trend_down = ema_s[i] < ema_s[i - slope_b]
+        cross_up   = sk[i-1] < sd[i-1] and sk[i] >= sd[i]
+        cross_down = sk[i-1] > sd[i-1] and sk[i] <= sd[i]
+        price      = closes[i]
+        sl = price - min(b["low"] for b in bars_5m[i-3:i+1])
+        if sl <= 0:
+            sl = price * 0.003
+        if trend_up and cross_up and sk[i] < ob:
+            results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
+        elif trend_down and cross_down and sk[i] > os_:
+            results.append((i, Signal("SELL", sl_pips=sl, tp_pips=sl * tp_rr)))
+    return results
 
 
 def run_session(bars_5m, config=None) -> list[tuple]:
-    cfg   = config or {"tp_rr": 1.5}
-    strat = SessionBreakoutStrategy(cfg)
-    return strat.evaluate(bars_5m)
+    cfg      = config or {}
+    tp_rr    = cfg.get("tp_rr", 1.5)
+    buf      = cfg.get("breakout_buffer", 0.10)
+    fired    = set()   # days already traded
+    results  = []
+    lookback = 84      # 7h × 12 bars/h
+
+    for i in range(lookback + 1, len(bars_5m)):
+        epoch = bars_5m[i]["epoch"]
+        h_utc = (epoch % 86400) // 3600
+        day   = epoch // 86400
+        if day in fired:
+            continue
+        in_window = (7 <= h_utc < 9) or (13 <= h_utc < 15)
+        if not in_window:
+            continue
+        asian = [b for b in bars_5m[max(0, i-lookback):i]
+                 if 0 <= ((b["epoch"] % 86400) // 3600) < 7]
+        if len(asian) < 5:
+            continue
+        rh = max(b["high"] for b in asian)
+        rl = min(b["low"]  for b in asian)
+        span = rh - rl
+        if span <= 0:
+            continue
+        price = bars_5m[i]["close"]
+        if price > rh + buf * span:
+            sl = price - rl
+            fired.add(day)
+            results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
+        elif price < rl - buf * span:
+            sl = rh - price
+            fired.add(day)
+            results.append((i, Signal("SELL", sl_pips=sl, tp_pips=sl * tp_rr)))
+    return results
 
 
 def run_divergence(bars_5m, config=None) -> list[tuple]:
-    cfg   = config or {"rsi_period": 14, "lookback": 12,
-                       "os_level": 40.0, "ob_level": 60.0,
-                       "hidden_divergence": True, "tp_rr": 2.0}
-    strat = RSIDivergenceStrategy(cfg)
-    return strat.evaluate(bars_5m)
+    cfg     = config or {}
+    rsi_p   = cfg.get("rsi_period", 14)
+    lb      = cfg.get("lookback", 12)
+    os_     = cfg.get("os_level", 40.0)
+    ob      = cfg.get("ob_level", 60.0)
+    hidden  = cfg.get("hidden_divergence", True)
+    tp_rr   = cfg.get("tp_rr", 2.0)
+
+    closes  = [b["close"] for b in bars_5m]
+    rsi_s   = _rsi(closes, rsi_p)
+    start   = rsi_p + lb + 3
+    cooldown = 0
+    results = []
+
+    for i in range(start, len(bars_5m)):
+        if cooldown > 0:
+            cooldown -= 1
+            continue
+        r = rsi_s[i]
+        if r is None:
+            continue
+        w_c = closes[i - lb: i]
+        w_r = [rsi_s[j] for j in range(i - lb, i) if rsi_s[j] is not None]
+        if not w_r:
+            continue
+        price = closes[i]
+        sl = price - min(b["low"] for b in bars_5m[i-3:i+1])
+        if sl <= 0:
+            sl = price * 0.003
+
+        if price < min(w_c) and r > min(w_r) and r < os_:
+            results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
+            cooldown = 3
+        elif price > max(w_c) and r < max(w_r) and r > ob:
+            sl2 = max(b["high"] for b in bars_5m[i-3:i+1]) - price
+            if sl2 <= 0:
+                sl2 = price * 0.003
+            results.append((i, Signal("SELL", sl_pips=sl2, tp_pips=sl2 * tp_rr)))
+            cooldown = 3
+        elif hidden:
+            if price > min(w_c) and r < min(w_r) and r < 50:
+                results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
+                cooldown = 3
+            elif price < max(w_c) and r > max(w_r) and r > 50:
+                sl2 = max(b["high"] for b in bars_5m[i-3:i+1]) - price
+                if sl2 <= 0:
+                    sl2 = price * 0.003
+                results.append((i, Signal("SELL", sl_pips=sl2, tp_pips=sl2 * tp_rr)))
+                cooldown = 3
+    return results
 
 
 def run_pivot(bars_5m, bars_1d, config=None) -> list[tuple]:
-    cfg   = config or {"rsi_period": 14, "rsi_os": 40.0,
-                       "tol_pct": 0.001, "tp_rr": 1.5}
-    strat = PivotBounceStrategy(cfg)
+    cfg    = config or {}
+    rsi_p  = cfg.get("rsi_period", 14)
+    rsi_os = cfg.get("rsi_os", 40.0)
+    tol    = cfg.get("tol_pct", 0.001)
+    tp_rr  = cfg.get("tp_rr", 1.5)
+    ob     = 100.0 - rsi_os
+
+    closes = [b["close"] for b in bars_5m]
+    rsi_s  = _rsi(closes, rsi_p)
+
+    # Build pivot map: day_epoch → levels
+    pivot_map: dict[int, dict] = {}
+    for bar in bars_1d:
+        next_day = (bar["epoch"] // 86400 + 1) * 86400
+        pivot_map[next_day] = _pivots(bar)
+
     results = []
-    day_idx = 0
-    for i, bar in enumerate(bars_5m):
-        epoch = bar["epoch"]
-        # Advance daily bar pointer
-        while day_idx + 1 < len(bars_1d) and bars_1d[day_idx + 1]["epoch"] <= epoch:
-            day_idx += 1
-            strat.feed_daily_bar(bars_1d[day_idx])
-        sig = strat.feed(bar)
-        if sig.action in ("BUY", "SELL"):
-            results.append((i, sig))
+    for i in range(rsi_p + 2, len(bars_5m)):
+        r = rsi_s[i]
+        if r is None:
+            continue
+        epoch   = bars_5m[i]["epoch"]
+        day_key = (epoch // 86400) * 86400
+        pvts    = pivot_map.get(day_key)
+        if not pvts:
+            continue
+        price = closes[i]
+        sl    = price * 0.003
+
+        for name, level in pvts.items():
+            if abs(price - level) > level * tol:
+                continue
+            if name in ("S1", "S2", "S3") and r < rsi_os:
+                results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
+                break
+            elif name in ("R1", "R2", "R3") and r > ob:
+                results.append((i, Signal("SELL", sl_pips=sl, tp_pips=sl * tp_rr)))
+                break
     return results
 
 
