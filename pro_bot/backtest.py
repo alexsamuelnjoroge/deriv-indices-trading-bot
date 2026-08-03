@@ -11,6 +11,8 @@ Improvements over v1:
   7. Breakeven stop: move SL to entry after 1R in profit (sweep be_r)
   8. Direction split: BUY vs SELL WR shown separately in output
   9. Direction filter: sweep LONG-only / SHORT-only / both per symbol
+ 10. Macro trend filter: daily EMA(20/50) slope gates direction dynamically
+     (auto-switches LONG/SHORT as the market regime changes)
 
 Breakeven WR (net of spread):
   1:1.5 R:R -> 40.0%   |   1:2.0 R:R -> 33.3%
@@ -416,25 +418,35 @@ def print_metrics(m: dict, label: str = "") -> None:
 # Strategy runners -- all precompute indicators once (O(n))
 # ===============================================================
 
-def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
-    cfg       = config or {}
-    ema_p     = cfg.get("ema_period", 200)
-    slope_b   = cfg.get("slope_bars", 3)
-    rsi_p     = cfg.get("rsi_period", 14)
-    rsi_entry = cfg.get("rsi_entry", 40.0)
-    tp_rr     = cfg.get("tp_rr", 2.0)
-    adx_min   = cfg.get("adx_min", 0)
-    sess_only = cfg.get("session_only", False)
-    sess_peak = cfg.get("session_peak", False)   # London open 07-10:30 + NY open 13-16:30
-    atr_mult  = cfg.get("atr_mult_sl", 0.0)      # 0 = swing-low SL; >0 = ATR x mult
-    ob        = 100.0 - rsi_entry
+def run_mtf(bars_5m, bars_1h, bars_1d=None, config=None) -> list[tuple]:
+    cfg          = config or {}
+    ema_p        = cfg.get("ema_period", 200)
+    slope_b      = cfg.get("slope_bars", 3)
+    rsi_p        = cfg.get("rsi_period", 14)
+    rsi_entry    = cfg.get("rsi_entry", 40.0)
+    tp_rr        = cfg.get("tp_rr", 2.0)
+    adx_min      = cfg.get("adx_min", 0)
+    sess_only    = cfg.get("session_only", False)
+    sess_peak    = cfg.get("session_peak", False)
+    atr_mult     = cfg.get("atr_mult_sl", 0.0)
+    macro_filter = cfg.get("macro_filter", False)   # daily EMA gates direction dynamically
+    macro_ema_p  = cfg.get("macro_ema_period", 20)
+    ob           = 100.0 - rsi_entry
 
-    closes_1h  = [b["close"] for b in bars_1h]
-    closes_5m  = [b["close"] for b in bars_5m]
-    ema_1h     = _ema(closes_1h, ema_p)
-    rsi_5m     = _rsi(closes_5m, rsi_p)
-    adx_1h     = _adx(bars_1h, 14) if adx_min > 0 else None
-    atr_5m     = _atr(bars_5m, 14) if atr_mult > 0 else None
+    closes_1h = [b["close"] for b in bars_1h]
+    closes_5m = [b["close"] for b in bars_5m]
+    ema_1h    = _ema(closes_1h, ema_p)
+    rsi_5m    = _rsi(closes_5m, rsi_p)
+    adx_1h    = _adx(bars_1h, 14) if adx_min > 0 else None
+    atr_5m    = _atr(bars_5m, 14) if atr_mult > 0 else None
+
+    # Macro: daily EMA slope determines which direction is allowed each day
+    if macro_filter and bars_1d:
+        closes_1d = [b["close"] for b in bars_1d]
+        ema_1d    = _ema(closes_1d, macro_ema_p)
+        epochs_1d = [b["epoch"] for b in bars_1d]
+    else:
+        ema_1d = epochs_1d = None
 
     epochs_1h = [b["epoch"] for b in bars_1h]
 
@@ -469,6 +481,16 @@ def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
             if adx_val is None or adx_val < adx_min:
                 continue
 
+        # Macro trend filter: daily EMA slope gates direction for this bar
+        allow_long = allow_short = True
+        if ema_1d is not None:
+            k = bisect.bisect_right(epochs_1d, bars_5m[i]["epoch"]) - 1
+            if k < 1 or ema_1d[k] is None or ema_1d[k - 1] is None:
+                continue  # not enough daily history yet
+            macro_up   = ema_1d[k] > ema_1d[k - 1]
+            allow_long  = macro_up        # daily EMA rising  -> longs allowed
+            allow_short = not macro_up    # daily EMA falling -> shorts allowed
+
         trend_up   = e_now > e_prev
         trend_down = e_now < e_prev
         price = closes_5m[i]
@@ -481,9 +503,9 @@ def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
         if sl <= 0:
             sl = price * 0.003
 
-        if trend_up and r_prev >= rsi_entry > r_now:
+        if trend_up and r_prev >= rsi_entry > r_now and allow_long:
             results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=sl * tp_rr)))
-        elif trend_down and r_prev <= ob < r_now:
+        elif trend_down and r_prev <= ob < r_now and allow_short:
             results.append((i, Signal("SELL", sl_pips=sl, tp_pips=sl * tp_rr)))
     return results
 
@@ -684,7 +706,7 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
                                         else " PEAK" if sess_mode == "peak" else "")
                             atr_tag  = f" ATR{atr_mult}" if atr_mult else ""
 
-                            # Direction variants -- filter signals, no extra run_mtf calls
+                            # Static direction variants (free — just filter the list)
                             sigs_buy  = [(i, s) for i, s in all_sigs if s.action == "BUY"]
                             sigs_sell = [(i, s) for i, s in all_sigs if s.action == "SELL"]
                             dir_variants = [
@@ -693,14 +715,34 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
                                 ("SELL", sigs_sell, " SHORT"),
                             ]
 
+                            # Macro filter variants (direction set by daily EMA slope)
+                            for macro_p in [20, 50]:
+                                mcfg  = {**base_cfg,
+                                         "macro_filter": True,
+                                         "macro_ema_period": macro_p}
+                                msigs = run_mtf(train["5m"], train["1h"],
+                                                train["1d"], mcfg)
+                                if msigs:
+                                    dir_variants.append(
+                                        (f"macro_{macro_p}", msigs,
+                                         f" MACRO{macro_p}"))
+
                             for direction, dir_sigs, dir_tag in dir_variants:
                                 if not dir_sigs:
                                     continue
-                                # Reuse signals -- vary only be_r in simulate_exits
                                 for be_r in [0.0, 1.0]:
                                     trades = simulate_exits(
                                         train["5m"], dir_sigs, spread=spread, be_r=be_r)
-                                    cfg = {**base_cfg, "be_r": be_r, "direction": direction}
+                                    # Store macro config correctly so holdout can replay it
+                                    if direction.startswith("macro_"):
+                                        macro_p = int(direction.split("_")[1])
+                                        cfg = {**base_cfg, "be_r": be_r,
+                                               "direction": direction,
+                                               "macro_filter": True,
+                                               "macro_ema_period": macro_p}
+                                    else:
+                                        cfg = {**base_cfg, "be_r": be_r,
+                                               "direction": direction}
                                     tag = (f"MTF EMA{ema_p} RSI<{rsi_e} RR{rr}"
                                            + (f" ADX{adx_min}" if adx_min else "")
                                            + sess_tag + atr_tag + dir_tag
@@ -794,12 +836,16 @@ def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict |
     be_r = cfg.get("be_r", 0.0)
 
     if name.startswith("MTF"):
-        sigs = run_mtf(holdout["5m"], holdout["1h"], cfg)
         direction = cfg.get("direction", "both")
-        if direction == "BUY":
-            sigs = [(i, s) for i, s in sigs if s.action == "BUY"]
-        elif direction == "SELL":
-            sigs = [(i, s) for i, s in sigs if s.action == "SELL"]
+        if cfg.get("macro_filter"):
+            # Macro filter: pass daily bars so daily EMA gates direction live
+            sigs = run_mtf(holdout["5m"], holdout["1h"], holdout["1d"], cfg)
+        else:
+            sigs = run_mtf(holdout["5m"], holdout["1h"], config=cfg)
+            if direction == "BUY":
+                sigs = [(i, s) for i, s in sigs if s.action == "BUY"]
+            elif direction == "SELL":
+                sigs = [(i, s) for i, s in sigs if s.action == "SELL"]
     elif name.startswith("STOCH"):
         sigs = run_stoch(holdout["5m"], cfg)
     elif name.startswith("Session"):
@@ -826,8 +872,8 @@ def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict |
 
 async def main():
     print("=" * 78)
-    print("PRO BOT BACKTEST v4 -- Spread | Min 100 trades | Holdout | CI | ATR | BE | Direction")
-    print("New v4: Direction filter -- LONG/SHORT only per symbol")
+    print("PRO BOT BACKTEST v5 -- Spread | Min 100 trades | Holdout | CI | ATR | BE | Macro")
+    print("New v5: Daily EMA macro filter -- direction switches automatically with market regime")
     print("Breakeven: 1:1.5 R:R -> WR>40% | 1:2 R:R -> WR>33%")
     print("=" * 78)
 
