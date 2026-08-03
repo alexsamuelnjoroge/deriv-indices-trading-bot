@@ -99,13 +99,20 @@ class ProBot:
             for symbol in symbols:
                 strategy = cls(strat_cfg)
 
-                # --- MTF needs two feeds (LTF + HTF) ---
+                # --- MTF needs LTF + HTF feeds, plus daily for macro filter ---
                 if name == "mtf_pullback":
                     ltf_feed = BarFeed(self.client, symbol, ltf_tf)
                     htf_feed = BarFeed(self.client, symbol, htf_tf,
                                        history_count=300)
 
-                    def _make_mtf_handler(sym, strat, h_feed):
+                    daily_feed = None
+                    if strat_cfg.get("macro_filter"):
+                        daily_tf = MT5_TF.get(86400)
+                        if daily_tf:
+                            daily_feed = BarFeed(self.client, symbol, daily_tf,
+                                                 history_count=100)
+
+                    def _make_mtf_handler(sym, strat, h_feed, d_feed):
                         def _handler(symbol_name, bars):
                             for _, sig in strat.evaluate(bars):
                                 self.order_mgr.on_signal(sym, sig)
@@ -113,11 +120,20 @@ class ProBot:
                             if bars:
                                 strat.feed_htf(bars[-1])
                         h_feed.on_bar_close(_htf_handler)
+                        if d_feed:
+                            def _daily_handler(symbol_name, bars):
+                                if bars:
+                                    strat.feed_daily(bars[-1])
+                            d_feed.on_bar_close(_daily_handler)
                         return _handler
 
-                    ltf_feed.on_bar_close(_make_mtf_handler(symbol, strategy, htf_feed))
+                    ltf_feed.on_bar_close(
+                        _make_mtf_handler(symbol, strategy, htf_feed, daily_feed)
+                    )
                     self._feeds.append(ltf_feed)
                     self._feeds.append(htf_feed)
+                    if daily_feed:
+                        self._feeds.append(daily_feed)
 
                 # --- Pivot Bounce needs daily bars too ---
                 elif name == "pivot_bounce":
