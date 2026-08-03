@@ -18,6 +18,7 @@ Usage:
 """
 
 import asyncio
+import bisect
 import json
 import math
 import sys
@@ -31,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pro_bot.strategies.base import Signal
 from pro_bot.indicators import ema as _ema, rsi as _rsi, stochastic as _stoch
-from pro_bot.indicators import pivot_levels as _pivots
+from pro_bot.indicators import adx as _adx, pivot_levels as _pivots
 
 LEGACY_WS           = "wss://ws.derivws.com/websockets/v3?app_id=1089"
 CACHE_5M            = Path("data/scalp")
@@ -380,25 +381,46 @@ def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
     rsi_p     = cfg.get("rsi_period", 14)
     rsi_entry = cfg.get("rsi_entry", 40.0)
     tp_rr     = cfg.get("tp_rr", 2.0)
+    adx_min   = cfg.get("adx_min", 0)      # 0 = disabled; 20+ = trend filter
+    sess_only = cfg.get("session_only", False)
     ob        = 100.0 - rsi_entry
-    ratio     = GRAN_1H // GRAN_5M
 
-    closes_1h = [b["close"] for b in bars_1h]
-    closes_5m = [b["close"] for b in bars_5m]
-    ema_1h    = _ema(closes_1h, ema_p)
-    rsi_5m    = _rsi(closes_5m, rsi_p)
+    closes_1h  = [b["close"] for b in bars_1h]
+    closes_5m  = [b["close"] for b in bars_5m]
+    ema_1h     = _ema(closes_1h, ema_p)
+    rsi_5m     = _rsi(closes_5m, rsi_p)
+    adx_1h     = _adx(bars_1h, 14) if adx_min > 0 else None
+
+    # Fix: epoch-based lookup instead of index ratio (avoids misalignment
+    # when 5m and 1h series don't start at the same timestamp)
+    epochs_1h = [b["epoch"] for b in bars_1h]
 
     results = []
     for i in range(rsi_p + 2, len(bars_5m)):
-        j = min(i // ratio, len(bars_1h) - 1)
-        if j < slope_b:
+        # Session filter — London + NY only (07:00–20:00 UTC)
+        if sess_only:
+            h_utc = (bars_5m[i]["epoch"] % 86400) // 3600
+            if not (7 <= h_utc < 20):
+                continue
+
+        # Epoch-aligned 1h bar: last 1h bar that closed before this 5m bar
+        j = bisect.bisect_right(epochs_1h, bars_5m[i]["epoch"]) - 1
+        if j < slope_b or j < 0:
             continue
+
         e_now  = ema_1h[j]
         e_prev = ema_1h[j - slope_b]
         r_now  = rsi_5m[i]
         r_prev = rsi_5m[i - 1]
         if any(x is None for x in [e_now, e_prev, r_now, r_prev]):
             continue
+
+        # ADX trend-strength filter
+        if adx_min > 0 and adx_1h is not None:
+            adx_val = adx_1h[j]
+            if adx_val is None or adx_val < adx_min:
+                continue
+
         trend_up   = e_now > e_prev
         trend_down = e_now < e_prev
         price = closes_5m[i]
@@ -586,16 +608,21 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
     for ema_p in [100, 200]:
         for rsi_e in [35, 40, 45]:
             for rr in [1.5, 2.0]:
-                cfg    = {"ema_period": ema_p, "slope_bars": 3,
-                          "rsi_period": 14, "rsi_entry": rsi_e, "tp_rr": rr}
-                sigs   = run_mtf(train["5m"], train["1h"], cfg)
-                if not sigs:
-                    continue
-                trades = simulate_exits(train["5m"], sigs, spread=spread)
-                m      = calc_metrics(trades, sym,
-                                      f"MTF EMA{ema_p} RSI<{rsi_e} RR{rr}", cfg)
-                if m:
-                    results.append(m)
+                for adx_min in [0, 20, 25]:
+                    for sess_only in [False, True]:
+                        cfg = {"ema_period": ema_p, "slope_bars": 3,
+                               "rsi_period": 14, "rsi_entry": rsi_e, "tp_rr": rr,
+                               "adx_min": adx_min, "session_only": sess_only}
+                        sigs = run_mtf(train["5m"], train["1h"], cfg)
+                        if not sigs:
+                            continue
+                        trades = simulate_exits(train["5m"], sigs, spread=spread)
+                        tag = (f"MTF EMA{ema_p} RSI<{rsi_e} RR{rr}"
+                               + (f" ADX{adx_min}" if adx_min else "")
+                               + (" SESS" if sess_only else ""))
+                        m = calc_metrics(trades, sym, tag, cfg)
+                        if m:
+                            results.append(m)
     return results
 
 
