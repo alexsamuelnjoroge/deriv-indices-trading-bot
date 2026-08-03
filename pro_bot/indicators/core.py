@@ -109,6 +109,65 @@ def bollinger(closes: list[float], period: int = 20,
     return out
 
 
+# ── ADX (Average Directional Index) ──────────────────────────────────────────
+
+def adx(bars: list[dict], period: int = 14) -> list[float | None]:
+    """
+    Wilder's ADX. Values above 20 indicate a trending market.
+    Returns a series aligned to the input bars (None until warm-up complete).
+    """
+    n = len(bars)
+    out = [None] * n
+    if n < 2 * period + 2:
+        return out
+
+    # TR, +DM, -DM; tr_list[k] ↔ bars[k+1]
+    tr_list, pdm_list, ndm_list = [], [], []
+    for i in range(1, n):
+        h, l   = bars[i]["high"],     bars[i]["low"]
+        ph, pl = bars[i-1]["high"],   bars[i-1]["low"]
+        pc     = bars[i-1]["close"]
+        tr_list.append(max(h - l, abs(h - pc), abs(l - pc)))
+        up, dn = h - ph, pl - l
+        pdm_list.append(up if up > dn and up > 0 else 0.0)
+        ndm_list.append(dn if dn > up and dn > 0 else 0.0)
+
+    # Initial Wilder sums (first `period` values → bars[1..period])
+    atr_s = sum(tr_list[:period])
+    pdm_s = sum(pdm_list[:period])
+    ndm_s = sum(ndm_list[:period])
+
+    # DX series; dx_list[k] ↔ bars[period + 1 + k]
+    dx_list: list[float] = []
+    for k in range(period, len(tr_list)):
+        atr_s = atr_s - atr_s / period + tr_list[k]
+        pdm_s = pdm_s - pdm_s / period + pdm_list[k]
+        ndm_s = ndm_s - ndm_s / period + ndm_list[k]
+        if atr_s == 0:
+            dx_list.append(0.0)
+            continue
+        pdi   = 100.0 * pdm_s / atr_s
+        ndi   = 100.0 * ndm_s / atr_s
+        denom = pdi + ndi
+        dx_list.append(100.0 * abs(pdi - ndi) / denom if denom else 0.0)
+
+    if len(dx_list) < period:
+        return out
+
+    # Initial ADX = mean of first `period` DX values → assigned to bars[2*period]
+    adx_s = sum(dx_list[:period]) / period
+    if 2 * period < n:
+        out[2 * period] = adx_s
+
+    for k in range(period, len(dx_list)):
+        adx_s = (adx_s * (period - 1) + dx_list[k]) / period
+        bar_idx = period + 1 + k
+        if bar_idx < n:
+            out[bar_idx] = adx_s
+
+    return out
+
+
 # ── Pivot Levels ─────────────────────────────────────────────────────────────
 
 def pivot_levels(bar: dict) -> dict:
