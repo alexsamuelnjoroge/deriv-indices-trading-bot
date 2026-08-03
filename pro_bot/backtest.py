@@ -1,5 +1,5 @@
 """
-Pro Bot Backtest Engine — v4
+Pro Bot Backtest Engine -- v4
 
 Improvements over v1:
   1. Spread + slippage: entry shifted against trader by realistic spread
@@ -7,13 +7,13 @@ Improvements over v1:
   3. Holdout set: final 20% of bars never touched during sweep
   4. Binomial 95% CI on WR (Wilson score)
   5. ATR-based SL/TP: adapts to current volatility (sweep atr_mult_sl)
-  6. Session peak filter: London open 07–10:30 + NY open 13–16:30 UTC
+  6. Session peak filter: London open 07-10:30 + NY open 13-16:30 UTC
   7. Breakeven stop: move SL to entry after 1R in profit (sweep be_r)
   8. Direction split: BUY vs SELL WR shown separately in output
   9. Direction filter: sweep LONG-only / SHORT-only / both per symbol
 
 Breakeven WR (net of spread):
-  1:1.5 R:R → 40.0%   |   1:2.0 R:R → 33.3%
+  1:1.5 R:R -> 40.0%   |   1:2.0 R:R -> 33.3%
 
 Usage:
   python3 pro_bot/backtest.py
@@ -59,7 +59,7 @@ SYMBOLS = {
     "frxAUDUSD": {"label": "AUD/USD", "pip": 0.0001},
 }
 
-# Fix 1 — IC Markets Raw spread (price units) — verified from live terminal
+# Fix 1 -- IC Markets Raw spread (price units) -- verified from live terminal
 SPREADS = {
     "frxXAUUSD": 0.22,     # Gold: ~22 cents (IC Markets Raw)
     "frxUSDJPY": 0.002,    # USD/JPY: 0.2 pip
@@ -68,13 +68,13 @@ SPREADS = {
     "frxAUDUSD": 0.00001,  # AUD/USD: 0.1 pip
 }
 
-# Fix 2 — minimum closed trades for a config to be reported
+# Fix 2 -- minimum closed trades for a config to be reported
 MIN_TRADES = 100
 
 
-# ═══════════════════════════════════════════════════════════════
-# Data loading — paginated historical fetch
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
+# Data loading -- paginated historical fetch
+# ===============================================================
 
 async def _fetch_one(ws, symbol: str, gran: int, end) -> list[dict]:
     """Single batch request on an open WebSocket connection."""
@@ -168,7 +168,7 @@ async def load_data(symbol: str) -> tuple[list[dict], list[dict], list[dict]]:
 
 
 def split_bars(bars_5m, bars_1h, bars_1d, train_pct=0.80):
-    """Fix 3 — split all timeframes at the same epoch boundary."""
+    """Fix 3 -- split all timeframes at the same epoch boundary."""
     cutoff     = int(len(bars_5m) * train_pct)
     split_epoch = bars_5m[cutoff]["epoch"]
 
@@ -181,9 +181,9 @@ def split_bars(bars_5m, bars_1h, bars_1d, train_pct=0.80):
     return train, holdout
 
 
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 # SL/TP exit simulator
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 
 @dataclass
 class Trade:
@@ -206,7 +206,7 @@ def simulate_exits(bars: list[dict], signals: list[tuple],
     """
     BUY fills at ask (close + spread); SELL fills at bid (close - spread).
     If both SL and TP hit on the same bar, SL is assumed to hit first (worst case).
-    be_r: if > 0, move SL to entry once price moves be_r × sl_pips in profit.
+    be_r: if > 0, move SL to entry once price moves be_r x sl_pips in profit.
           Result becomes "BE" (0R) instead of LOSS if stopped out after trigger.
     """
     trades: list[Trade] = []
@@ -284,12 +284,12 @@ def simulate_exits(bars: list[dict], signals: list[tuple],
     return trades
 
 
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 # Metrics
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 
 def wr_confidence(wins: int, n: int, z: float = 1.96) -> tuple[float, float]:
-    """Fix 4 — Wilson score interval (handles small n better than normal approx)."""
+    """Fix 4 -- Wilson score interval (handles small n better than normal approx)."""
     if n == 0:
         return 0.0, 0.0
     p = wins / n
@@ -325,7 +325,7 @@ def calc_metrics(trades: list[Trade], symbol: str, strategy: str,
 
     wr_lo, wr_hi = wr_confidence(len(wins), n_wr)
 
-    # Direction split — BUY vs SELL WR
+    # Direction split -- BUY vs SELL WR
     buys  = [t for t in closed if t.action == "BUY"]
     sells = [t for t in closed if t.action == "SELL"]
     buy_wins   = sum(1 for t in buys  if t.result == "WIN")
@@ -401,20 +401,20 @@ def print_metrics(m: dict, label: str = "") -> None:
     print(f"    {prefix}{m['strategy']:40s}  {m['symbol']}")
     print(f"      Trades: {m['closed']} closed ({m['per_day']:.1f}/day) | "
           f"W:{m['wins']} L:{m['losses']}{be_str} | Timeouts: {m['timeouts']}")
-    print(f"      WR: {m['wr']*100:.1f}%  [95% CI: {ci_lo:.1f}%–{ci_hi:.1f}%]"
-          f"  BE: {be_wr*100:.1f}%  {'✓ CI clears BE' if ci_safe else '✗ CI overlaps BE'}")
+    print(f"      WR: {m['wr']*100:.1f}%  [95% CI: {ci_lo:.1f}%-{ci_hi:.1f}%]"
+          f"  BE: {be_wr*100:.1f}%  {'OK CI clears BE' if ci_safe else 'X CI overlaps BE'}")
     print(f"      BUY  ({m['buy_count']:3d} trades, WR {bwr:>6}) | "
           f"SELL ({m['sell_count']:3d} trades, WR {swr:>6})")
     print(f"      Avg R:R: 1:{m['avg_rr']:.2f}  |  Profit Factor: {m['profit_f']:.2f}")
     print(f"      EV/trade: {m['ev_per_r']:+.3f}R  |  Net: {m['net_r']:+.1f}R  |  "
           f"Max DD: {m['max_dd_r']:.1f}R  |  Max streak L: {m['max_streak']}")
-    print(f"      ▶  {verdict}")
+    print(f"      >  {verdict}")
     print()
 
 
-# ═══════════════════════════════════════════════════════════════
-# Strategy runners — all precompute indicators once (O(n))
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
+# Strategy runners -- all precompute indicators once (O(n))
+# ===============================================================
 
 def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
     cfg       = config or {}
@@ -425,8 +425,8 @@ def run_mtf(bars_5m, bars_1h, config=None) -> list[tuple]:
     tp_rr     = cfg.get("tp_rr", 2.0)
     adx_min   = cfg.get("adx_min", 0)
     sess_only = cfg.get("session_only", False)
-    sess_peak = cfg.get("session_peak", False)   # London open 07–10:30 + NY open 13–16:30
-    atr_mult  = cfg.get("atr_mult_sl", 0.0)      # 0 = swing-low SL; >0 = ATR × mult
+    sess_peak = cfg.get("session_peak", False)   # London open 07-10:30 + NY open 13-16:30
+    atr_mult  = cfg.get("atr_mult_sl", 0.0)      # 0 = swing-low SL; >0 = ATR x mult
     ob        = 100.0 - rsi_entry
 
     closes_1h  = [b["close"] for b in bars_1h]
@@ -653,9 +653,9 @@ def run_pivot(bars_5m, bars_1d, config=None) -> list[tuple]:
     return results
 
 
-# ═══════════════════════════════════════════════════════════════
-# Sweep functions — pass spread, embed config in metrics
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
+# Sweep functions -- pass spread, embed config in metrics
+# ===============================================================
 
 def sweep_mtf(train, sym, spread) -> list[dict]:
     results = []
@@ -684,7 +684,7 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
                                         else " PEAK" if sess_mode == "peak" else "")
                             atr_tag  = f" ATR{atr_mult}" if atr_mult else ""
 
-                            # Direction variants — filter signals, no extra run_mtf calls
+                            # Direction variants -- filter signals, no extra run_mtf calls
                             sigs_buy  = [(i, s) for i, s in all_sigs if s.action == "BUY"]
                             sigs_sell = [(i, s) for i, s in all_sigs if s.action == "SELL"]
                             dir_variants = [
@@ -696,7 +696,7 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
                             for direction, dir_sigs, dir_tag in dir_variants:
                                 if not dir_sigs:
                                     continue
-                                # Reuse signals — vary only be_r in simulate_exits
+                                # Reuse signals -- vary only be_r in simulate_exits
                                 for be_r in [0.0, 1.0]:
                                     trades = simulate_exits(
                                         train["5m"], dir_sigs, spread=spread, be_r=be_r)
@@ -783,9 +783,9 @@ def sweep_pivot(train, sym, spread) -> list[dict]:
     return results
 
 
-# ═══════════════════════════════════════════════════════════════
-# Holdout validation — re-run best config on unseen data
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
+# Holdout validation -- re-run best config on unseen data
+# ===============================================================
 
 def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict | None:
     """Run the winning config's strategy on holdout bars."""
@@ -820,15 +820,15 @@ def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict |
     return calc_metrics(trades, sym, best["strategy"], cfg)
 
 
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 # Main
-# ═══════════════════════════════════════════════════════════════
+# ===============================================================
 
 async def main():
     print("=" * 78)
-    print("PRO BOT BACKTEST v4 — Spread | Min 100 trades | Holdout | CI | ATR | BE | Direction")
-    print("New v4: Direction filter — LONG/SHORT only per symbol")
-    print("Breakeven: 1:1.5 R:R → WR>40% | 1:2 R:R → WR>33%")
+    print("PRO BOT BACKTEST v4 -- Spread | Min 100 trades | Holdout | CI | ATR | BE | Direction")
+    print("New v4: Direction filter -- LONG/SHORT only per symbol")
+    print("Breakeven: 1:1.5 R:R -> WR>40% | 1:2 R:R -> WR>33%")
     print("=" * 78)
 
     all_metrics: list[dict] = []
@@ -839,19 +839,19 @@ async def main():
             continue
 
         spread = SPREADS.get(sym, 0.0)
-        print(f"\n{'─'*78}")
+        print(f"\n{'-'*78}")
         print(f"[{sym}] {info['label']}  spread={spread}")
-        print(f"{'─'*78}")
+        print(f"{'-'*78}")
 
         try:
             bars_5m, bars_1h, bars_1d = await load_data(sym)
-            print(f"  Data: {len(bars_5m)} × 5min | {len(bars_1h)} × 1h | "
-                  f"{len(bars_1d)} × daily")
+            print(f"  Data: {len(bars_5m)} x 5min | {len(bars_1h)} x 1h | "
+                  f"{len(bars_1d)} x daily")
         except Exception as e:
-            print(f"  SKIP — {e}")
+            print(f"  SKIP -- {e}")
             continue
 
-        # Fix 3 — split before any sweeping
+        # Fix 3 -- split before any sweeping
         train, holdout = split_bars(bars_5m, bars_1h, bars_1d)
         print(f"  Train: {len(train['5m'])} bars | Holdout: {len(holdout['5m'])} bars "
               f"(20% never seen during sweep)")
@@ -883,18 +883,18 @@ async def main():
 
         all_metrics += sym_metrics
         profitable = sum(1 for m in sym_metrics if m["ev_per_r"] > 0.05)
-        print(f"  → {profitable} profitable configs found (min {MIN_TRADES} trades enforced)")
+        print(f"  -> {profitable} profitable configs found (min {MIN_TRADES} trades enforced)")
 
-        # Fix 3 — holdout validation for the best config per symbol
+        # Fix 3 -- holdout validation for the best config per symbol
         if sym_metrics:
             best = max(sym_metrics, key=lambda x: x["ev_per_r"])
-            print(f"  → Validating best config on holdout: {best['strategy']}")
+            print(f"  -> Validating best config on holdout: {best['strategy']}")
             h = run_on_holdout(best, sym, holdout, spread)
             holdout_summary.append((best, h))
 
-    # ── Report ──────────────────────────────────────────────────────────────
+    # -- Report --------------------------------------------------------------
     print(f"\n{'='*78}")
-    print("RESULTS — Training set | EV > 0.05R | sorted by EV")
+    print("RESULTS -- Training set | EV > 0.05R | sorted by EV")
     print(f"{'='*78}\n")
 
     profitable = sorted(
@@ -908,36 +908,36 @@ async def main():
     losing = [m for m in all_metrics if m["ev_per_r"] <= 0]
 
     if profitable:
-        print(f"── PROFITABLE ({len(profitable)} configs) ──\n")
+        print(f"-- PROFITABLE ({len(profitable)} configs) --\n")
         for m in profitable:
             print_metrics(m, "TRAIN")
     else:
-        print("── No profitable configs survived spread + min-trades filter ──\n")
+        print("-- No profitable configs survived spread + min-trades filter --\n")
 
     if marginal:
-        print(f"── MARGINAL top 10 (0 < EV ≤ 0.05R) ──\n")
+        print(f"-- MARGINAL top 10 (0 < EV <= 0.05R) --\n")
         for m in marginal:
             print_metrics(m, "TRAIN")
 
-    # ── Holdout section ─────────────────────────────────────────────────────
+    # -- Holdout section -----------------------------------------------------
     if holdout_summary:
         print(f"\n{'='*78}")
-        print("HOLDOUT VALIDATION — 20% unseen data, best config per symbol")
+        print("HOLDOUT VALIDATION -- 20% unseen data, best config per symbol")
         print(f"{'='*78}\n")
 
         for train_m, holdout_m in holdout_summary:
-            print(f"  {train_m['symbol']} — {train_m['strategy']}")
+            print(f"  {train_m['symbol']} -- {train_m['strategy']}")
             print(f"    Train  EV: {train_m['ev_per_r']:+.3f}R  WR: {train_m['wr']*100:.1f}%"
                   f"  [{train_m['closed']} trades]")
             if holdout_m:
                 decay = train_m["ev_per_r"] - holdout_m["ev_per_r"]
-                flag  = ("✓ CONFIRMED" if holdout_m["ev_per_r"] > 0.02
-                         else "⚠ DEGRADED"  if holdout_m["ev_per_r"] > 0
-                         else "✗ NEGATIVE")
+                flag  = ("OK CONFIRMED" if holdout_m["ev_per_r"] > 0.02
+                         else "! DEGRADED"  if holdout_m["ev_per_r"] > 0
+                         else "X NEGATIVE")
                 print(f"    Holdout EV: {holdout_m['ev_per_r']:+.3f}R  WR: {holdout_m['wr']*100:.1f}%"
                       f"  [{holdout_m['closed']} trades]  decay={decay:+.3f}R  {flag}")
             else:
-                print(f"    Holdout: insufficient trades (<20) — cannot confirm")
+                print(f"    Holdout: insufficient trades (<20) -- cannot confirm")
             print()
 
     print(f"\nSummary: {len(profitable)} profitable | "
@@ -947,9 +947,9 @@ async def main():
 
     if profitable:
         top = profitable[0]
-        print(f"\nBest: {top['symbol']} — {top['strategy']}")
+        print(f"\nBest: {top['symbol']} -- {top['strategy']}")
         print(f"  EV {top['ev_per_r']:+.3f}R | WR {top['wr']*100:.1f}% "
-              f"[CI: {top['wr_lo']*100:.1f}%–{top['wr_hi']*100:.1f}%] | "
+              f"[CI: {top['wr_lo']*100:.1f}%-{top['wr_hi']*100:.1f}%] | "
               f"PF {top['profit_f']:.2f} | {top['per_day']:.1f}/day")
 
 
