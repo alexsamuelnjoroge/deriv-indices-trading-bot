@@ -29,6 +29,7 @@ from src.strategies.ema_cross import EMACrossStrategy
 from src.strategies.donchian import DonchianStrategy
 from src.strategies.rsi_multiplier import RSIMultiplierStrategy
 from src.strategies.rsi_binary import RSIBinaryStrategy
+from src.strategies.mtf_v5 import MTFV5Strategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -252,11 +253,31 @@ async def run(watch_only: bool = False):
             except Exception as e:
                 logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
 
+        elif strategy_type == "mtf_v5":
+            strategy     = MTFV5Strategy(sym_cfg)
+            htf_count    = sym_cfg.get("ema_period", 100) + sym_cfg.get("slope_bars", 3) + 20
+            daily_count  = (sym_cfg.get("macro_ema_period", 20) + 10
+                            if sym_cfg.get("macro_filter") else 0)
+            logger.info(f"[{symbol}/mtf_v5] Seeding LTF=200 HTF={htf_count} Daily={daily_count}...")
+            try:
+                ltf_bars     = await fetch_candles_async(symbol, count=200,
+                                                         granularity=300, return_full=True)
+                htf_closes   = await fetch_candles_async(symbol, count=htf_count,
+                                                         granularity=3600)
+                daily_closes = (await fetch_candles_async(symbol, count=daily_count,
+                                                          granularity=86400)
+                                if daily_count else [])
+                strategy.seed_all(ltf_bars, htf_closes, daily_closes)
+                logger.info(f"[{symbol}/mtf_v5] Seeded LTF={len(ltf_bars)} "
+                            f"HTF={len(htf_closes)} Daily={len(daily_closes)}")
+            except Exception as e:
+                logger.warning(f"[{symbol}/mtf_v5] Seed failed: {e} — warming up live")
+
         else:
             strategy = RSIReversalStrategy(sym_cfg)
 
         _is_multi = strategy_type in ("gold_trend", "macd_trend", "bb_squeeze",
-                                       "ema_cross", "donchian", "rsi_multiplier")
+                                       "ema_cross", "donchian", "rsi_multiplier", "mtf_v5")
 
         risk = RiskManager(sym_risk, starting_balance=balance_per, symbol=symbol)
 
