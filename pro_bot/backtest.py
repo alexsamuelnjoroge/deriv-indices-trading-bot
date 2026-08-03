@@ -54,13 +54,13 @@ SYMBOLS = {
     "frxAUDUSD": {"label": "AUD/USD", "pip": 0.0001},
 }
 
-# Fix 1 — realistic spread per symbol (in price units, not pips)
+# Fix 1 — IC Markets Raw spread (price units) — verified from live terminal
 SPREADS = {
-    "frxXAUUSD": 0.30,     # Gold: ~30 cents
-    "frxUSDJPY": 0.015,    # USD/JPY: 1.5 points
-    "frxEURUSD": 0.00012,  # EUR/USD: 1.2 pips
-    "frxGBPUSD": 0.00015,  # GBP/USD: 1.5 pips
-    "frxAUDUSD": 0.00014,  # AUD/USD: 1.4 pips
+    "frxXAUUSD": 0.22,     # Gold: ~22 cents (IC Markets Raw)
+    "frxUSDJPY": 0.002,    # USD/JPY: 0.2 pip
+    "frxEURUSD": 0.00001,  # EUR/USD: 0.1 pip
+    "frxGBPUSD": 0.00002,  # GBP/USD: 0.2 pip
+    "frxAUDUSD": 0.00001,  # AUD/USD: 0.1 pip
 }
 
 # Fix 2 — minimum closed trades for a config to be reported
