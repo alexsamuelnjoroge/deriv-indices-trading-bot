@@ -1,7 +1,7 @@
 """
-Pro Bot Backtest Engine — v3
+Pro Bot Backtest Engine — v4
 
-Improvements over v2:
+Improvements over v1:
   1. Spread + slippage: entry shifted against trader by realistic spread
   2. Min trade count: configs with <100 closed trades are discarded
   3. Holdout set: final 20% of bars never touched during sweep
@@ -10,6 +10,7 @@ Improvements over v2:
   6. Session peak filter: London open 07–10:30 + NY open 13–16:30 UTC
   7. Breakeven stop: move SL to entry after 1R in profit (sweep be_r)
   8. Direction split: BUY vs SELL WR shown separately in output
+  9. Direction filter: sweep LONG-only / SHORT-only / both per symbol
 
 Breakeven WR (net of spread):
   1:1.5 R:R → 40.0%   |   1:2.0 R:R → 33.3%
@@ -675,26 +676,38 @@ def sweep_mtf(train, sym, spread) -> list[dict]:
                                 "session_peak": sess_mode == "peak",
                                 "atr_mult_sl":  atr_mult,
                             }
-                            sigs = run_mtf(train["5m"], train["1h"], base_cfg)
-                            if not sigs:
+                            all_sigs = run_mtf(train["5m"], train["1h"], base_cfg)
+                            if not all_sigs:
                                 continue
 
                             sess_tag = (" SESS" if sess_mode == "full"
                                         else " PEAK" if sess_mode == "peak" else "")
                             atr_tag  = f" ATR{atr_mult}" if atr_mult else ""
 
-                            # Reuse signals — vary only be_r in simulate_exits
-                            for be_r in [0.0, 1.0]:
-                                trades = simulate_exits(
-                                    train["5m"], sigs, spread=spread, be_r=be_r)
-                                cfg = {**base_cfg, "be_r": be_r}
-                                tag = (f"MTF EMA{ema_p} RSI<{rsi_e} RR{rr}"
-                                       + (f" ADX{adx_min}" if adx_min else "")
-                                       + sess_tag + atr_tag
-                                       + (" BE" if be_r > 0 else ""))
-                                m = calc_metrics(trades, sym, tag, cfg)
-                                if m:
-                                    results.append(m)
+                            # Direction variants — filter signals, no extra run_mtf calls
+                            sigs_buy  = [(i, s) for i, s in all_sigs if s.action == "BUY"]
+                            sigs_sell = [(i, s) for i, s in all_sigs if s.action == "SELL"]
+                            dir_variants = [
+                                ("both", all_sigs, ""),
+                                ("BUY",  sigs_buy,  " LONG"),
+                                ("SELL", sigs_sell, " SHORT"),
+                            ]
+
+                            for direction, dir_sigs, dir_tag in dir_variants:
+                                if not dir_sigs:
+                                    continue
+                                # Reuse signals — vary only be_r in simulate_exits
+                                for be_r in [0.0, 1.0]:
+                                    trades = simulate_exits(
+                                        train["5m"], dir_sigs, spread=spread, be_r=be_r)
+                                    cfg = {**base_cfg, "be_r": be_r, "direction": direction}
+                                    tag = (f"MTF EMA{ema_p} RSI<{rsi_e} RR{rr}"
+                                           + (f" ADX{adx_min}" if adx_min else "")
+                                           + sess_tag + atr_tag + dir_tag
+                                           + (" BE" if be_r > 0 else ""))
+                                    m = calc_metrics(trades, sym, tag, cfg)
+                                    if m:
+                                        results.append(m)
     return results
 
 
@@ -782,6 +795,11 @@ def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict |
 
     if name.startswith("MTF"):
         sigs = run_mtf(holdout["5m"], holdout["1h"], cfg)
+        direction = cfg.get("direction", "both")
+        if direction == "BUY":
+            sigs = [(i, s) for i, s in sigs if s.action == "BUY"]
+        elif direction == "SELL":
+            sigs = [(i, s) for i, s in sigs if s.action == "SELL"]
     elif name.startswith("STOCH"):
         sigs = run_stoch(holdout["5m"], cfg)
     elif name.startswith("Session"):
@@ -808,8 +826,8 @@ def run_on_holdout(best: dict, sym: str, holdout: dict, spread: float) -> dict |
 
 async def main():
     print("=" * 78)
-    print("PRO BOT BACKTEST v3 — Spread | Min 100 trades | Holdout | CI | ATR SL | BE stop")
-    print("New: ATR-based SL/TP | Session peak filter | Breakeven stop | BUY/SELL split")
+    print("PRO BOT BACKTEST v4 — Spread | Min 100 trades | Holdout | CI | ATR | BE | Direction")
+    print("New v4: Direction filter — LONG/SHORT only per symbol")
     print("Breakeven: 1:1.5 R:R → WR>40% | 1:2 R:R → WR>33%")
     print("=" * 78)
 
