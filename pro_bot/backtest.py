@@ -21,6 +21,7 @@ import asyncio
 import json
 import math
 import sys
+import time as _time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,13 +33,15 @@ from pro_bot.strategies.base import Signal
 from pro_bot.indicators import ema as _ema, rsi as _rsi, stochastic as _stoch
 from pro_bot.indicators import pivot_levels as _pivots
 
-LEGACY_WS = "wss://ws.derivws.com/websockets/v3?app_id=1089"
-CACHE_5M  = Path("data/scalp")
-CACHE_1H  = Path("data/pro")
-CACHE_1D  = Path("data/pro")
-GRAN_5M   = 300
-GRAN_1H   = 3600
-GRAN_1D   = 86400
+LEGACY_WS           = "wss://ws.derivws.com/websockets/v3?app_id=1089"
+CACHE_5M            = Path("data/scalp")
+CACHE_1H            = Path("data/pro")
+CACHE_1D            = Path("data/pro")
+GRAN_5M             = 300
+GRAN_1H             = 3600
+GRAN_1D             = 86400
+TARGET_HISTORY_DAYS = 180   # fetch ~6 months of data per symbol
+BATCH_SIZE          = 5000  # bars per API request
 
 FILTER_STRAT = next((a.split("=")[1] for a in sys.argv if a.startswith("--strategy=")), None)
 FILTER_SYM   = next((a.split("=")[1] for a in sys.argv if a.startswith("--symbol=")), None)
@@ -65,45 +68,97 @@ MIN_TRADES = 100
 
 
 # ═══════════════════════════════════════════════════════════════
-# Data loading
+# Data loading — paginated historical fetch
 # ═══════════════════════════════════════════════════════════════
 
-async def _fetch(symbol: str, gran: int, count: int, cache_dir: Path) -> list[dict]:
-    cache = cache_dir / f"{symbol}_{gran}_ohlc.json"
-    if cache.exists():
-        with open(cache) as f:
-            return json.load(f)
-
-    async with websockets.connect(LEGACY_WS, open_timeout=15) as ws:
-        await ws.send(json.dumps({
-            "ticks_history": symbol,
-            "style":         "candles",
-            "granularity":   gran,
-            "count":         count,
-            "end":           "latest",
-            "req_id":        1,
-        }))
-        raw = await asyncio.wait_for(ws.recv(), timeout=30)
-        msg = json.loads(raw)
-
+async def _fetch_one(ws, symbol: str, gran: int, end) -> list[dict]:
+    """Single batch request on an open WebSocket connection."""
+    await ws.send(json.dumps({
+        "ticks_history": symbol,
+        "style":         "candles",
+        "granularity":   gran,
+        "count":         BATCH_SIZE,
+        "end":           end,
+        "req_id":        1,
+    }))
+    raw = await asyncio.wait_for(ws.recv(), timeout=30)
+    msg = json.loads(raw)
     if msg.get("error"):
-        raise RuntimeError(msg["error"]["message"])
-
-    bars = [{"open":  float(c["open"]),
+        return []
+    return [{"open":  float(c["open"]),
              "high":  float(c["high"]),
              "low":   float(c["low"]),
              "close": float(c["close"]),
-             "epoch": int(c["epoch"])} for c in msg["candles"]]
+             "epoch": int(c["epoch"])} for c in msg.get("candles", [])]
+
+
+async def _fetch(symbol: str, gran: int, target_days: int,
+                 cache_dir: Path) -> list[dict]:
+    """
+    Fetch bars going back target_days, using the cache as a starting point
+    and paging backwards in time until coverage is reached.
+    """
+    cache        = cache_dir / f"{symbol}_{gran}_ohlc.json"
+    target_start = int(_time.time()) - target_days * 86400
+
+    # Load existing cache
+    existing: list[dict] = []
+    if cache.exists():
+        with open(cache) as f:
+            existing = json.load(f)
+
+    # Already covers the target window?
+    if existing and existing[0]["epoch"] <= target_start:
+        return existing
+
+    print(f"      [{symbol} {gran}s] fetching history ", end="", flush=True)
+    all_bars = list(existing)
+
+    async with websockets.connect(LEGACY_WS, open_timeout=15) as ws:
+        # Bootstrap if cache is empty
+        if not all_bars:
+            batch = await _fetch_one(ws, symbol, gran, "latest")
+            if not batch:
+                raise RuntimeError(f"No data returned for {symbol} {gran}s")
+            all_bars = batch
+            print(".", end="", flush=True)
+
+        # Page backwards until we reach target_start (max 30 batches = 150k bars)
+        for _ in range(30):
+            if all_bars[0]["epoch"] <= target_start:
+                break
+            end_epoch = all_bars[0]["epoch"] - gran   # one bar before oldest
+            batch     = await _fetch_one(ws, symbol, gran, end_epoch)
+            if not batch:
+                break
+            new_bars = [b for b in batch if b["epoch"] < all_bars[0]["epoch"]]
+            if not new_bars:
+                break
+            all_bars = new_bars + all_bars
+            print(".", end="", flush=True)
+            await asyncio.sleep(0.3)   # stay within API rate limit
+
+    print(f" {len(all_bars)} bars")
+
+    # Sort, deduplicate, save
+    seen: set[int] = set()
+    result: list[dict] = []
+    for b in sorted(all_bars, key=lambda x: x["epoch"]):
+        if b["epoch"] not in seen:
+            seen.add(b["epoch"])
+            result.append(b)
+
     cache_dir.mkdir(parents=True, exist_ok=True)
     with open(cache, "w") as f:
-        json.dump(bars, f)
-    return bars
+        json.dump(result, f)
+
+    return result
 
 
 async def load_data(symbol: str) -> tuple[list[dict], list[dict], list[dict]]:
-    bars_5m = await _fetch(symbol, GRAN_5M, 5000, CACHE_5M)
-    bars_1h = await _fetch(symbol, GRAN_1H, 2000, CACHE_1H)
-    bars_1d = await _fetch(symbol, GRAN_1D,  500, CACHE_1D)
+    bars_5m = await _fetch(symbol, GRAN_5M, TARGET_HISTORY_DAYS, CACHE_5M)
+    bars_1h = await _fetch(symbol, GRAN_1H, TARGET_HISTORY_DAYS, CACHE_1H)
+    bars_1d = await _fetch(symbol, GRAN_1D, TARGET_HISTORY_DAYS, CACHE_1D)
     return bars_5m, bars_1h, bars_1d
 
 
