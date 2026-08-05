@@ -270,8 +270,18 @@ class DerivClient:
     async def subscribe_ticks(self, symbol: str):
         if symbol not in self._subscribed_symbols:
             self._subscribed_symbols.append(symbol)
-        resp = await self._send({"ticks": symbol, "subscribe": 1})
-        logger.info(f"Subscribed to ticks: {symbol} | response keys: {list(resp.keys())}")
+        retry_delay = 60
+        while True:
+            try:
+                resp = await self._send({"ticks": symbol, "subscribe": 1})
+                logger.info(f"Subscribed to ticks: {symbol} | response keys: {list(resp.keys())}")
+                return
+            except RuntimeError as e:
+                if "MarketIsClosed" in str(e):
+                    logger.info(f"[{symbol}] Market closed — waiting {retry_delay}s before retry...")
+                    await asyncio.sleep(retry_delay)
+                else:
+                    raise
 
     async def subscribe_ticks_multi(self, symbols: list[str]):
         for symbol in symbols:
