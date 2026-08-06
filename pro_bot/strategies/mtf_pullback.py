@@ -89,13 +89,13 @@ class MTFPullbackStrategy(BaseProStrategy):
             return Signal(action="HOLD", reason="Indicator not ready")
 
         if self.adx_min > 0:
-            adx_vals = _adx(highs, lows, ltf_closes, 14)
+            adx_vals = _adx(bars, 14)
             adx_val  = adx_vals[-1]
             if adx_val is None or adx_val < self.adx_min:
                 return Signal(action="HOLD", reason=f"ADX {adx_val} < {self.adx_min}")
 
         if self.atr_mult_sl > 0:
-            atr_vals = _atr(highs, lows, ltf_closes, 14)
+            atr_vals = _atr(bars, 14)
             atr_val  = atr_vals[-1]
             sl_dist  = (atr_val * self.atr_mult_sl) if atr_val else (cur["close"] * 0.001)
         else:
