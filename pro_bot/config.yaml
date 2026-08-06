@@ -1,15 +1,15 @@
 # pro_bot configuration — v5 backtested MTF configs
-# Symbols use Deriv frx format: frxXAUUSD, frxEURUSD, frxUSDJPY
+# Symbols use MT5 format: XAUUSD, EURUSD, USDJPY (IC Markets naming)
 # Each symbol has its own tuned parameters from the v5 sweep.
 
 strategies:
 
-  # ── Gold (frxXAUUSD) ────────────────────────────────────────────────────────
+  # ── Gold (XAUUSD) ─────────────────────────────────────────────────────────
   # Train: EV +0.280R | WR 51.2% [CI 42.5%-59.9%] | 1.2 trades/day | 123 trades
   # Macro EMA20 dynamically switches direction with daily trend
   - name: mtf_pullback
     enabled: true
-    symbols: [frxXAUUSD]
+    symbols: [XAUUSD]
     htf_granularity: 3600      # 1h bars for trend EMA
     ltf_granularity: 300       # 5min bars for entry
     ema_period: 100
@@ -22,12 +22,12 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── EUR/USD (frxEURUSD) ─────────────────────────────────────────────────────
+  # ── EUR/USD (EURUSD) ──────────────────────────────────────────────────────
   # Train: EV +0.388R | WR 46.3% [CI 39.9%-52.8%] | 2.2 trades/day | 227 trades
   # Best overall EV of the 3 symbols
   - name: mtf_pullback
     enabled: true
-    symbols: [frxEURUSD]
+    symbols: [EURUSD]
     htf_granularity: 3600
     ltf_granularity: 300
     ema_period: 200
@@ -39,12 +39,12 @@ strategies:
     macro_filter: true
     macro_ema_period: 50
 
-  # ── USD/JPY (frxUSDJPY) ─────────────────────────────────────────────────────
+  # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
   # Train: EV +0.305R | WR 43.5% [CI 37.9%-49.3%] | 2.8 trades/day | 285 trades
   # ATR-based SL adapts to JPY volatility spikes
   - name: mtf_pullback
     enabled: true
-    symbols: [frxUSDJPY]
+    symbols: [USDJPY]
     htf_granularity: 3600
     ltf_granularity: 300
     ema_period: 100

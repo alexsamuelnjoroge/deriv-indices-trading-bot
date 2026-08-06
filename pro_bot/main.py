@@ -113,19 +113,43 @@ class ProBot:
                                                  history_count=100)
 
                     def _make_mtf_handler(sym, strat, h_feed, d_feed):
-                        def _handler(symbol_name, bars):
-                            for _, sig in strat.evaluate(bars):
+                        _ltf_seeded = [False]
+                        _htf_seeded = [False]
+                        _daily_seeded = [False]
+
+                        def _ltf_handler(symbol_name, bars):
+                            if not bars:
+                                return
+                            if not _ltf_seeded[0]:
+                                # Seed history so indicators warm up instantly
+                                strat._bars = list(bars[:-1])
+                                _ltf_seeded[0] = True
+                            sig = strat.feed(bars[-1])
+                            if sig and sig.action != "HOLD":
                                 self.order_mgr.on_signal(sym, sig)
+
                         def _htf_handler(symbol_name, bars):
-                            if bars:
-                                strat.feed_htf(bars[-1])
+                            if not bars:
+                                return
+                            if not _htf_seeded[0]:
+                                for bar in bars[:-1]:
+                                    strat.feed_htf(bar)
+                                _htf_seeded[0] = True
+                            strat.feed_htf(bars[-1])
+
                         h_feed.on_bar_close(_htf_handler)
                         if d_feed:
                             def _daily_handler(symbol_name, bars):
-                                if bars:
-                                    strat.feed_daily(bars[-1])
+                                if not bars:
+                                    return
+                                if not _daily_seeded[0]:
+                                    for bar in bars[:-1]:
+                                        strat.feed_daily(bar)
+                                    _daily_seeded[0] = True
+                                strat.feed_daily(bars[-1])
                             d_feed.on_bar_close(_daily_handler)
-                        return _handler
+
+                        return _ltf_handler
 
                     ltf_feed.on_bar_close(
                         _make_mtf_handler(symbol, strategy, htf_feed, daily_feed)
