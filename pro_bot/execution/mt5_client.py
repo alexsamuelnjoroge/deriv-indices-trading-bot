@@ -211,6 +211,29 @@ class MT5Client:
                          f"{result.comment if result else mt5.last_error()}")
         return ok
 
+    def modify_sl(self, ticket: int, new_sl: float) -> bool:
+        """Move the stop-loss on an open position (break-even, trail, etc.)."""
+        pos = mt5.positions_get(ticket=ticket)
+        if not pos:
+            logger.warning(f"modify_sl: ticket {ticket} not found")
+            return False
+        p = pos[0]
+        request = {
+            "action":   mt5.TRADE_ACTION_SLTP,
+            "symbol":   p.symbol,
+            "sl":       round(new_sl, mt5.symbol_info(p.symbol).digits),
+            "tp":       p.tp,
+            "position": ticket,
+        }
+        result = mt5.order_send(request)
+        ok = result is not None and result.retcode == mt5.TRADE_RETCODE_DONE
+        if ok:
+            logger.info(f"SL modified | ticket={ticket} new_sl={new_sl:.5f}")
+        else:
+            logger.error(f"SL modify failed | ticket={ticket}: "
+                         f"{result.comment if result else mt5.last_error()}")
+        return ok
+
     def get_open_positions(self, magic: int = 20260101) -> list[dict]:
         positions = mt5.positions_get()
         if not positions:

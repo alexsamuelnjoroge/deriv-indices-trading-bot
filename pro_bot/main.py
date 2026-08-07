@@ -208,12 +208,15 @@ class ProBot:
             await asyncio.sleep(30)
             try:
                 self.order_mgr.sync_positions()
+                self.order_mgr.manage_positions()
                 s = self.order_mgr.status()
                 balance = self.client.get_balance()
                 equity  = self.client.get_equity()
+                open_str = (f"{s['open_trades']}+{s['open_pyramids']}pyr"
+                            if s['open_pyramids'] else str(s['open_trades']))
                 logger.info(
                     f"STATUS | Balance ${balance:.2f} Equity ${equity:.2f} | "
-                    f"Open {s['open_trades']} | Today P&L ${s['today_pnl']:+.2f} | "
+                    f"Open {open_str} | Today P&L ${s['today_pnl']:+.2f} | "
                     f"W/L {s['wins']}/{s['losses']} WR {s['win_rate']}% | "
                     f"{'HALTED' if s['halted'] else 'ACTIVE'}"
                 )

@@ -60,5 +60,15 @@ strategies:
 risk:
   max_risk_per_trade_pct: 1.0    # % of account per trade
   max_daily_loss_pct: 5.0        # halt trading if daily drawdown exceeds this
-  max_open_trades: 3             # one per symbol max
+  max_open_trades: 3             # max base entries (pyramids are additional)
   use_atr_sizing: true           # size position by ATR distance to SL
+
+  # Spread filter: skip entry if spread > ratio × SL distance (0 = off)
+  max_spread_sl_ratio: 0.4
+
+  # Break-even: move SL to entry once trade reaches this many R profit (0 = off)
+  break_even_trigger_r: 1.0
+
+  # Pyramid: open a scaled entry once trade reaches this many R profit (0 = off)
+  pyramid_trigger_r: 1.0
+  pyramid_risk_pct: 0.5          # risk % of balance for the pyramid position
