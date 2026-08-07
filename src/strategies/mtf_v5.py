@@ -161,9 +161,13 @@ class MTFV5Strategy(BaseStrategy):
             d_now  = _ema(self._daily_closes,      self.macro_ema_period)
             d_prev = _ema(self._daily_closes[:-1], self.macro_ema_period)
             if d_now is not None and d_prev is not None:
-                macro_up    = d_now > d_prev
-                allow_long  = macro_up
-                allow_short = not macro_up
+                macro_slope = d_now - d_prev
+                flat_thresh = abs(d_now) * 0.0001  # 0.01% daily move = flat
+                if abs(macro_slope) >= flat_thresh:
+                    if macro_slope > 0:
+                        allow_short = False
+                    else:
+                        allow_long = False
 
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev

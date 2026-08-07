@@ -108,11 +108,17 @@ class DerivClient:
         else:
             self._ws_url = self.LEGACY_WS_URL.format(app_id=self.app_id)
 
-        self.ws = await websockets.connect(self._ws_url)
+        self.ws = await websockets.connect(
+            self._ws_url,
+            ping_interval=30,  # WS-level ping every 30s
+            ping_timeout=10,   # close + reconnect if pong missing after 10s
+        )
         self._running = True
+        self._reconnecting = False
         logger.info("Connected to Deriv WebSocket")
 
         asyncio.create_task(self._listen())
+        asyncio.create_task(self._heartbeat())
 
         if not self._use_new_api:
             await self._authorize()
@@ -168,7 +174,7 @@ class DerivClient:
 
                 # DEBUG: log first 5 unknown message types so we can map new API format
                 if msg_type not in ("tick", "proposal_open_contract", "balance",
-                                    "proposal", "buy", "authorize", None):
+                                    "proposal", "buy", "authorize", "ping", None):
                     logger.info(f"[DEBUG] msg_type={msg_type!r} keys={list(msg.keys())[:8]}")
 
                 if msg_type == "tick":
@@ -192,10 +198,29 @@ class DerivClient:
                 asyncio.create_task(self._reconnect())
 
     # ------------------------------------------------------------------ #
+    #  Heartbeat — keeps the Deriv session alive
+    # ------------------------------------------------------------------ #
+
+    async def _heartbeat(self):
+        """Send a Deriv-level ping every 60 s to keep the session alive."""
+        while self._running:
+            await asyncio.sleep(60)
+            if self.ws is None or self._reconnecting:
+                continue
+            try:
+                await self._send({"ping": 1})
+            except Exception:
+                pass  # ConnectionClosed in _listen() will handle reconnect
+
+    # ------------------------------------------------------------------ #
     #  Reconnect
     # ------------------------------------------------------------------ #
 
     async def _reconnect(self):
+        if self._reconnecting:
+            return
+        self._reconnecting = True
+
         for fut in self._pending.values():
             if not fut.done():
                 fut.cancel()
@@ -211,7 +236,12 @@ class DerivClient:
                 if self._use_new_api:
                     # OTP tokens are single-use; need a fresh URL each reconnect
                     self._ws_url = await self._resolve_ws_url()
-                self.ws = await websockets.connect(self._ws_url, open_timeout=15)
+                self.ws = await websockets.connect(
+                    self._ws_url,
+                    open_timeout=15,
+                    ping_interval=30,
+                    ping_timeout=10,
+                )
                 asyncio.create_task(self._listen())
                 if not self._use_new_api:
                     await self._authorize()
@@ -219,6 +249,7 @@ class DerivClient:
                     await self._send({"ticks": symbol, "subscribe": 1})
                     logger.info(f"Re-subscribed to ticks: {symbol}")
                 logger.info(f"Reconnected successfully after {attempt} attempt(s)")
+                self._reconnecting = False
                 return
             except Exception as e:
                 logger.warning(f"Reconnect attempt {attempt} failed: {e}")

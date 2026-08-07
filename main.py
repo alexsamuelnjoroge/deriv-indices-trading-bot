@@ -10,6 +10,7 @@ import asyncio
 import argparse
 import os
 import sys
+import time as _time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -118,6 +119,37 @@ async def midnight_reset_loop(bots: list[SymbolBot], alerter):
                     balance=r.current_balance,
                 )
             r.reset_daily()
+
+
+# ── Tick watchdog ──────────────────────────────────────────────────────
+
+async def tick_watchdog(bots: list[SymbolBot], stale_secs: int = 600):
+    """
+    Warn if any symbol's last tick is older than stale_secs (default 10 min).
+    A stale symbol means the WebSocket stopped delivering data for that feed.
+    """
+    # seed with current epoch so we don't false-alarm on startup
+    last_seen: dict[str, float] = {}
+    for bot in bots:
+        last_seen.setdefault(bot.symbol, _time.time())
+
+    # patch each bot's tick handler to update last_seen
+    originals: dict[str, list] = {}
+    for sym in list(last_seen):
+        originals[sym] = []
+
+    # check every 2 minutes
+    while True:
+        await asyncio.sleep(120)
+        for bot in bots:
+            epoch = bot.tick_store.latest_epoch
+            if epoch is not None:
+                last_seen[bot.symbol] = max(last_seen.get(bot.symbol, 0), epoch)
+            gap = _time.time() - last_seen.get(bot.symbol, _time.time())
+            if gap > stale_secs:
+                logger.warning(
+                    f"[{bot.symbol}] No ticks for {gap/60:.1f} min — WebSocket may be stale"
+                )
 
 
 # ── Main bot loop ───────────────────────────────────────────────────────
@@ -342,8 +374,9 @@ async def run(watch_only: bool = False):
             await client.subscribe_ticks(bot.symbol)
             seen_symbols.add(bot.symbol)
 
-    # ── Start midnight reset loop ─────────────────────────────────
+    # ── Start midnight reset loop + tick watchdog ─────────────────
     asyncio.create_task(midnight_reset_loop(bots, alerter))
+    asyncio.create_task(tick_watchdog(bots))
 
     # ── Keep running ─────────────────────────────────────────────
     _last_halted_log = 0.0
