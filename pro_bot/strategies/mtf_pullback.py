@@ -105,9 +105,13 @@ class MTFPullbackStrategy(BaseProStrategy):
         if self.macro_filter and len(self._daily_bars) >= self.macro_ema_period + 1:
             d_ema = ema([b["close"] for b in self._daily_bars], self.macro_ema_period)
             if d_ema[-1] is not None and d_ema[-2] is not None:
-                macro_up    = d_ema[-1] > d_ema[-2]
-                allow_long  = macro_up
-                allow_short = not macro_up
+                macro_slope = d_ema[-1] - d_ema[-2]
+                flat_thresh = abs(d_ema[-1]) * 0.0001   # 0.01% daily move = flat
+                if abs(macro_slope) >= flat_thresh:
+                    if macro_slope > 0:
+                        allow_short = False
+                    else:
+                        allow_long = False
 
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev
