@@ -60,7 +60,7 @@ class Trader:
 
         ok, reason = self.risk.can_trade()
         if not ok:
-            logger.debug(f"Trade blocked: {reason}")
+            logger.info(f"[{self.symbol}] Trade blocked: {reason}")
             if "halted" in reason.lower() or "circuit" in reason.lower() or "performance" in reason.lower():
                 if self._alerter:
                     asyncio.create_task(
@@ -68,6 +68,7 @@ class Trader:
                     )
             return
 
+        logger.info(f"[{self.symbol}] Signal: {signal.action} | {signal.reason}")
         stake        = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
         is_multi     = signal.sl_pct is not None and self.multiplier > 0
 
