@@ -12,6 +12,7 @@ Responsibilities:
   - Spread filter: skip entry if current spread exceeds max_spread_sl_ratio × SL
 """
 
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, date
 from typing import Optional
@@ -52,6 +53,8 @@ class OrderManager:
         self.pyramid_risk_pct  = config.get("pyramid_risk_pct",     0.5)
         # Spread filter: skip if spread > this ratio × SL distance (0 = disabled)
         self.max_spread_ratio  = config.get("max_spread_sl_ratio",  0.0)
+        # Cooldown after a loss: block re-entry on the same symbol for this many seconds
+        self.loss_cooldown_secs = config.get("loss_cooldown_secs", 600)
 
         self._open:     dict[int, OpenTrade] = {}   # ticket → trade
         self._today_pnl:  float = 0.0
@@ -60,6 +63,7 @@ class OrderManager:
         self._total_trades = 0
         self._wins         = 0
         self._losses       = 0
+        self._loss_cooldown: dict[str, float] = {}  # symbol → cooldown-until timestamp
 
     # ── Daily reset ──────────────────────────────────────────────────────────
 
@@ -107,6 +111,14 @@ class OrderManager:
         if symbol in open_symbols or symbol in live_symbols:
             logger.info(f"[{symbol}] Already have open position — skipping")
             return False
+
+        # Cooldown: block re-entry after a SL hit to avoid revenge trading
+        if self.loss_cooldown_secs > 0:
+            until = self._loss_cooldown.get(symbol, 0)
+            if time.time() < until:
+                remaining = int(until - time.time())
+                logger.info(f"[{symbol}] Loss cooldown — {remaining}s remaining before re-entry")
+                return False
 
         # Spread filter: skip if spread is too wide relative to the SL
         if self.max_spread_ratio > 0:
@@ -251,6 +263,19 @@ class OrderManager:
         if volume <= 0:
             return
 
+        # Skip pyramid if minimum lot forces actual risk beyond 2× the target.
+        # This happens when sl_dist is very small (e.g. only 2-3 points from entry).
+        info = self.client.get_symbol_info(parent.symbol)
+        if info and info.get("point", 0) > 0:
+            actual_risk = (sl_dist / info["point"]) * info["trade_tick_value"] * volume
+            if actual_risk > risk_usd * 2:
+                logger.info(
+                    f"Pyramid skipped | {parent.symbol} min-lot risk ${actual_risk:.2f} "
+                    f"exceeds 2× target ${risk_usd:.2f} — SL too tight for min lot"
+                )
+                parent.pyramid_done = True
+                return
+
         result = self.client.place_order(
             symbol   = parent.symbol,
             action   = parent.action,
@@ -300,8 +325,13 @@ class OrderManager:
             won = pnl > 0
             if won:
                 self._wins += 1
+                self._loss_cooldown.pop(trade.symbol, None)  # win clears any cooldown
             else:
                 self._losses += 1
+                if self.loss_cooldown_secs > 0 and not trade.is_pyramid:
+                    self._loss_cooldown[trade.symbol] = time.time() + self.loss_cooldown_secs
+                    logger.info(f"[{trade.symbol}] Loss cooldown started — "
+                                f"re-entry blocked for {self.loss_cooldown_secs}s")
 
             tag = "PYRAMID" if trade.is_pyramid else "TRADE"
             logger.info(f"{tag} closed | {trade.symbol} {trade.action} | "
