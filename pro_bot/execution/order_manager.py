@@ -99,9 +99,12 @@ class OrderManager:
             logger.info(f"[{symbol}] Max open trades ({self.max_open}) reached")
             return False
 
-        # Block re-entry on a symbol that already has any position (incl. pyramid)
+        # Block re-entry on a symbol that already has any position (incl. pyramid).
+        # Check BOTH in-memory dict AND live MT5 positions so two concurrent bot
+        # instances or a restart mid-trade can't open a duplicate.
         open_symbols = {t.symbol for t in self._open.values()}
-        if symbol in open_symbols:
+        live_symbols = {p["symbol"] for p in self.client.get_open_positions()}
+        if symbol in open_symbols or symbol in live_symbols:
             logger.info(f"[{symbol}] Already have open position — skipping")
             return False
 
