@@ -72,3 +72,6 @@ risk:
   # Pyramid: open a scaled entry once trade reaches this many R profit (0 = off)
   pyramid_trigger_r: 1.0
   pyramid_risk_pct: 0.5          # risk % of balance for the pyramid position
+
+  # Cooldown: block re-entry on a symbol for this many seconds after a SL hit (0 = off)
+  loss_cooldown_secs: 600        # 10 minutes = 2 full 5-min bars
