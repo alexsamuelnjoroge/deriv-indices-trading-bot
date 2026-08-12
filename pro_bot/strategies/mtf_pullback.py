@@ -15,7 +15,7 @@ Logic (5min entry, 1h trend, daily macro gate):
   Session window  -> peak London/NY hours only (session_peak: true)
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from .base import BaseProStrategy, Signal
 from ..indicators import ema, rsi, adx as _adx, atr as _atr
@@ -40,6 +40,7 @@ class MTFPullbackStrategy(BaseProStrategy):
         self.adx_min          = config.get("adx_min",               0)
         self.session_only     = config.get("session_only",       False)
         self.session_peak     = config.get("session_peak",       False)
+        self.tz_offset_hours  = config.get("tz_offset_hours",       0)  # e.g. 3 for EAT
         self.atr_mult_sl      = config.get("atr_mult_sl",         0.0)
         self.macro_filter     = config.get("macro_filter",       False)
         self.macro_ema_period = config.get("macro_ema_period",     20)
@@ -51,12 +52,18 @@ class MTFPullbackStrategy(BaseProStrategy):
         self._daily_bars.append(bar)
 
     def _in_session(self, bar: dict) -> bool:
-        dt = datetime.fromtimestamp(bar.get("epoch", 0), tz=timezone.utc)
-        h  = dt.hour + dt.minute / 60.0
+        tz  = timezone(timedelta(hours=self.tz_offset_hours))
+        dt  = datetime.fromtimestamp(bar.get("epoch", 0), tz=tz)
+        h   = dt.hour + dt.minute / 60.0
         if self.session_peak:
-            return (7.0 <= h < 10.5) or (13.0 <= h < 16.5)
+            # London 10:00-13:30 EAT / NY 16:00-19:30 EAT (with tz_offset_hours=3)
+            london_start = 7.0  + self.tz_offset_hours
+            london_end   = 10.5 + self.tz_offset_hours
+            ny_start     = 13.0 + self.tz_offset_hours
+            ny_end       = 16.5 + self.tz_offset_hours
+            return (london_start <= h < london_end) or (ny_start <= h < ny_end)
         if self.session_only:
-            return 7.0 <= h < 20.0
+            return (7.0 + self.tz_offset_hours) <= h < (20.0 + self.tz_offset_hours)
         return True
 
     def _evaluate(self) -> Signal:
