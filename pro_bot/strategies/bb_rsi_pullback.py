@@ -2,11 +2,12 @@
 Bollinger Band + RSI Pullback Strategy
 
 Backtest result (365-day, holdout 20%):
-  frxEURUSD: EMA100 BB(20,2.0) RSI<55 RR1.5 SESS_PEAK MACRO20
-             Train EV +0.299R WR 55.0%  |  Holdout EV +0.186R WR 49.3%
+  frxEURUSD: EMA100 BB(20,2.0) RSI<55 RR2.0 ATR×2.0 4H-EMA20 SESS_PEAK MACRO20
+             Train EV +0.286R WR 54.6%  |  Holdout EV +0.500R WR 66.7%
 
-Logic (5min entry, 1h trend, daily macro gate):
+Logic (5min entry, 1h trend, 4h intermediate filter, daily macro gate):
   1h EMA slope  → trend direction
+  4h EMA slope  → must agree with 1h (use_4h_filter: true)
   5min price touches lower Bollinger Band + RSI < rsi_thresh  → BUY entry
   5min price touches upper Bollinger Band + RSI > (100-rsi_thresh)  → SELL entry
   ATR(14)*atr_mult_sl  → dynamic SL distance
@@ -32,6 +33,7 @@ class BBRSIPullbackStrategy(BaseProStrategy):
     def __init__(self, config: dict):
         super().__init__(config)
         self._htf_bars:   list[dict] = []
+        self._4h_bars:    list[dict] = []
         self._daily_bars: list[dict] = []
 
         self.ema_period       = config.get("ema_period",         100)
@@ -40,32 +42,41 @@ class BBRSIPullbackStrategy(BaseProStrategy):
         self.bb_std           = config.get("bb_std",              2.0)
         self.rsi_period       = config.get("rsi_period",           14)
         self.rsi_thresh       = config.get("rsi_thresh",          55.0)  # BUY when RSI < this
-        self.tp_rr            = config.get("tp_rr",               1.5)
-        self.atr_mult_sl      = config.get("atr_mult_sl",         1.5)
+        self.tp_rr            = config.get("tp_rr",               2.0)
+        self.atr_mult_sl      = config.get("atr_mult_sl",         2.0)
         self.session_only     = config.get("session_only",       False)
         self.session_peak     = config.get("session_peak",       False)
         self.tz_offset_hours  = config.get("tz_offset_hours",      0)
         self.macro_filter     = config.get("macro_filter",       False)
         self.macro_ema_period = config.get("macro_ema_period",     20)
+        self.use_4h_filter    = config.get("use_4h_filter",     False)
+        self.ema_4h_period    = config.get("ema_4h_period",        20)
+        # session: "peak" (London+NY), "london", "ny", "off" (always)
+        self._session_mode    = config.get("session",           "peak" if self.session_peak else "off")
 
     def feed_htf(self, bar: dict) -> None:
         self._htf_bars.append(bar)
+
+    def feed_4h(self, bar: dict) -> None:
+        self._4h_bars.append(bar)
 
     def feed_daily(self, bar: dict) -> None:
         self._daily_bars.append(bar)
 
     def _in_session(self, bar: dict) -> bool:
-        tz = timezone(timedelta(hours=self.tz_offset_hours))
-        dt = datetime.fromtimestamp(bar.get("epoch", 0), tz=tz)
-        h  = dt.hour + dt.minute / 60.0
-        if self.session_peak:
-            london_start = 7.0  + self.tz_offset_hours
-            london_end   = 10.5 + self.tz_offset_hours
-            ny_start     = 13.0 + self.tz_offset_hours
-            ny_end       = 16.5 + self.tz_offset_hours
-            return (london_start <= h < london_end) or (ny_start <= h < ny_end)
+        tz  = timezone(timedelta(hours=self.tz_offset_hours))
+        dt  = datetime.fromtimestamp(bar.get("epoch", 0), tz=tz)
+        h   = dt.hour + dt.minute / 60.0
+        off = self.tz_offset_hours
+        mode = self._session_mode
+        if mode == "london":
+            return (7.0 + off) <= h < (10.5 + off)
+        if mode == "ny":
+            return (13.0 + off) <= h < (16.5 + off)
+        if mode == "peak":
+            return ((7.0 + off) <= h < (10.5 + off)) or ((13.0 + off) <= h < (16.5 + off))
         if self.session_only:
-            return (7.0 + self.tz_offset_hours) <= h < (20.0 + self.tz_offset_hours)
+            return (7.0 + off) <= h < (20.0 + off)
         return True
 
     def _evaluate(self) -> Signal:
@@ -128,6 +139,17 @@ class BBRSIPullbackStrategy(BaseProStrategy):
 
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev
+
+        # 4H EMA intermediate filter — slope must agree with 1H direction
+        if self.use_4h_filter and len(self._4h_bars) >= self.ema_4h_period + 1:
+            ema_4h_vals = ema([b["close"] for b in self._4h_bars], self.ema_4h_period)
+            if ema_4h_vals[-1] is not None and ema_4h_vals[-2] is not None:
+                ema4h_up = ema_4h_vals[-1] > ema_4h_vals[-2]
+                if trend_up   and not ema4h_up:
+                    return Signal(action="HOLD", reason="4H EMA opposes 1H uptrend")
+                if trend_down and ema4h_up:
+                    return Signal(action="HOLD", reason="4H EMA opposes 1H downtrend")
+
         price      = cur["close"]
         ob_thresh  = 100.0 - self.rsi_thresh   # overbought mirror
 

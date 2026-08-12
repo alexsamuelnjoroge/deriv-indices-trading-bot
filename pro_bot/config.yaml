@@ -29,10 +29,9 @@ strategies:
     macro_ema_period: 20
 
   # ── EUR/USD (EURUSD) ──────────────────────────────────────────────────────
-  # Strategy : Bollinger Band + RSI<55 Pullback (new — replaces RSI-pullback)
-  # Backtest : Train EV +0.299R WR 55.0% n=441 | Holdout EV +0.186R WR 49.3% n=86
-  # Why BB+RSI: RSI-pullback generated 0 trades in holdout; BB+RSI catches shallow
-  #             pullbacks to the lower band that RSI<35 would miss entirely.
+  # Strategy : Bollinger Band + RSI<55 Pullback + 4H EMA filter
+  # Backtest : Train EV +0.286R WR 54.6% n=456 | Holdout EV +0.500R WR 66.7% n=68
+  # Stack: 4H EMA20 filter + ATR×2.0 SL + RR 2.0 — all additive (prev holdout -0.036R)
   - name: bb_rsi_pullback
     enabled: true
     symbols: [EURUSD]
@@ -43,31 +42,40 @@ strategies:
     bb_period: 20
     bb_std: 2.0
     rsi_period: 14
-    rsi_thresh: 55.0           # BUY when RSI < 55 (relaxed vs 35 — catches more pullbacks)
-    tp_rr: 1.5
-    atr_mult_sl: 1.5
+    rsi_thresh: 55.0           # BUY when RSI < 55 (relaxed — catches shallow BB pullbacks)
+    tp_rr: 2.0                 # raised from 1.5 — pairs well with wider ATR SL
+    atr_mult_sl: 2.0           # raised from 1.5 — lets trades breathe past noise spikes
+    use_4h_filter: true        # 4H EMA must agree with 1H trend before entry
+    ema_4h_period: 20
     session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
     tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true
     macro_ema_period: 20
 
   # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
-  # Strategy : MTF RSI-Pullback (fixed threshold)
-  # Backtest : Train EV +0.047R WR 42.2% n=352 | Holdout EV +0.033R WR 41.7% n=30
-  # Key changes vs previous: EMA200 (was 100), ADX 25 (was 20), RR 1.5 (was 2.0)
-  - name: mtf_pullback
+  # Strategy : BB+RSI Pullback — London session only
+  # Backtest : Train EV +0.085R WR 37.1% n=153 | Holdout EV +0.696R WR 71.4% n=23
+  # Why switch: RSI pullback had -0.43R holdout EV; BB+RSI London-only is the only
+  #             approach that generalises. USDJPY is almost exclusively LONG in London
+  #             (22 buys vs 1 sell) — JPY calms after Asia; pullbacks to lower BB recover.
+  - name: bb_rsi_pullback
     enabled: true
     symbols: [USDJPY]
     htf_granularity: 3600
     ltf_granularity: 300
-    ema_period: 200
+    ema_period: 50             # faster trend — catches medium-term moves in London
     slope_bars: 3
+    bb_period: 20
+    bb_std: 2.0
     rsi_period: 14
-    rsi_entry: 35.0
-    rsi_adaptive: false        # fixed threshold — adaptive didn't help USDJPY
-    tp_rr: 1.5
-    adx_min: 25
+    rsi_thresh: 40.0           # stricter than EURUSD (55) — JPY needs deeper pullback
+    tp_rr: 2.0
     atr_mult_sl: 1.5
+    use_4h_filter: true        # 4H EMA20 reduces false entries
+    ema_4h_period: 20
+    session: london            # London open only (07:00-10:30 UTC = 10:00-13:30 EAT)
+    session_peak: false        # legacy flag — session: london takes precedence
+    tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true
     macro_ema_period: 20
 
