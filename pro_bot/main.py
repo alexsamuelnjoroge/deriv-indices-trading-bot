@@ -26,11 +26,12 @@ from loguru import logger
 from pro_bot.execution.mt5_client import MT5Client
 from pro_bot.execution.bar_feed   import BarFeed
 from pro_bot.execution.order_manager import OrderManager
-from pro_bot.strategies.mtf_pullback    import MTFPullbackStrategy
-from pro_bot.strategies.stoch_ema       import StochEMAStrategy
+from pro_bot.strategies.mtf_pullback     import MTFPullbackStrategy
+from pro_bot.strategies.bb_rsi_pullback  import BBRSIPullbackStrategy
+from pro_bot.strategies.stoch_ema        import StochEMAStrategy
 from pro_bot.strategies.session_breakout import SessionBreakoutStrategy
-from pro_bot.strategies.rsi_divergence  import RSIDivergenceStrategy
-from pro_bot.strategies.pivot_bounce    import PivotBounceStrategy
+from pro_bot.strategies.rsi_divergence   import RSIDivergenceStrategy
+from pro_bot.strategies.pivot_bounce     import PivotBounceStrategy
 
 try:
     import MetaTrader5 as mt5
@@ -46,12 +47,16 @@ except ImportError:
     MT5_TF = {}
 
 STRATEGY_CLASSES = {
-    "mtf_pullback":     MTFPullbackStrategy,
-    "stoch_ema":        StochEMAStrategy,
-    "session_breakout": SessionBreakoutStrategy,
-    "rsi_divergence":   RSIDivergenceStrategy,
-    "pivot_bounce":     PivotBounceStrategy,
+    "mtf_pullback":      MTFPullbackStrategy,
+    "bb_rsi_pullback":   BBRSIPullbackStrategy,
+    "stoch_ema":         StochEMAStrategy,
+    "session_breakout":  SessionBreakoutStrategy,
+    "rsi_divergence":    RSIDivergenceStrategy,
+    "pivot_bounce":      PivotBounceStrategy,
 }
+
+# Strategies that need LTF + HTF + optional daily feeds (same wiring as mtf_pullback)
+_MTF_STRATEGIES = {"mtf_pullback", "bb_rsi_pullback"}
 
 
 def _setup_logging():
@@ -99,8 +104,8 @@ class ProBot:
             for symbol in symbols:
                 strategy = cls(strat_cfg)
 
-                # --- MTF needs LTF + HTF feeds, plus daily for macro filter ---
-                if name == "mtf_pullback":
+                # --- MTF-style strategies need LTF + HTF feeds + optional daily ---
+                if name in _MTF_STRATEGIES:
                     ltf_feed = BarFeed(self.client, symbol, ltf_tf)
                     htf_feed = BarFeed(self.client, symbol, htf_tf,
                                        history_count=300)
