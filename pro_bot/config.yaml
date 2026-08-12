@@ -53,29 +53,29 @@ strategies:
     macro_ema_period: 20
 
   # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
-  # Strategy : BB+RSI Pullback — London session only
-  # Backtest : Train EV +0.085R WR 37.1% n=153 | Holdout EV +0.696R WR 71.4% n=23
-  # Why switch: RSI pullback had -0.43R holdout EV; BB+RSI London-only is the only
-  #             approach that generalises. USDJPY is almost exclusively LONG in London
-  #             (22 buys vs 1 sell) — JPY calms after Asia; pullbacks to lower BB recover.
+  # DISABLED — walk-forward validation (4 windows, 2 years) returned 0/4 passes.
+  # RSI pullback: -0.427R holdout (regime broken).
+  # BB+RSI London-only: passed 1-window sweep (+0.696R) but FAILED all 4 walk-forward
+  # windows — confirmed overfit to a narrow recent regime (n=23 across 45 days).
+  # JPY is driven by BoJ intervention and carry-trade dynamics that don't repeat.
+  # Re-enable only after identifying an approach that passes multi-window validation.
   - name: bb_rsi_pullback
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     htf_granularity: 3600
     ltf_granularity: 300
-    ema_period: 50             # faster trend — catches medium-term moves in London
-    slope_bars: 3
+    ema_period: 50
     bb_period: 20
     bb_std: 2.0
     rsi_period: 14
-    rsi_thresh: 40.0           # stricter than EURUSD (55) — JPY needs deeper pullback
+    rsi_thresh: 40.0
     tp_rr: 2.0
     atr_mult_sl: 1.5
-    use_4h_filter: true        # 4H EMA20 reduces false entries
+    use_4h_filter: true
     ema_4h_period: 20
-    session: london            # London open only (07:00-10:30 UTC = 10:00-13:30 EAT)
-    session_peak: false        # legacy flag — session: london takes precedence
-    tz_offset_hours: 3         # EAT = UTC+3
+    session: london
+    session_peak: false
+    tz_offset_hours: 3
     macro_filter: true
     macro_ema_period: 20
 
