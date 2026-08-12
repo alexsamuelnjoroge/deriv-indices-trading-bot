@@ -28,6 +28,7 @@ from pro_bot.execution.bar_feed   import BarFeed
 from pro_bot.execution.order_manager import OrderManager
 from pro_bot.strategies.mtf_pullback     import MTFPullbackStrategy
 from pro_bot.strategies.bb_rsi_pullback  import BBRSIPullbackStrategy
+from pro_bot.strategies.macd_momentum    import MACDMomentumStrategy
 from pro_bot.strategies.stoch_ema        import StochEMAStrategy
 from pro_bot.strategies.session_breakout import SessionBreakoutStrategy
 from pro_bot.strategies.rsi_divergence   import RSIDivergenceStrategy
@@ -51,6 +52,7 @@ except ImportError:
 STRATEGY_CLASSES = {
     "mtf_pullback":      MTFPullbackStrategy,
     "bb_rsi_pullback":   BBRSIPullbackStrategy,
+    "macd_momentum":     MACDMomentumStrategy,
     "stoch_ema":         StochEMAStrategy,
     "session_breakout":  SessionBreakoutStrategy,
     "rsi_divergence":    RSIDivergenceStrategy,
@@ -58,7 +60,7 @@ STRATEGY_CLASSES = {
 }
 
 # Strategies that need LTF + HTF + optional daily feeds (same wiring as mtf_pullback)
-_MTF_STRATEGIES = {"mtf_pullback", "bb_rsi_pullback"}
+_MTF_STRATEGIES = {"mtf_pullback", "bb_rsi_pullback", "macd_momentum"}
 
 
 def _setup_logging():
