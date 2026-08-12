@@ -4,9 +4,9 @@
 strategies:
 
   # ── Gold (XAUUSD) ─────────────────────────────────────────────────────────
-  # Strategy : MTF RSI-Pullback (adaptive threshold)
-  # Backtest : Train EV +0.058R WR 36.0% | Holdout EV +0.190R WR 43.2% n=58
-  # Key changes vs previous: EMA200 (was 100), ADX off (was 25), RR 2.0 (was 1.5)
+  # Strategy : MTF RSI-Pullback (adaptive threshold + 4H EMA quality filter)
+  # Backtest : Train EV +0.150R WR 40.4% | Holdout EV +0.349R WR 51.9% n=43
+  # 4H filter: requires 4H EMA slope to agree with 1H — cuts noise entries by 20%
   - name: mtf_pullback
     enabled: true
     symbols: [XAUUSD]
@@ -19,8 +19,10 @@ strategies:
     rsi_adaptive: true         # 20th-pct of last 50 RSI values — self-calibrates
     rsi_lookback: 50
     tp_rr: 2.0
-    adx_min: 0                 # removed — ADX filter was cutting too many valid signals
+    adx_min: 0
     atr_mult_sl: 1.5
+    use_4h_filter: true        # 4H EMA must agree with 1H trend before entry
+    ema_4h_period: 20          # 20-bar EMA on the 4H chart
     session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
     tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true

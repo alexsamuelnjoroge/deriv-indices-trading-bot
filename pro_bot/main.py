@@ -42,9 +42,11 @@ try:
         14400: mt5.TIMEFRAME_H4,
         86400: mt5.TIMEFRAME_D1,
     }
+    GRAN_4H = 14400
 except ImportError:
     mt5    = None
     MT5_TF = {}
+    GRAN_4H = 14400
 
 STRATEGY_CLASSES = {
     "mtf_pullback":      MTFPullbackStrategy,
@@ -117,16 +119,23 @@ class ProBot:
                             daily_feed = BarFeed(self.client, symbol, daily_tf,
                                                  history_count=100)
 
-                    def _make_mtf_handler(sym, strat, h_feed, d_feed):
-                        _ltf_seeded = [False]
-                        _htf_seeded = [False]
+                    _4h_feed = None
+                    if strat_cfg.get("use_4h_filter"):
+                        tf_4h = MT5_TF.get(GRAN_4H)
+                        if tf_4h:
+                            _4h_feed = BarFeed(self.client, symbol, tf_4h,
+                                               history_count=200)
+
+                    def _make_mtf_handler(sym, strat, h_feed, d_feed, feed_4h):
+                        _ltf_seeded   = [False]
+                        _htf_seeded   = [False]
                         _daily_seeded = [False]
+                        _4h_seeded    = [False]
 
                         def _ltf_handler(symbol_name, bars):
                             if not bars:
                                 return
                             if not _ltf_seeded[0]:
-                                # Seed history so indicators warm up instantly
                                 strat._bars = list(bars[:-1])
                                 _ltf_seeded[0] = True
                             sig = strat.feed(bars[-1])
@@ -143,6 +152,18 @@ class ProBot:
                             strat.feed_htf(bars[-1])
 
                         h_feed.on_bar_close(_htf_handler)
+
+                        if feed_4h:
+                            def _4h_handler(symbol_name, bars):
+                                if not bars:
+                                    return
+                                if not _4h_seeded[0]:
+                                    for bar in bars[:-1]:
+                                        strat.feed_4h(bar)
+                                    _4h_seeded[0] = True
+                                strat.feed_4h(bars[-1])
+                            feed_4h.on_bar_close(_4h_handler)
+
                         if d_feed:
                             def _daily_handler(symbol_name, bars):
                                 if not bars:
@@ -157,10 +178,12 @@ class ProBot:
                         return _ltf_handler
 
                     ltf_feed.on_bar_close(
-                        _make_mtf_handler(symbol, strategy, htf_feed, daily_feed)
+                        _make_mtf_handler(symbol, strategy, htf_feed, daily_feed, _4h_feed)
                     )
                     self._feeds.append(ltf_feed)
                     self._feeds.append(htf_feed)
+                    if _4h_feed:
+                        self._feeds.append(_4h_feed)
                     if daily_feed:
                         self._feeds.append(daily_feed)
 
