@@ -30,6 +30,7 @@ class MTFPullbackStrategy(BaseProStrategy):
     def __init__(self, config: dict):
         super().__init__(config)
         self._htf_bars:   list[dict] = []
+        self._4h_bars:    list[dict] = []
         self._daily_bars: list[dict] = []
 
         self.ema_period       = config.get("ema_period",        100)
@@ -40,15 +41,20 @@ class MTFPullbackStrategy(BaseProStrategy):
         self.adx_min          = config.get("adx_min",               0)
         self.session_only     = config.get("session_only",       False)
         self.session_peak     = config.get("session_peak",       False)
-        self.tz_offset_hours  = config.get("tz_offset_hours",       0)  # e.g. 3 for EAT
+        self.tz_offset_hours  = config.get("tz_offset_hours",       0)
         self.atr_mult_sl      = config.get("atr_mult_sl",         0.0)
         self.macro_filter     = config.get("macro_filter",       False)
         self.macro_ema_period = config.get("macro_ema_period",     20)
         self.rsi_adaptive     = config.get("rsi_adaptive",        True)
         self.rsi_lookback     = config.get("rsi_lookback",          50)
+        self.use_4h_filter    = config.get("use_4h_filter",      False)
+        self.ema_4h_period    = config.get("ema_4h_period",        20)
 
     def feed_htf(self, bar: dict) -> None:
         self._htf_bars.append(bar)
+
+    def feed_4h(self, bar: dict) -> None:
+        self._4h_bars.append(bar)
 
     def feed_daily(self, bar: dict) -> None:
         self._daily_bars.append(bar)
@@ -141,6 +147,17 @@ class MTFPullbackStrategy(BaseProStrategy):
 
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev
+
+        # 4H EMA intermediate filter — 4H slope must agree with 1H slope
+        if self.use_4h_filter and len(self._4h_bars) >= self.ema_4h_period + 1:
+            ema_4h_vals = ema([b["close"] for b in self._4h_bars], self.ema_4h_period)
+            if ema_4h_vals[-1] is not None and ema_4h_vals[-2] is not None:
+                ema4h_up = ema_4h_vals[-1] > ema_4h_vals[-2]
+                if trend_up  and not ema4h_up:
+                    return Signal(action="HOLD", reason="4H EMA opposes 1H uptrend")
+                if trend_down and ema4h_up:
+                    return Signal(action="HOLD", reason="4H EMA opposes 1H downtrend")
+
         tp_dist    = sl_dist * self.tp_rr
 
         if trend_up and rsi_prev >= entry_thresh > rsi_now and allow_long:
