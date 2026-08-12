@@ -44,6 +44,8 @@ class MTFPullbackStrategy(BaseProStrategy):
         self.atr_mult_sl      = config.get("atr_mult_sl",         0.0)
         self.macro_filter     = config.get("macro_filter",       False)
         self.macro_ema_period = config.get("macro_ema_period",     20)
+        self.rsi_adaptive     = config.get("rsi_adaptive",        True)
+        self.rsi_lookback     = config.get("rsi_lookback",          50)
 
     def feed_htf(self, bar: dict) -> None:
         self._htf_bars.append(bar)
@@ -65,6 +67,19 @@ class MTFPullbackStrategy(BaseProStrategy):
         if self.session_only:
             return (7.0 + self.tz_offset_hours) <= h < (20.0 + self.tz_offset_hours)
         return True
+
+    def _adaptive_entry_threshold(self, rsi_series: list[float]) -> float:
+        """
+        20th-percentile of recent RSI values as a dynamic entry threshold.
+        Rises automatically in strong trends (e.g. RSI stays 55-75 → threshold
+        moves to ~58) so the bot doesn't wait forever for a level that won't come.
+        Clamped to [rsi_entry, 50] — never below the backtested floor or above neutral.
+        """
+        if not self.rsi_adaptive or len(rsi_series) < self.rsi_lookback:
+            return self.rsi_entry
+        recent = sorted(rsi_series[-self.rsi_lookback:])
+        idx    = max(0, int(len(recent) * 0.20) - 1)
+        return max(self.rsi_entry, min(50.0, recent[idx]))
 
     def _evaluate(self) -> Signal:
         bars = self._bars
@@ -88,12 +103,16 @@ class MTFPullbackStrategy(BaseProStrategy):
         ema_now  = ema_vals[-1]
         ema_prev = ema_vals[-1 - self.slope_bars]
 
-        rsi_vals = rsi(ltf_closes, self.rsi_period)
-        rsi_now  = rsi_vals[-1]
-        rsi_prev = rsi_vals[-2]
+        rsi_vals     = rsi(ltf_closes, self.rsi_period)
+        rsi_now      = rsi_vals[-1]
+        rsi_prev     = rsi_vals[-2]
 
         if any(x is None for x in [ema_now, ema_prev, rsi_now, rsi_prev]):
             return Signal(action="HOLD", reason="Indicator not ready")
+
+        rsi_series   = [v for v in rsi_vals if v is not None]
+        entry_thresh = self._adaptive_entry_threshold(rsi_series)
+        ob           = 100.0 - entry_thresh
 
         if self.adx_min > 0:
             adx_vals = _adx(bars, 14)
@@ -122,23 +141,22 @@ class MTFPullbackStrategy(BaseProStrategy):
 
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev
-        ob         = 100.0 - self.rsi_entry
         tp_dist    = sl_dist * self.tp_rr
 
-        if trend_up and rsi_prev >= self.rsi_entry > rsi_now and allow_long:
+        if trend_up and rsi_prev >= entry_thresh > rsi_now and allow_long:
             return Signal(
                 action="BUY",
-                reason=f"EMA up | RSI {rsi_now:.1f} cross | macro {'up' if self.macro_filter else 'off'}",
+                reason=f"EMA up | RSI {rsi_now:.1f} cross {entry_thresh:.1f} | macro {'up' if self.macro_filter else 'off'}",
                 sl_pips=sl_dist,
                 tp_pips=tp_dist,
-                confidence=min(1.0, (self.rsi_entry - rsi_now) / 10),
-                meta={"ema": round(ema_now, 5), "rsi": round(rsi_now, 1)},
+                confidence=min(1.0, (entry_thresh - rsi_now) / 10),
+                meta={"ema": round(ema_now, 5), "rsi": round(rsi_now, 1), "thresh": round(entry_thresh, 1)},
             )
 
         if trend_down and rsi_prev <= ob < rsi_now and allow_short:
             return Signal(
                 action="SELL",
-                reason=f"EMA down | RSI {rsi_now:.1f} cross | macro {'down' if self.macro_filter else 'off'}",
+                reason=f"EMA down | RSI {rsi_now:.1f} cross {ob:.1f} | macro {'down' if self.macro_filter else 'off'}",
                 sl_pips=sl_dist,
                 tp_pips=tp_dist,
                 confidence=min(1.0, (rsi_now - ob) / 10),
