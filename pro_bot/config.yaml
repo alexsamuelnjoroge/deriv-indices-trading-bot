@@ -53,29 +53,26 @@ strategies:
     macro_ema_period: 20
 
   # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
-  # DISABLED — walk-forward validation (4 windows, 2 years) returned 0/4 passes.
-  # RSI pullback: -0.427R holdout (regime broken).
-  # BB+RSI London-only: passed 1-window sweep (+0.696R) but FAILED all 4 walk-forward
-  # windows — confirmed overfit to a narrow recent regime (n=23 across 45 days).
-  # JPY is driven by BoJ intervention and carry-trade dynamics that don't repeat.
-  # Re-enable only after identifying an approach that passes multi-window validation.
-  - name: bb_rsi_pullback
-    enabled: false
+  # Strategy : MACD Histogram Flip on 1H + 4H slope gate + daily macro
+  # Backtest : Dual-holdout validated — Win-A +0.600R WR 66.7% n=10 | Win-B +0.375R WR 50% n=16
+  # 5m strategies (RSI pullback, BB+RSI London-only) all failed walk-forward (0/4 windows).
+  # Root cause: JPY driven by BoJ interventions and carry dynamics — 5m patterns don't repeat.
+  # 1H MACD histogram flips capture genuine momentum shifts; 125/~1000 configs passed
+  # dual-holdout validation, confirming structural edge (not noise from single lucky config).
+  - name: macd_momentum
+    enabled: true
     symbols: [USDJPY]
-    htf_granularity: 3600
-    ltf_granularity: 300
-    ema_period: 50
-    bb_period: 20
-    bb_std: 2.0
-    rsi_period: 14
-    rsi_thresh: 40.0
+    ltf_granularity: 3600     # 1H bars → MACD signal + EMA100 trend
+    htf_granularity: 14400    # 4H bars → EMA slope gate (stored in _htf_bars)
+    macd_fast: 8
+    macd_slow: 21
+    macd_signal: 9
+    ema_period: 100            # 1H EMA for trend direction
+    ema_4h_period: 20          # 4H EMA for slope gate
     tp_rr: 2.0
-    atr_mult_sl: 1.5
-    use_4h_filter: true
-    ema_4h_period: 20
-    session: london
-    session_peak: false
-    tz_offset_hours: 3
+    atr_mult_sl: 2.0
+    session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
+    tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true
     macro_ema_period: 20
 

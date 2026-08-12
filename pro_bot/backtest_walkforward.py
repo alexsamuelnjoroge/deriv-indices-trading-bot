@@ -29,7 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pro_bot.backtest import simulate_exits, SPREADS, _fetch, CACHE_5M, CACHE_1H, CACHE_1D
-from pro_bot.indicators import ema as _ema, rsi as _rsi, atr as _atr, bollinger as _bb
+from pro_bot.indicators import ema as _ema, rsi as _rsi, atr as _atr, bollinger as _bb, macd as _macd
 from pro_bot.strategies.base import Signal
 
 GRAN_5M = 300
@@ -256,10 +256,80 @@ EURUSD_CFG = dict(ema_period=100, bb_period=20, rsi_thresh=55.0,
                   session="peak", use_4h_filter=True, ema_4h_period=20,
                   tz_offset_hours=3)
 
-USDJPY_CFG = dict(ema_period=50, bb_period=20, rsi_thresh=40.0,
-                  tp_rr=2.0, atr_mult_sl=1.5, macro_ema_period=20,
-                  session="london", use_4h_filter=True, ema_4h_period=20,
-                  tz_offset_hours=3)
+
+def run_macd_1h(b1h, b4h, b1d, cfg=None):
+    """MACD histogram flip on 1H bars.
+
+    Config (defaults match deployed USDJPY config):
+      macd_fast=8, macd_slow=21, macd_signal=9
+      ema_period=100  (1H EMA trend gate)
+      ema_4h_period=20 (4H EMA slope gate)
+      tp_rr=2.0, atr_mult_sl=2.0
+      session="peak", macro_ema_period=20, tz_offset_hours=3
+
+    Returns list of (bar_idx_into_b1h, Signal) for use with simulate_exits(b1h, ...).
+    """
+    if cfg is None:
+        cfg = {}
+    fast     = cfg.get("macd_fast",        8)
+    slow     = cfg.get("macd_slow",        21)
+    sig_p    = cfg.get("macd_signal",       9)
+    ema_p    = cfg.get("ema_period",      100)
+    ema4h_p  = cfg.get("ema_4h_period",    20)
+    tp_rr    = cfg.get("tp_rr",           2.0)
+    atr_mult = cfg.get("atr_mult_sl",     2.0)
+    macro_p  = cfg.get("macro_ema_period", 20)
+    sess     = cfg.get("session",        "peak")
+    tz_off   = cfg.get("tz_offset_hours",   3)
+
+    closes_1h = [b["close"] for b in b1h]
+    _, _, hist  = _macd(closes_1h, fast, slow, sig_p)
+    ema_1h      = _ema(closes_1h, ema_p)
+    atr_1h      = _atr(b1h, 14)
+    epochs_4h   = [b["epoch"] for b in b4h] if b4h else []
+    ema4h       = _ema([b["close"] for b in b4h], ema4h_p) if b4h else None
+    ema_d       = _ema([b["close"] for b in b1d], macro_p)
+    epochs_d    = [b["epoch"] for b in b1d]
+
+    min_i = slow + sig_p + ema_p + 2
+    results = []
+    for i in range(min_i, len(b1h)):
+        if hist[i] is None or hist[i - 1] is None:
+            continue
+        if ema_1h[i] is None or ema_1h[i - 1] is None:
+            continue
+
+        epoch = b1h[i]["epoch"]
+        if not _sess(epoch, sess, tz_off):
+            continue
+
+        trend_up   = ema_1h[i] > ema_1h[i - 1]
+        trend_down = ema_1h[i] < ema_1h[i - 1]
+        hist_n, hist_p = hist[i], hist[i - 1]
+
+        al, ash = _macro(b1d, macro_p, epoch, epochs_d, ema_d)
+
+        if b4h:
+            j4 = bisect.bisect_right(epochs_4h, epoch) - 1
+            if j4 >= 1 and ema4h and ema4h[j4] is not None and ema4h[j4 - 1] is not None:
+                ema4h_up = ema4h[j4] > ema4h[j4 - 1]
+                if trend_up   and not ema4h_up:
+                    continue
+                if trend_down and ema4h_up:
+                    continue
+
+        atr_v = atr_1h[i]
+        sl = max((atr_v * atr_mult) if atr_v else 0, b1h[i]["close"] * 0.001)
+        tp = sl * tp_rr
+
+        # histogram flip: negative→positive = BUY
+        if trend_up and hist_p < 0 and hist_n >= 0 and al:
+            results.append((i, Signal("BUY",  sl_pips=sl, tp_pips=tp)))
+        # histogram flip: positive→negative = SELL
+        elif trend_down and hist_p > 0 and hist_n <= 0 and ash:
+            results.append((i, Signal("SELL", sl_pips=sl, tp_pips=tp)))
+
+    return results
 
 
 # ── Display ───────────────────────────────────────────────────────────────────
@@ -299,10 +369,17 @@ async def main():
     print("Year 1 (bars 0-50%) never used in any prior optimisation")
     print("=" * 78)
 
+    USDJPY_MACD_CFG = dict(
+        macd_fast=8, macd_slow=21, macd_signal=9,
+        ema_period=100, ema_4h_period=20,
+        tp_rr=2.0, atr_mult_sl=2.0,
+        macro_ema_period=20, session="peak", tz_offset_hours=3,
+    )
+
     symbols = [
         ("frxXAUUSD", "XAUUSD — MTF RSI-Pullback  (EMA200 adaptive 4H ATR×2 RR2)"),
         ("frxEURUSD", "EURUSD — BB+RSI Pullback    (EMA100 RSI<55 4H ATR×2 RR2 peak)"),
-        ("frxUSDJPY", "USDJPY — BB+RSI Pullback    (EMA50  RSI<40 4H ATR×1.5 RR2 London)"),
+        ("frxUSDJPY", "USDJPY — MACD Hist Flip 1H  (EMA100 MACD(8,21,9) ATR×2 RR2 peak)"),
     ]
 
     for sym, description in symbols:
@@ -313,34 +390,53 @@ async def main():
         print(f"{'─'*78}")
 
         b5, b1h, b4h, b1d = await load(sym)
-        total_bars = len(b5)
-        first_date = b5[0]["epoch"]
-        last_date  = b5[-1]["epoch"]
         import time as _t
-        fd = _t.strftime("%Y-%m-%d", _t.gmtime(first_date))
-        ld = _t.strftime("%Y-%m-%d", _t.gmtime(last_date))
-        print(f"\n  Date range: {fd} → {ld}  ({total_bars} 5m bars)\n")
+
+        if sym == "frxUSDJPY":
+            # MACD strategy runs on 1H bars — use 1H date range for display
+            first_date, last_date = b1h[0]["epoch"], b1h[-1]["epoch"]
+            fd = _t.strftime("%Y-%m-%d", _t.gmtime(first_date))
+            ld = _t.strftime("%Y-%m-%d", _t.gmtime(last_date))
+            print(f"\n  Date range: {fd} → {ld}  ({len(b1h)} 1H bars)\n")
+        else:
+            first_date, last_date = b5[0]["epoch"], b5[-1]["epoch"]
+            fd = _t.strftime("%Y-%m-%d", _t.gmtime(first_date))
+            ld = _t.strftime("%Y-%m-%d", _t.gmtime(last_date))
+            print(f"\n  Date range: {fd} → {ld}  ({len(b5)} 5m bars)\n")
 
         passes = 0
         for wi, (_, train_end_pct, test_end_pct) in enumerate(WINDOWS):
             tr, ho = make_window(b5, b1h, b4h, b1d, train_end_pct, test_end_pct)
-            tr_5m_span = (tr["5m"][-1]["epoch"] - tr["5m"][0]["epoch"]) // 86400
-            ho_5m_span = (ho["5m"][-1]["epoch"] - ho["5m"][0]["epoch"]) // 86400
+
+            if sym == "frxUSDJPY":
+                # Window spans based on 1H bars
+                tr_span = (tr["1h"][-1]["epoch"] - tr["1h"][0]["epoch"]) // 86400 if tr["1h"] else 0
+                ho_span = (ho["1h"][-1]["epoch"] - ho["1h"][0]["epoch"]) // 86400 if ho["1h"] else 0
+            else:
+                tr_span = (tr["5m"][-1]["epoch"] - tr["5m"][0]["epoch"]) // 86400
+                ho_span = (ho["5m"][-1]["epoch"] - ho["5m"][0]["epoch"]) // 86400
             wlabel = (f"{WINDOW_LABELS[wi]}  "
-                      f"[train {tr_5m_span}d / test {ho_5m_span}d]")
+                      f"[train {tr_span}d / test {ho_span}d]")
 
             if sym == "frxXAUUSD":
                 sigs_tr = run_xauusd(tr["5m"], tr["1h"], tr["4h"], tr["1d"])
                 sigs_ho = run_xauusd(ho["5m"], ho["1h"], ho["4h"], ho["1d"])
+                tr_s = stats(simulate_exits(tr["5m"], sigs_tr, spread=spread, be_r=1.0), min_n=10)
+                ho_s = stats(simulate_exits(ho["5m"], sigs_ho, spread=spread, be_r=1.0), min_n=5)
             elif sym == "frxEURUSD":
                 sigs_tr = run_bb_rsi(tr["5m"], tr["1h"], tr["4h"], tr["1d"], EURUSD_CFG)
                 sigs_ho = run_bb_rsi(ho["5m"], ho["1h"], ho["4h"], ho["1d"], EURUSD_CFG)
+                tr_s = stats(simulate_exits(tr["5m"], sigs_tr, spread=spread, be_r=1.0), min_n=10)
+                ho_s = stats(simulate_exits(ho["5m"], sigs_ho, spread=spread, be_r=1.0), min_n=5)
             else:
-                sigs_tr = run_bb_rsi(tr["5m"], tr["1h"], tr["4h"], tr["1d"], USDJPY_CFG)
-                sigs_ho = run_bb_rsi(ho["5m"], ho["1h"], ho["4h"], ho["1d"], USDJPY_CFG)
+                # MACD 1H — signals and simulation both on 1H bars
+                sigs_tr = run_macd_1h(tr["1h"], tr["4h"], tr["1d"], USDJPY_MACD_CFG)
+                sigs_ho = run_macd_1h(ho["1h"], ho["4h"], ho["1d"], USDJPY_MACD_CFG)
+                tr_s = stats(simulate_exits(tr["1h"], sigs_tr, max_hold_bars=20,
+                                            spread=spread, be_r=1.0), min_n=10)
+                ho_s = stats(simulate_exits(ho["1h"], sigs_ho, max_hold_bars=20,
+                                            spread=spread, be_r=1.0), min_n=5)
 
-            tr_s = stats(simulate_exits(tr["5m"], sigs_tr, spread=spread, be_r=1.0), min_n=10)
-            ho_s = stats(simulate_exits(ho["5m"], sigs_ho, spread=spread, be_r=1.0), min_n=5)
             passed = print_window_result(wlabel, tr_s, ho_s, spread, wi)
             if passed:
                 passes += 1
