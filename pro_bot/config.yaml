@@ -1,60 +1,71 @@
-# pro_bot configuration — v5 backtested MTF configs
-# Symbols use MT5 format: XAUUSD, EURUSD, USDJPY (IC Markets naming)
-# Each symbol has its own tuned parameters from the v5 sweep.
+# pro_bot configuration — multi-strategy, backtested on 365 days + holdout validation
+# Each symbol uses the strategy that generalised best to unseen data.
 
 strategies:
 
   # ── Gold (XAUUSD) ─────────────────────────────────────────────────────────
-  # Train: EV +0.280R | WR 51.2% [CI 42.5%-59.9%] | 1.2 trades/day | 123 trades
-  # Macro EMA20 dynamically switches direction with daily trend
+  # Strategy : MTF RSI-Pullback (adaptive threshold)
+  # Backtest : Train EV +0.058R WR 36.0% | Holdout EV +0.190R WR 43.2% n=58
+  # Key changes vs previous: EMA200 (was 100), ADX off (was 25), RR 2.0 (was 1.5)
   - name: mtf_pullback
     enabled: true
     symbols: [XAUUSD]
     htf_granularity: 3600      # 1h bars for trend EMA
     ltf_granularity: 300       # 5min bars for entry
-    ema_period: 100
+    ema_period: 200
     slope_bars: 3
     rsi_period: 14
     rsi_entry: 35.0
-    tp_rr: 1.5
-    adx_min: 25
+    rsi_adaptive: true         # 20th-pct of last 50 RSI values — self-calibrates
+    rsi_lookback: 50
+    tp_rr: 2.0
+    adx_min: 0                 # removed — ADX filter was cutting too many valid signals
+    atr_mult_sl: 1.5
     session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
     tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true
     macro_ema_period: 20
 
   # ── EUR/USD (EURUSD) ──────────────────────────────────────────────────────
-  # Train: EV +0.388R | WR 46.3% [CI 39.9%-52.8%] | 2.2 trades/day | 227 trades
-  # Best overall EV of the 3 symbols
-  - name: mtf_pullback
+  # Strategy : Bollinger Band + RSI<55 Pullback (new — replaces RSI-pullback)
+  # Backtest : Train EV +0.299R WR 55.0% n=441 | Holdout EV +0.186R WR 49.3% n=86
+  # Why BB+RSI: RSI-pullback generated 0 trades in holdout; BB+RSI catches shallow
+  #             pullbacks to the lower band that RSI<35 would miss entirely.
+  - name: bb_rsi_pullback
     enabled: true
     symbols: [EURUSD]
+    htf_granularity: 3600
+    ltf_granularity: 300
+    ema_period: 100
+    slope_bars: 3
+    bb_period: 20
+    bb_std: 2.0
+    rsi_period: 14
+    rsi_thresh: 55.0           # BUY when RSI < 55 (relaxed vs 35 — catches more pullbacks)
+    tp_rr: 1.5
+    atr_mult_sl: 1.5
+    session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
+    tz_offset_hours: 3         # EAT = UTC+3
+    macro_filter: true
+    macro_ema_period: 20
+
+  # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
+  # Strategy : MTF RSI-Pullback (fixed threshold)
+  # Backtest : Train EV +0.047R WR 42.2% n=352 | Holdout EV +0.033R WR 41.7% n=30
+  # Key changes vs previous: EMA200 (was 100), ADX 25 (was 20), RR 1.5 (was 2.0)
+  - name: mtf_pullback
+    enabled: true
+    symbols: [USDJPY]
     htf_granularity: 3600
     ltf_granularity: 300
     ema_period: 200
     slope_bars: 3
     rsi_period: 14
     rsi_entry: 35.0
-    tp_rr: 2.0
+    rsi_adaptive: false        # fixed threshold — adaptive didn't help USDJPY
+    tp_rr: 1.5
     adx_min: 25
-    macro_filter: true
-    macro_ema_period: 50
-
-  # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
-  # Train: EV +0.305R | WR 43.5% [CI 37.9%-49.3%] | 2.8 trades/day | 285 trades
-  # ATR-based SL adapts to JPY volatility spikes
-  - name: mtf_pullback
-    enabled: true
-    symbols: [USDJPY]
-    htf_granularity: 3600
-    ltf_granularity: 300
-    ema_period: 100
-    slope_bars: 3
-    rsi_period: 14
-    rsi_entry: 35.0
-    tp_rr: 2.0
-    adx_min: 20
-    atr_mult_sl: 1.5           # SL = ATR(14) * 1.5 — adapts to volatility
+    atr_mult_sl: 1.5
     macro_filter: true
     macro_ema_period: 20
 

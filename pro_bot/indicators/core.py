@@ -168,6 +168,60 @@ def adx(bars: list[dict], period: int = 14) -> list[float | None]:
     return out
 
 
+# ── MACD ─────────────────────────────────────────────────────────────────────
+
+def macd(closes: list[float], fast: int = 12, slow: int = 26,
+         signal_p: int = 9) -> tuple[list, list, list]:
+    """
+    Returns (macd_line, signal_line, histogram) aligned to input length.
+    All three are None until warm-up is complete (slow + signal - 1 bars).
+    """
+    n         = len(closes)
+    fast_ema  = ema(closes, fast)
+    slow_ema  = ema(closes, slow)
+
+    macd_line = [
+        (fast_ema[i] - slow_ema[i])
+        if (fast_ema[i] is not None and slow_ema[i] is not None) else None
+        for i in range(n)
+    ]
+
+    # Compute EMA of macd_line values only (strip leading Nones first)
+    first = next((i for i, v in enumerate(macd_line) if v is not None), None)
+    sig_line = [None] * n
+    hist     = [None] * n
+    if first is not None:
+        sig_vals = ema([v for v in macd_line[first:] if v is not None], signal_p)
+        # Align sig_vals back — macd_line has no gaps after `first`
+        for offset, val in enumerate(sig_vals):
+            idx = first + offset
+            if idx < n and val is not None:
+                sig_line[idx] = val
+                if macd_line[idx] is not None:
+                    hist[idx] = macd_line[idx] - val
+
+    return macd_line, sig_line, hist
+
+
+# ── Donchian Channel ──────────────────────────────────────────────────────────
+
+def donchian(bars: list[dict], period: int = 20) -> tuple[list, list]:
+    """
+    Returns (upper, lower) channels: highest high / lowest low over `period` bars.
+    upper[i] = max high of bars[i-period+1 .. i]
+    lower[i] = min low  of bars[i-period+1 .. i]
+    Both are None for the first period-1 bars.
+    """
+    n     = len(bars)
+    upper = [None] * n
+    lower = [None] * n
+    for i in range(period - 1, n):
+        window   = bars[i - period + 1: i + 1]
+        upper[i] = max(b["high"] for b in window)
+        lower[i] = min(b["low"]  for b in window)
+    return upper, lower
+
+
 # ── Pivot Levels ─────────────────────────────────────────────────────────────
 
 def pivot_levels(bar: dict) -> dict:
