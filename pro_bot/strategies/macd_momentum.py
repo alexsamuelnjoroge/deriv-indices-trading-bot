@@ -66,12 +66,12 @@ class MACDMomentumStrategy(BaseProStrategy):
         off  = self.tz_offset_hours
         mode = self._session_mode
         if mode == "london":
-            return (7.0 + off) <= h < (10.5 + off)
+            return (7.0 + off) <= h < (11.0 + off)   # 10:00–14:00 EAT
         if mode == "ny":
-            return (13.0 + off) <= h < (16.5 + off)
+            return (13.0 + off) <= h < (17.0 + off)  # 16:00–20:00 EAT
         if mode == "peak":
-            return ((7.0 + off) <= h < (10.5 + off)) or \
-                   ((13.0 + off) <= h < (16.5 + off))
+            return ((7.0 + off) <= h < (11.0 + off)) or \
+                   ((13.0 + off) <= h < (17.0 + off))
         return True
 
     def _evaluate(self) -> Signal:

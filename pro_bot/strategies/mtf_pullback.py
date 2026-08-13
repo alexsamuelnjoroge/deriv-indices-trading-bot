@@ -64,11 +64,11 @@ class MTFPullbackStrategy(BaseProStrategy):
         dt  = datetime.fromtimestamp(bar.get("epoch", 0), tz=tz)
         h   = dt.hour + dt.minute / 60.0
         if self.session_peak:
-            # London 10:00-13:30 EAT / NY 16:00-19:30 EAT (with tz_offset_hours=3)
+            # London 10:00-14:00 EAT / NY 16:00-20:00 EAT (with tz_offset_hours=3)
             london_start = 7.0  + self.tz_offset_hours
-            london_end   = 10.5 + self.tz_offset_hours
+            london_end   = 11.0 + self.tz_offset_hours
             ny_start     = 13.0 + self.tz_offset_hours
-            ny_end       = 16.5 + self.tz_offset_hours
+            ny_end       = 17.0 + self.tz_offset_hours
             return (london_start <= h < london_end) or (ny_start <= h < ny_end)
         if self.session_only:
             return (7.0 + self.tz_offset_hours) <= h < (20.0 + self.tz_offset_hours)
