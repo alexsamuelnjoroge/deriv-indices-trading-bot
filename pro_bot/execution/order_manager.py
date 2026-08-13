@@ -142,6 +142,18 @@ class OrderManager:
             logger.warning(f"[{symbol}] Invalid lot size — skipping")
             return False
 
+        # Skip entry if minimum lot forces actual risk beyond 2× target.
+        # Happens when ATR-based SL is wide and account is too small to size below min lot.
+        info = self.client.get_symbol_info(symbol)
+        if info and info.get("point", 0) > 0:
+            actual_risk = (signal.sl_pips / info["point"]) * info["trade_tick_value"] * volume
+            if actual_risk > risk_usd * 2:
+                logger.info(
+                    f"[{symbol}] Entry skipped | min-lot risk ${actual_risk:.2f} "
+                    f"exceeds 2× target ${risk_usd:.2f} — account too small for this SL"
+                )
+                return False
+
         # Get current price for absolute SL/TP
         tick = self.client.get_tick(symbol)
         if tick is None:
