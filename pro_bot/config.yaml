@@ -52,6 +52,34 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
+  # ── GBP/USD (GBPUSD) ──────────────────────────────────────────────────────
+  # Strategy : BB+RSI Pullback (5m) — London session only + 4H EMA filter
+  # Backtest : 4-window walk-forward ROBUST 4/4 — all windows positive EV
+  #            W1 holdout +0.535R WR 65.3% n=85 | W2 +0.545R WR 63.5% n=56
+  #            W3 holdout +0.292R WR 53.8% n=77 | W4 +0.177R WR 47.8% n=51
+  # London session (not NY) — GBP momentum driven by BoE and UK data, not NY flows.
+  # RR1.5 (not 2.0) optimises for higher WR; EMA200 stronger trend gate for vol pairs.
+  - name: bb_rsi_pullback
+    enabled: true
+    symbols: [GBPUSD]
+    htf_granularity: 3600      # 1H bars for 1H trend EMA
+    ltf_granularity: 300       # 5m bars for BB+RSI entry
+    ema_period: 200            # longer trend gate than EURUSD (GBPUSD is more volatile)
+    slope_bars: 3
+    bb_period: 20
+    bb_std: 2.0
+    rsi_period: 14
+    rsi_thresh: 40.0           # tighter than EURUSD (55) — RSI drops harder on GBP
+    tp_rr: 1.5                 # lower target → higher win rate (vs EURUSD's 2.0)
+    atr_mult_sl: 2.0
+    session: "london"          # London only: 10:00-13:30 EAT (BoE / UK data window)
+    session_peak: false
+    tz_offset_hours: 3         # EAT = UTC+3
+    use_4h_filter: true
+    ema_4h_period: 20
+    macro_filter: true
+    macro_ema_period: 20
+
   # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
   # Strategy : MACD Histogram Flip on 1H + 4H slope gate + daily macro
   # Backtest : Dual-holdout validated — Win-A +0.600R WR 66.7% n=10 | Win-B +0.375R WR 50% n=16
