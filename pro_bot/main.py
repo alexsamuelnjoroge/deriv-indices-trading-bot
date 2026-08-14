@@ -33,6 +33,30 @@ from pro_bot.strategies.stoch_ema        import StochEMAStrategy
 from pro_bot.strategies.session_breakout import SessionBreakoutStrategy
 from pro_bot.strategies.rsi_divergence   import RSIDivergenceStrategy
 from pro_bot.strategies.pivot_bounce     import PivotBounceStrategy
+from pro_bot.strategies.mbd              import MBDStrategy
+from pro_bot.strategies.zsr              import ZSRStrategy
+from pro_bot.strategies.dbsf             import DBSFStrategy
+from pro_bot.strategies.lsh              import LSHStrategy
+from pro_bot.strategies.nrc              import NRCStrategy
+from pro_bot.strategies.lnd              import LNDStrategy
+from pro_bot.strategies.bps              import BPSStrategy
+from pro_bot.strategies.pdl              import PDLStrategy
+from pro_bot.strategies.cpfa             import CPFAStrategy
+from pro_bot.strategies.shd              import SHDStrategy
+from pro_bot.strategies.rnm              import RNMStrategy
+from pro_bot.strategies.plt              import PLTStrategy
+from pro_bot.strategies.ofbs             import OFBSStrategy
+from pro_bot.strategies.crpb             import CRPBStrategy
+from pro_bot.strategies.ars              import ARSStrategy
+from pro_bot.strategies.fvg              import FVGStrategy
+from pro_bot.strategies.sme              import SMEStrategy
+from pro_bot.strategies.rvd              import RVDStrategy
+from pro_bot.strategies.ibsb             import IBSBStrategy
+from pro_bot.strategies.orb              import ORBStrategy
+from pro_bot.strategies.cbve             import CBVEStrategy
+from pro_bot.strategies.crd              import CRDStrategy
+from pro_bot.strategies.vrt              import VRTStrategy
+from pro_bot.strategies.csd              import CSDStrategy
 
 try:
     import MetaTrader5 as mt5
@@ -57,10 +81,43 @@ STRATEGY_CLASSES = {
     "session_breakout":  SessionBreakoutStrategy,
     "rsi_divergence":    RSIDivergenceStrategy,
     "pivot_bounce":      PivotBounceStrategy,
+    "mbd":               MBDStrategy,
+    "zsr":               ZSRStrategy,
+    "dbsf":              DBSFStrategy,
+    "lsh":               LSHStrategy,
+    "nrc":               NRCStrategy,
+    "lnd":               LNDStrategy,
+    "bps":               BPSStrategy,
+    "pdl":               PDLStrategy,
+    "cpfa":              CPFAStrategy,
+    "shd":               SHDStrategy,
+    "rnm":               RNMStrategy,
+    "plt":               PLTStrategy,
+    "ofbs":              OFBSStrategy,
+    "crpb":              CRPBStrategy,
+    "ars":               ARSStrategy,
+    "fvg":               FVGStrategy,
+    "sme":               SMEStrategy,
+    "rvd":               RVDStrategy,
+    "ibsb":              IBSBStrategy,
+    "orb":               ORBStrategy,
+    "cbve":              CBVEStrategy,
+    "crd":               CRDStrategy,
+    "vrt":               VRTStrategy,
+    "csd":               CSDStrategy,
 }
 
 # Strategies that need LTF + HTF + optional daily feeds (same wiring as mtf_pullback)
 _MTF_STRATEGIES = {"mtf_pullback", "bb_rsi_pullback", "macd_momentum"}
+
+# Walk-forward validated research strategies: 1H bars + daily bars, no HTF feed
+_RESEARCH_STRATEGIES = {
+    "mbd", "zsr", "dbsf", "lsh", "nrc", "lnd", "bps", "pdl", "cpfa",
+    "shd", "rnm", "plt", "ofbs", "crpb", "ars", "fvg", "sme", "rvd", "ibsb", "orb",
+    "cbve", "crd", "vrt",
+}
+
+_CSD_STRATEGIES = {"csd"}
 
 
 def _setup_logging():
@@ -212,6 +269,109 @@ class ProBot:
 
                     ltf_feed.on_bar_close(_make_pivot_handler(symbol, strategy, daily_feed))
                     self._feeds.append(ltf_feed)
+                    if daily_feed:
+                        self._feeds.append(daily_feed)
+
+                # --- Research strategies: 1H bars + daily bars, seeded on first call ---
+                elif name in _RESEARCH_STRATEGIES:
+                    ltf_feed  = BarFeed(self.client, symbol, ltf_tf,
+                                        history_count=300, poll_interval=30.0)
+                    daily_tf  = MT5_TF.get(86400)
+                    daily_feed = BarFeed(self.client, symbol, daily_tf,
+                                        history_count=120) if daily_tf else None
+
+                    def _make_research_handler(sym, strat, d_feed):
+                        _ltf_seeded   = [False]
+                        _daily_seeded = [False]
+
+                        def _ltf_handler(symbol_name, bars):
+                            if not bars:
+                                return
+                            if not _ltf_seeded[0]:
+                                strat._seed_h1(list(bars)[:-1])
+                                _ltf_seeded[0] = True
+                            sig = strat.feed(bars[-1])
+                            if sig and sig.action != "HOLD":
+                                self.order_mgr.on_signal(sym, sig)
+
+                        if d_feed:
+                            def _daily_handler(symbol_name, bars):
+                                if not bars:
+                                    return
+                                if not _daily_seeded[0]:
+                                    for bar in bars[:-1]:
+                                        strat.feed_daily(bar)
+                                    _daily_seeded[0] = True
+                                strat.feed_daily(bars[-1])
+                            d_feed.on_bar_close(_daily_handler)
+
+                        return _ltf_handler
+
+                    ltf_feed.on_bar_close(
+                        _make_research_handler(symbol, strategy, daily_feed)
+                    )
+                    self._feeds.append(ltf_feed)
+                    if daily_feed:
+                        self._feeds.append(daily_feed)
+
+                # --- CSD: cross-symbol divergence needs lead + lag feeds ---
+                elif name in _CSD_STRATEGIES:
+                    lead_sym  = strat_cfg.get("lead_symbol", "EURUSD")
+                    h1_tf     = MT5_TF.get(3600)
+                    if h1_tf is None:
+                        logger.warning(f"[csd] H1 timeframe not available")
+                        continue
+                    lead_feed  = BarFeed(self.client, lead_sym, h1_tf,
+                                         history_count=300, poll_interval=30.0)
+                    lag_feed   = BarFeed(self.client, symbol, h1_tf,
+                                         history_count=300, poll_interval=30.0)
+                    daily_tf   = MT5_TF.get(86400)
+                    daily_feed = BarFeed(self.client, symbol, daily_tf,
+                                         history_count=120) if daily_tf else None
+
+                    def _make_csd_handler(lag_sym, strat, lead_f, d_feed):
+                        _lead_seeded  = [False]
+                        _lag_seeded   = [False]
+                        _daily_seeded = [False]
+
+                        def _lead_handler(symbol_name, bars):
+                            if not bars:
+                                return
+                            if not _lead_seeded[0]:
+                                strat.seed_lead(list(bars)[:-1])
+                                _lead_seeded[0] = True
+                            strat.feed_lead(bars[-1])
+
+                        lead_f.on_bar_close(_lead_handler)
+
+                        if d_feed:
+                            def _daily_handler(symbol_name, bars):
+                                if not bars:
+                                    return
+                                if not _daily_seeded[0]:
+                                    for bar in bars[:-1]:
+                                        strat.feed_daily(bar)
+                                    _daily_seeded[0] = True
+                                strat.feed_daily(bars[-1])
+                            d_feed.on_bar_close(_daily_handler)
+
+                        def _lag_handler(symbol_name, bars):
+                            if not bars:
+                                return
+                            if not _lag_seeded[0]:
+                                strat._seed_h1(list(bars)[:-1])
+                                _lag_seeded[0] = True
+                            sig = strat.feed(bars[-1])
+                            if sig and sig.action != "HOLD":
+                                self.order_mgr.on_signal(lag_sym, sig)
+
+                        return _lag_handler
+
+                    lag_feed.on_bar_close(
+                        _make_csd_handler(symbol, strategy, lead_feed, daily_feed)
+                    )
+                    self._feeds.append(lead_feed)
+                    self._feeds.append(lag_feed)
                     if daily_feed:
                         self._feeds.append(daily_feed)
 
