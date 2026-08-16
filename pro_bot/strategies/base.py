@@ -22,6 +22,7 @@ class Signal:
     sl_price:   Optional[float] = None   # absolute SL price (alternative)
     tp_price:   Optional[float] = None   # absolute TP price (alternative)
     confidence: float = 1.0              # 0–1, used for position sizing
+    strategy:   str   = ""               # strategy name, tagged by feed()
     meta:       dict  = field(default_factory=dict)
 
 

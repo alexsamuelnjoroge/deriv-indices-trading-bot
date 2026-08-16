@@ -794,10 +794,69 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
+  # ── CRW — Consecutive Rejection Wick ─────────────────────────────────────
+  # Repeated same-side wick rejections signal trapped breakout traders → fade.
+  # ROBUST 4/4 on USDJPY: wicks=4, wick_ratio=0.35, RR=3.0, ATR×2.0, minR=0.4
+  # MOSTLY OK 3/4 on XAUUSD: wicks=3, wick_ratio=0.55, RR=3.0, ATR×1.5, minR=0.2
+  # MOSTLY OK 3/4 on GBPUSD: wicks=3, wick_ratio=0.55, RR=1.5, ATR×2.0, minR=0.2
+
+  - name: crw
+    enabled: true
+    symbols: [USDJPY]
+    granularity: 3600
+    n_wicks: 4
+    wick_ratio: 0.35
+    min_range_atr: 0.4
+    cooldown_bars: 12
+    tp_rr: 3.0
+    atr_mult_sl: 2.0
+    macro_filter: false
+
+  - name: crw
+    enabled: true
+    symbols: [XAUUSD]
+    granularity: 3600
+    n_wicks: 3
+    wick_ratio: 0.55
+    min_range_atr: 0.2
+    cooldown_bars: 12
+    tp_rr: 3.0
+    atr_mult_sl: 1.5
+    macro_filter: false
+
+  - name: crw
+    enabled: true
+    symbols: [GBPUSD]
+    granularity: 3600
+    n_wicks: 3
+    wick_ratio: 0.55
+    min_range_atr: 0.2
+    cooldown_bars: 12
+    tp_rr: 1.5
+    atr_mult_sl: 2.0
+    macro_filter: false
+
+  # ── SHP — Session Handoff Pullback ────────────────────────────────────────
+  # London trend + NY open shallow pullback + rejection bar → London trend resumes.
+  # MOSTLY OK 3/4 on XAUUSD: disp=0.5xATR, pb=20-60%, RR=1.5, ATR×1.5
+
+  - name: shp
+    enabled: true
+    symbols: [XAUUSD]
+    granularity: 3600
+    min_displacement_atr: 0.5
+    pullback_min_pct: 0.20
+    pullback_max_pct: 0.60
+    cooldown_bars: 24
+    tp_rr: 1.5
+    atr_mult_sl: 1.5
+    macro_filter: false
+
 risk:
   max_risk_per_trade_pct: 1.0    # % of account per trade
   max_daily_loss_pct: 5.0        # halt trading if daily drawdown exceeds this
   max_open_trades: 3             # max base entries (pyramids are additional)
+  max_open_per_symbol: 2         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
 
   # Spread filter: skip entry if spread > ratio × SL distance (0 = off)
@@ -812,3 +871,12 @@ risk:
 
   # Cooldown: block re-entry on a symbol for this many seconds after a SL hit (0 = off)
   loss_cooldown_secs: 600        # 10 minutes = 2 full 5-min bars
+
+  # Drawdown-aware sizing: scale risk_pct down as equity draws from session peak.
+  # At each threshold the scale factor applies — last threshold reached wins.
+  dd_sizing:
+    enabled: true
+    thresholds:
+      - {drawdown_pct: 2.0, risk_scale: 0.75}   # 2% DD  → 0.75% risk per trade
+      - {drawdown_pct: 4.0, risk_scale: 0.50}   # 4% DD  → 0.50%
+      - {drawdown_pct: 6.0, risk_scale: 0.25}   # 6% DD  → 0.25% (crisis mode)
