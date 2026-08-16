@@ -57,6 +57,8 @@ from pro_bot.strategies.cbve             import CBVEStrategy
 from pro_bot.strategies.crd              import CRDStrategy
 from pro_bot.strategies.vrt              import VRTStrategy
 from pro_bot.strategies.csd              import CSDStrategy
+from pro_bot.strategies.crw              import CRWStrategy
+from pro_bot.strategies.shp              import SHPStrategy
 
 try:
     import MetaTrader5 as mt5
@@ -105,6 +107,8 @@ STRATEGY_CLASSES = {
     "crd":               CRDStrategy,
     "vrt":               VRTStrategy,
     "csd":               CSDStrategy,
+    "crw":               CRWStrategy,
+    "shp":               SHPStrategy,
 }
 
 # Strategies that need LTF + HTF + optional daily feeds (same wiring as mtf_pullback)
@@ -114,7 +118,7 @@ _MTF_STRATEGIES = {"mtf_pullback", "bb_rsi_pullback", "macd_momentum"}
 _RESEARCH_STRATEGIES = {
     "mbd", "zsr", "dbsf", "lsh", "nrc", "lnd", "bps", "pdl", "cpfa",
     "shd", "rnm", "plt", "ofbs", "crpb", "ars", "fvg", "sme", "rvd", "ibsb", "orb",
-    "cbve", "crd", "vrt",
+    "cbve", "crd", "vrt", "crw", "shp",
 }
 
 _CSD_STRATEGIES = {"csd"}

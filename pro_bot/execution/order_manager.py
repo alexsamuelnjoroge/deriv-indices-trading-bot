@@ -12,6 +12,8 @@ Responsibilities:
   - Spread filter: skip entry if current spread exceeds max_spread_sl_ratio × SL
 """
 
+import csv
+import pathlib
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, date
@@ -24,18 +26,19 @@ from pro_bot.strategies.base import Signal
 
 @dataclass
 class OpenTrade:
-    ticket:       int
-    symbol:       str
-    action:       str
-    entry:        float
-    sl:           float
-    tp:           float
-    sl_pips:      float
-    risk_usd:     float
-    opened_at:    datetime = field(default_factory=datetime.now)
-    be_done:      bool = False   # break-even SL already applied
-    pyramid_done: bool = False   # pyramid entry already opened
-    is_pyramid:   bool = False   # this position IS a pyramid entry
+    ticket:        int
+    symbol:        str
+    action:        str
+    entry:         float
+    sl:            float
+    tp:            float
+    sl_pips:       float
+    risk_usd:      float
+    strategy_name: str      = ""
+    opened_at:     datetime = field(default_factory=datetime.now)
+    be_done:       bool = False   # break-even SL already applied
+    pyramid_done:  bool = False   # pyramid entry already opened
+    is_pyramid:    bool = False   # this position IS a pyramid entry
 
 
 class OrderManager:
@@ -44,6 +47,7 @@ class OrderManager:
         self.client           = client
         self.risk_pct         = config.get("max_risk_per_trade_pct", 1.0)
         self.max_open         = config.get("max_open_trades",         3)
+        self.max_open_per_sym = config.get("max_open_per_symbol",     1)
         self.daily_loss_limit = config.get("max_daily_loss_pct",      5.0)
 
         # Break-even: move SL to entry after this many R profit (0 = disabled)
@@ -56,6 +60,15 @@ class OrderManager:
         # Cooldown after a loss: block re-entry on the same symbol for this many seconds
         self.loss_cooldown_secs = config.get("loss_cooldown_secs", 600)
 
+        # Drawdown-aware sizing: scale risk_pct down as equity draws from session peak
+        dd_cfg = config.get("dd_sizing", {})
+        self._dd_enabled    = dd_cfg.get("enabled", False)
+        self._dd_thresholds = sorted(
+            dd_cfg.get("thresholds", []),
+            key=lambda x: x["drawdown_pct"]
+        )
+        self._peak_balance: float = 0.0
+
         self._open:     dict[int, OpenTrade] = {}   # ticket → trade
         self._today_pnl:  float = 0.0
         self._today_date: date  = date.today()
@@ -64,6 +77,9 @@ class OrderManager:
         self._wins         = 0
         self._losses       = 0
         self._loss_cooldown: dict[str, float] = {}  # symbol → cooldown-until timestamp
+
+        pathlib.Path("logs").mkdir(exist_ok=True)
+        self._pnl_log_path = pathlib.Path("logs/strategy_pnl.csv")
 
     # ── Daily reset ──────────────────────────────────────────────────────────
 
@@ -103,13 +119,15 @@ class OrderManager:
             logger.info(f"[{symbol}] Max open trades ({self.max_open}) reached")
             return False
 
-        # Block re-entry on a symbol that already has any position (incl. pyramid).
-        # Check BOTH in-memory dict AND live MT5 positions so two concurrent bot
-        # instances or a restart mid-trade can't open a duplicate.
-        open_symbols = {t.symbol for t in self._open.values()}
-        live_symbols = {p["symbol"] for p in self.client.get_open_positions()}
-        if symbol in open_symbols or symbol in live_symbols:
-            logger.info(f"[{symbol}] Already have open position — skipping")
+        # Per-symbol position cap — checked against both in-memory state and live
+        # MT5 positions so restarts or concurrent instances don't open duplicates.
+        live_positions = self.client.get_open_positions()
+        sym_live  = sum(1 for p in live_positions if p["symbol"] == symbol)
+        sym_mem   = sum(1 for t in self._open.values() if t.symbol == symbol)
+        sym_count = max(sym_live, sym_mem)
+        if sym_count >= self.max_open_per_sym:
+            logger.info(f"[{symbol}] Symbol limit ({self.max_open_per_sym}) reached "
+                        f"({sym_count} open)")
             return False
 
         # Cooldown: block re-entry after a SL hit to avoid revenge trading
@@ -133,9 +151,11 @@ class OrderManager:
                     )
                     return False
 
-        # Size the position
+        # Size the position — apply drawdown scaling if enabled
         balance  = self.client.get_balance()
-        risk_usd = balance * self.risk_pct / 100
+        if balance > self._peak_balance:
+            self._peak_balance = balance
+        risk_usd = balance * self._effective_risk_pct() / 100
         volume   = self.client.calc_lot_size(symbol, risk_usd, signal.sl_pips)
 
         if volume <= 0:
@@ -181,20 +201,24 @@ class OrderManager:
         if not result.success:
             return False
 
+        eff_pct = self._effective_risk_pct()
         self._open[result.ticket] = OpenTrade(
-            ticket   = result.ticket,
-            symbol   = symbol,
-            action   = signal.action,
-            entry    = price,
-            sl       = sl_price,
-            tp       = tp_price,
-            sl_pips  = signal.sl_pips,
-            risk_usd = risk_usd,
+            ticket        = result.ticket,
+            symbol        = symbol,
+            action        = signal.action,
+            entry         = price,
+            sl            = sl_price,
+            tp            = tp_price,
+            sl_pips       = signal.sl_pips,
+            risk_usd      = risk_usd,
+            strategy_name = signal.strategy,
         )
         self._total_trades += 1
+        dd_note = (f" [risk scaled {eff_pct:.2f}%]"
+                   if self._dd_enabled and eff_pct != self.risk_pct else "")
         logger.info(f"Trade opened | {symbol} {signal.action} {volume}L | "
                     f"entry={price:.5f} SL={sl_price:.5f} TP={tp_price:.5f} | "
-                    f"risk=${risk_usd:.2f} | {signal.reason}")
+                    f"risk=${risk_usd:.2f}{dd_note} | [{signal.strategy}] {signal.reason}")
         return True
 
     # ── Position management (break-even + pyramid) ───────────────────────────
@@ -334,6 +358,7 @@ class OrderManager:
             pnl = self._get_trade_pnl(ticket, trade)
             self._today_pnl += pnl
 
+            r_outcome = round(pnl / trade.risk_usd, 3) if trade.risk_usd > 0 else 0.0
             won = pnl > 0
             if won:
                 self._wins += 1
@@ -346,9 +371,15 @@ class OrderManager:
                                 f"re-entry blocked for {self.loss_cooldown_secs}s")
 
             tag = "PYRAMID" if trade.is_pyramid else "TRADE"
-            logger.info(f"{tag} closed | {trade.symbol} {trade.action} | "
-                        f"P&L ${pnl:+.2f} | {'WIN' if won else 'LOSS'} | "
+            logger.info(f"{tag} closed | [{trade.strategy_name}] {trade.symbol} {trade.action} | "
+                        f"P&L ${pnl:+.2f} ({r_outcome:+.2f}R) | {'WIN' if won else 'LOSS'} | "
                         f"Today {self._today_pnl:+.2f}")
+            self._write_pnl_log(trade, pnl, r_outcome)
+
+            # Update peak balance after a close (equity may have changed)
+            balance = self.client.get_balance()
+            if balance > self._peak_balance:
+                self._peak_balance = balance
 
             # Check daily loss limit
             balance = self.client.get_balance()
@@ -369,6 +400,43 @@ class OrderManager:
         except Exception:
             pass
         return 0.0
+
+    # ── Drawdown-aware sizing ────────────────────────────────────────────────
+
+    def _effective_risk_pct(self) -> float:
+        """Return risk_pct scaled down by the current equity drawdown from session peak."""
+        if not self._dd_enabled or not self._dd_thresholds or self._peak_balance <= 0:
+            return self.risk_pct
+        current = self.client.get_balance()
+        dd_pct = (self._peak_balance - current) / self._peak_balance * 100
+        scale = 1.0
+        for threshold in self._dd_thresholds:
+            if dd_pct >= threshold["drawdown_pct"]:
+                scale = threshold["risk_scale"]
+        return self.risk_pct * scale
+
+    # ── Strategy P&L log ─────────────────────────────────────────────────────
+
+    def _write_pnl_log(self, trade: OpenTrade, pnl: float, r_outcome: float) -> None:
+        """Append one row to the strategy P&L CSV for post-session analysis."""
+        new_file = not self._pnl_log_path.exists()
+        try:
+            with self._pnl_log_path.open("a", newline="") as f:
+                w = csv.writer(f)
+                if new_file:
+                    w.writerow(["closed_at", "strategy", "symbol", "direction",
+                                "r_outcome", "pnl_usd", "is_pyramid"])
+                w.writerow([
+                    datetime.now().isoformat(timespec="seconds"),
+                    trade.strategy_name,
+                    trade.symbol,
+                    trade.action,
+                    r_outcome,
+                    round(pnl, 2),
+                    trade.is_pyramid,
+                ])
+        except Exception as e:
+            logger.warning(f"P&L log write failed: {e}")
 
     # ── Status ───────────────────────────────────────────────────────────────
 
