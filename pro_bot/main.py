@@ -201,9 +201,11 @@ class ProBot:
                             if not _ltf_seeded[0]:
                                 strat._bars = list(bars[:-1])
                                 _ltf_seeded[0] = True
-                            sig = strat.feed(bars[-1])
+                            bar = bars[-1]
+                            sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(sym, sig)
+                                self.order_mgr.on_signal(sym, sig,
+                                                         bar_epoch=bar.get("epoch", 0))
 
                         def _htf_handler(symbol_name, bars):
                             if not bars:
@@ -265,9 +267,11 @@ class ProBot:
                             d_feed.on_bar_close(_daily_handler)
 
                         def _handler(symbol_name, bars):
-                            sig = strat.feed(bars[-1] if bars else {})
+                            bar = bars[-1] if bars else {}
+                            sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(sym, sig)
+                                self.order_mgr.on_signal(sym, sig,
+                                                         bar_epoch=bar.get("epoch", 0))
 
                         return _handler
 
@@ -294,9 +298,11 @@ class ProBot:
                             if not _ltf_seeded[0]:
                                 strat._seed_h1(list(bars)[:-1])
                                 _ltf_seeded[0] = True
-                            sig = strat.feed(bars[-1])
+                            bar = bars[-1]
+                            sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(sym, sig)
+                                self.order_mgr.on_signal(sym, sig,
+                                                         bar_epoch=bar.get("epoch", 0))
 
                         if d_feed:
                             def _daily_handler(symbol_name, bars):
@@ -365,9 +371,11 @@ class ProBot:
                             if not _lag_seeded[0]:
                                 strat._seed_h1(list(bars)[:-1])
                                 _lag_seeded[0] = True
-                            sig = strat.feed(bars[-1])
+                            bar = bars[-1]
+                            sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(lag_sym, sig)
+                                self.order_mgr.on_signal(lag_sym, sig,
+                                                         bar_epoch=bar.get("epoch", 0))
 
                         return _lag_handler
 
@@ -386,9 +394,11 @@ class ProBot:
 
                     def _make_handler(sym, strat):
                         def _handler(symbol_name, bars):
-                            sig = strat.feed(bars[-1] if bars else {})
+                            bar = bars[-1] if bars else {}
+                            sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(sym, sig)
+                                self.order_mgr.on_signal(sym, sig,
+                                                         bar_epoch=bar.get("epoch", 0))
                         return _handler
 
                     feed.on_bar_close(_make_handler(symbol, strategy))
