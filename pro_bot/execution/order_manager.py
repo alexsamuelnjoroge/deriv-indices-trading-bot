@@ -77,6 +77,9 @@ class OrderManager:
         self._wins         = 0
         self._losses       = 0
         self._loss_cooldown: dict[str, float] = {}  # symbol → cooldown-until timestamp
+        # Same-bar conflict register: symbol → (bar_epoch, direction, strategy_name)
+        # When two strategies fire opposing directions on the same bar, both are blocked.
+        self._bar_signals: dict[str, tuple[int, str, str]] = {}
 
         pathlib.Path("logs").mkdir(exist_ok=True)
         self._pnl_log_path = pathlib.Path("logs/strategy_pnl.csv")
@@ -95,9 +98,11 @@ class OrderManager:
     # ── Signal → order ───────────────────────────────────────────────────────
 
     def on_signal(self, symbol: str, signal: Signal,
-                  htf_bars: Optional[list] = None) -> bool:
+                  htf_bars: Optional[list] = None,
+                  bar_epoch: int = 0) -> bool:
         """
         Called by the bot loop when a strategy fires a non-HOLD signal.
+        bar_epoch: Unix timestamp of the bar that triggered this signal (0 = unknown).
         Returns True if order was placed.
         """
         self._check_day_reset()
@@ -112,6 +117,31 @@ class OrderManager:
         if signal.sl_pips is None or signal.sl_pips <= 0:
             logger.warning(f"[{symbol}] Signal missing sl_pips — skipping")
             return False
+
+        # Same-bar conflict: if two strategies fire *opposing* directions on the same
+        # bar (same epoch), skip both — genuine disagreement means market is ambiguous.
+        # Better to sit out than to arbitrarily favour whichever callback ran first.
+        if bar_epoch > 0:
+            prev = self._bar_signals.get(symbol)
+            if prev is not None:
+                prev_epoch, prev_dir, prev_strat = prev
+                if prev_epoch == bar_epoch and prev_dir != signal.action:
+                    # Mark the symbol as "conflicted this bar" (epoch → "CONFLICT")
+                    self._bar_signals[symbol] = (bar_epoch, "CONFLICT", "")
+                    logger.info(
+                        f"[{symbol}] Same-bar conflict — {prev_strat} {prev_dir} vs "
+                        f"{signal.strategy} {signal.action} on bar {bar_epoch} → both skipped"
+                    )
+                    return False
+                elif prev_epoch == bar_epoch and prev_dir == "CONFLICT":
+                    # A third (or later) strategy firing on the same conflicted bar
+                    logger.info(
+                        f"[{symbol}] Same-bar conflict already flagged — "
+                        f"{signal.strategy} {signal.action} skipped"
+                    )
+                    return False
+            # Record this signal as the first seen for this symbol/bar
+            self._bar_signals[symbol] = (bar_epoch, signal.action, signal.strategy)
 
         # Count only non-pyramid entries toward the max_open limit
         open_count = sum(1 for t in self._open.values() if not t.is_pyramid)
@@ -128,6 +158,25 @@ class OrderManager:
         if sym_count >= self.max_open_per_sym:
             logger.info(f"[{symbol}] Symbol limit ({self.max_open_per_sym}) reached "
                         f"({sym_count} open)")
+            return False
+
+        # Direction lock: block if an opposing position is already open on this symbol.
+        # Handles the cross-bar case — A opened previously, B fires on a later bar.
+        # Placing both creates a hedge: net-zero exposure while paying spread and swap
+        # on both sides.  Let the open trade play to its TP/SL before re-evaluating.
+        opposing_live = any(
+            p["symbol"] == symbol and p["type"] != signal.action
+            for p in live_positions
+        )
+        opposing_mem = any(
+            t.symbol == symbol and t.action != signal.action and not t.is_pyramid
+            for t in self._open.values()
+        )
+        if opposing_live or opposing_mem:
+            logger.info(
+                f"[{symbol}] Direction lock — {signal.action} blocked "
+                f"(opposing position already open) [{signal.strategy}]"
+            )
             return False
 
         # Cooldown: block re-entry after a SL hit to avoid revenge trading
