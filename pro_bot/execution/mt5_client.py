@@ -109,17 +109,20 @@ class MT5Client:
                  count: int = 500) -> Optional[list[dict]]:
         """
         timeframe: mt5.TIMEFRAME_M5, mt5.TIMEFRAME_H1, mt5.TIMEFRAME_D1, etc.
-        Returns list of {open, high, low, close, epoch} dicts, oldest first.
+        Returns list of {open, high, low, close, epoch, tick_volume} dicts,
+        oldest first. tick_volume is the number of price ticks in the bar —
+        a proxy for activity on OTC instruments like forex/gold.
         """
         rates = mt5.copy_rates_from_pos(symbol, timeframe, 0, count)
         if rates is None or len(rates) == 0:
             logger.warning(f"No bars for {symbol}: {mt5.last_error()}")
             return None
-        return [{"open":  float(r["open"]),
-                 "high":  float(r["high"]),
-                 "low":   float(r["low"]),
-                 "close": float(r["close"]),
-                 "epoch": int(r["time"])} for r in rates]
+        return [{"open":        float(r["open"]),
+                 "high":        float(r["high"]),
+                 "low":         float(r["low"]),
+                 "close":       float(r["close"]),
+                 "epoch":       int(r["time"]),
+                 "tick_volume": int(r["tick_volume"])} for r in rates]
 
     def get_symbol_info(self, symbol: str) -> Optional[dict]:
         info = mt5.symbol_info(symbol)
