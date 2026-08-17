@@ -855,7 +855,7 @@ strategies:
 risk:
   max_risk_per_trade_pct: 1.0    # % of account per trade
   max_daily_loss_pct: 5.0        # halt trading if daily drawdown exceeds this
-  max_open_trades: 3             # max base entries (pyramids are additional)
+  max_open_trades: 5             # max base entries (pyramids are additional)
   max_open_per_symbol: 2         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
 
