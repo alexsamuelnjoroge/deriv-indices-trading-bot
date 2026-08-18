@@ -854,10 +854,15 @@ strategies:
 
 risk:
   max_risk_per_trade_pct: 1.0    # % of account per trade
-  max_daily_loss_pct: 5.0        # halt trading if daily drawdown exceeds this
+  max_daily_loss_pct: 15.0       # raised: XAUUSD min-lot can risk 5-10% per trade
   max_open_trades: 5             # max base entries (pyramids are additional)
   max_open_per_symbol: 2         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
+
+  # Min-lot safety: skip if min-lot forces actual risk beyond this × target (0 = off)
+  # Raised to 10 to allow XAUUSD through on a small account — each gold trade
+  # may risk 5-10% of balance rather than 1%. Daily loss limit is the safety net.
+  min_lot_risk_mult: 10.0
 
   # Spread filter: skip entry if spread > ratio × SL distance (0 = off)
   max_spread_sl_ratio: 0.4

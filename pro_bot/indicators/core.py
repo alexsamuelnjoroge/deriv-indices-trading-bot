@@ -185,3 +185,65 @@ def pivot_levels(bar: dict) -> dict:
     s3 = l - 2 * (h - p)
     return {"P": p, "R1": r1, "R2": r2, "R3": r3,
             "S1": s1, "S2": s2, "S3": s3}
+
+
+# ── MACD ─────────────────────────────────────────────────────────────────────
+
+def macd(closes: list[float], fast: int = 12, slow: int = 26,
+         signal: int = 9) -> tuple[list, list, list]:
+    """
+    Returns (macd_line, signal_line, histogram) — all aligned to input length.
+    Values are None until enough bars have accumulated.
+    """
+    n        = len(closes)
+    macd_l   = [None] * n
+    signal_l = [None] * n
+    hist     = [None] * n
+
+    fast_ema = ema(closes, fast)
+    slow_ema = ema(closes, slow)
+
+    raw_macd = [
+        (f - s) if f is not None and s is not None else None
+        for f, s in zip(fast_ema, slow_ema)
+    ]
+
+    # Signal line = EMA of the MACD values (skip leading Nones)
+    first_valid = next((i for i, v in enumerate(raw_macd) if v is not None), None)
+    if first_valid is None:
+        return macd_l, signal_l, hist
+
+    seg       = [v for v in raw_macd[first_valid:] if v is not None]
+    seg_ema   = ema(seg, signal)
+    sig_start = first_valid + signal - 1   # first index where signal is valid
+
+    for i, v in enumerate(raw_macd):
+        macd_l[i] = v
+
+    for i in range(sig_start, n):
+        seg_idx      = i - first_valid
+        if seg_idx < len(seg_ema) and seg_ema[seg_idx] is not None:
+            signal_l[i] = seg_ema[seg_idx]
+            if macd_l[i] is not None:
+                hist[i] = macd_l[i] - signal_l[i]
+
+    return macd_l, signal_l, hist
+
+
+# ── Donchian Channels ─────────────────────────────────────────────────────────
+
+def donchian(bars: list[dict], period: int = 20) -> list[tuple | None]:
+    """
+    Returns list of (upper, middle, lower) or None.
+    upper  = highest high over last `period` bars
+    lower  = lowest  low  over last `period` bars
+    middle = (upper + lower) / 2
+    """
+    n   = len(bars)
+    out = [None] * n
+    for i in range(period - 1, n):
+        window = bars[i - period + 1: i + 1]
+        upper  = max(b["high"] for b in window)
+        lower  = min(b["low"]  for b in window)
+        out[i] = (upper, (upper + lower) / 2, lower)
+    return out

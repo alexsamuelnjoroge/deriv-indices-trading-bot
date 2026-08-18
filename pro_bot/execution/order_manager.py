@@ -57,6 +57,8 @@ class OrderManager:
         self.pyramid_risk_pct  = config.get("pyramid_risk_pct",     0.5)
         # Spread filter: skip if spread > this ratio × SL distance (0 = disabled)
         self.max_spread_ratio  = config.get("max_spread_sl_ratio",  0.0)
+        # How many times the target risk the min-lot is allowed to force (0 = disabled)
+        self.min_lot_risk_mult = config.get("min_lot_risk_mult",   2.0)
         # Cooldown after a loss: block re-entry on the same symbol for this many seconds
         self.loss_cooldown_secs = config.get("loss_cooldown_secs", 600)
 
@@ -83,6 +85,42 @@ class OrderManager:
 
         pathlib.Path("logs").mkdir(exist_ok=True)
         self._pnl_log_path = pathlib.Path("logs/strategy_pnl.csv")
+
+    # ── Startup reconciliation ───────────────────────────────────────────────
+
+    def reconcile(self) -> None:
+        """
+        Call once after MT5 connects. Reads any positions already open in MT5
+        (from a previous session) and registers them in self._open so that:
+          - max_open_trades counts them correctly
+          - direction lock sees them
+          - break-even and pyramid management can track them
+        """
+        live = self.client.get_open_positions()
+        if not live:
+            return
+        balance  = self.client.get_balance()
+        risk_usd = balance * self.risk_pct / 100
+        for p in live:
+            if p["ticket"] in self._open:
+                continue
+            sl_pips = abs(p["price"] - p["sl"]) if p["sl"] else 0.0
+            self._open[p["ticket"]] = OpenTrade(
+                ticket        = p["ticket"],
+                symbol        = p["symbol"],
+                action        = p["type"],
+                entry         = p["price"],
+                sl            = p["sl"],
+                tp            = p["tp"],
+                sl_pips       = sl_pips,
+                risk_usd      = risk_usd,
+                strategy_name = "pre-restart",
+            )
+            logger.info(
+                f"Reconciled | {p['symbol']} {p['type']} "
+                f"ticket={p['ticket']} entry={p['price']} "
+                f"SL={p['sl']} TP={p['tp']}"
+            )
 
     # ── Daily reset ──────────────────────────────────────────────────────────
 
@@ -214,12 +252,13 @@ class OrderManager:
         # Skip entry if minimum lot forces actual risk beyond 2× target.
         # Happens when ATR-based SL is wide and account is too small to size below min lot.
         info = self.client.get_symbol_info(symbol)
-        if info and info.get("point", 0) > 0:
+        if info and info.get("point", 0) > 0 and self.min_lot_risk_mult > 0:
             actual_risk = (signal.sl_pips / info["point"]) * info["trade_tick_value"] * volume
-            if actual_risk > risk_usd * 2:
+            if actual_risk > risk_usd * self.min_lot_risk_mult:
                 logger.info(
                     f"[{symbol}] Entry skipped | min-lot risk ${actual_risk:.2f} "
-                    f"exceeds 2× target ${risk_usd:.2f} — account too small for this SL"
+                    f"exceeds {self.min_lot_risk_mult:.0f}× target ${risk_usd:.2f} "
+                    f"— account too small for this SL"
                 )
                 return False
 
