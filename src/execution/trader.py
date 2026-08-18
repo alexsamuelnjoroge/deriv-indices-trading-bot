@@ -119,8 +119,8 @@ class Trader:
 
             elif is_multi:
                 contract_type = _MULTI_TYPE[signal.action]
-                sl_amount     = round(stake * self.multiplier * signal.sl_pct, 2)
-                tp_amount     = round(stake * self.multiplier * signal.tp_pct, 2)
+                sl_amount     = max(round(stake * self.multiplier * signal.sl_pct, 2), 0.10)
+                tp_amount     = max(round(stake * self.multiplier * signal.tp_pct, 2), 0.10)
                 result = await self.client.buy_multiplier(
                     symbol=self.symbol,
                     contract_type=contract_type,
