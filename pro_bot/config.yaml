@@ -874,6 +874,15 @@ risk:
   pyramid_trigger_r: 1.0
   pyramid_risk_pct: 0.5          # risk % of balance for the pyramid position
 
+  # Trailing stop: once a pyramid is open, trail ALL positions in that group
+  # at this many R behind the high-water mark. This locks in profits as price
+  # advances so a reversal cannot wipe back to break-even.
+  # Example with trail_r=1.0, pyramid at 1R:
+  #   price at 2R -> SL moves to +1R (profit locked)
+  #   price at 3R -> SL moves to +2R (profit locked)
+  # Set to 0 to disable.
+  trail_r_after_pyramid: 1.0
+
   # Cooldown: block re-entry on a symbol for this many seconds after a SL hit (0 = off)
   loss_cooldown_secs: 600        # 10 minutes = 2 full 5-min bars
 
