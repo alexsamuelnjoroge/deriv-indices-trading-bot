@@ -399,6 +399,7 @@ class DerivClient:
         symbol: str,
         growth_rate: float,  # e.g. 0.03 = 3% per tick
         stake: float,
+        currency: str = "USD",
     ) -> dict:
         """Buy an Accumulator contract. Grows by growth_rate each tick price stays within barrier."""
         proposal_resp = await self._send({
@@ -406,6 +407,7 @@ class DerivClient:
             "amount": round(stake, 2),
             "basis": "stake",
             "contract_type": "ACCU",
+            "currency": currency,
             "growth_rate": growth_rate,
             "underlying_symbol": symbol,
         })
