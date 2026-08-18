@@ -36,9 +36,10 @@ class OpenTrade:
     risk_usd:      float
     strategy_name: str      = ""
     opened_at:     datetime = field(default_factory=datetime.now)
-    be_done:       bool = False   # break-even SL already applied
-    pyramid_done:  bool = False   # pyramid entry already opened
-    is_pyramid:    bool = False   # this position IS a pyramid entry
+    be_done:       bool  = False   # break-even SL already applied
+    pyramid_done:  bool  = False   # pyramid entry already opened
+    is_pyramid:    bool  = False   # this position IS a pyramid entry
+    high_water_mark: float = 0.0   # best price seen since trailing activated
 
 
 class OrderManager:
@@ -57,6 +58,10 @@ class OrderManager:
         self.pyramid_risk_pct  = config.get("pyramid_risk_pct",     0.5)
         # Spread filter: skip if spread > this ratio × SL distance (0 = disabled)
         self.max_spread_ratio  = config.get("max_spread_sl_ratio",  0.0)
+        # Trailing stop: once a pyramid is open, trail SL this many R behind the
+        # high-water mark. 1.0 = SL trails 1 original-risk-distance behind best price.
+        # This locks in profits as the position group advances (0 = disabled).
+        self.trail_r_after_pyramid = config.get("trail_r_after_pyramid", 0.0)
         # How many times the target risk the min-lot is allowed to force (0 = disabled)
         self.min_lot_risk_mult = config.get("min_lot_risk_mult",   2.0)
         # Cooldown after a loss: block re-entry on the same symbol for this many seconds
@@ -316,11 +321,19 @@ class OrderManager:
         Call every monitor cycle. Checks open trades for:
           - Break-even: move SL to entry once trade reaches be_trigger_r profit
           - Pyramid: open a scaled entry once trade reaches pyramid_trigger_r profit
+          - Trailing stop: trail SL behind high-water mark once pyramid is active
         """
         if not self._open:
             return
 
         live = {p["ticket"]: p for p in self.client.get_open_positions()}
+
+        # Symbols where a pyramid is already active (used for trailing this cycle)
+        trailing_groups: set[tuple[str, str]] = {
+            (t.symbol, t.action)
+            for t in self._open.values()
+            if t.pyramid_done and not t.is_pyramid and t.ticket in live
+        }
 
         for ticket, trade in list(self._open.items()):
             if ticket not in live:
@@ -335,11 +348,11 @@ class OrderManager:
                     and self.be_trigger_r > 0
                     and profit_r >= self.be_trigger_r):
                 if self.client.modify_sl(ticket, trade.entry):
-                    trade.sl     = trade.entry
+                    trade.sl      = trade.entry
                     trade.be_done = True
                     logger.info(
                         f"Break-even | {trade.symbol} ticket={ticket} "
-                        f"SL → entry {trade.entry:.5f} (+{profit_r:.2f}R)"
+                        f"SL -> entry {trade.entry:.5f} (+{profit_r:.2f}R)"
                     )
 
             # Pyramid
@@ -347,6 +360,13 @@ class OrderManager:
                     and self.pyramid_trigger_r > 0
                     and profit_r >= self.pyramid_trigger_r):
                 self._open_pyramid(trade)
+                if self.trail_r_after_pyramid > 0:
+                    trailing_groups.add((trade.symbol, trade.action))
+
+            # Trailing stop — applied to every position in an active pyramid group
+            if (self.trail_r_after_pyramid > 0
+                    and (trade.symbol, trade.action) in trailing_groups):
+                self._trail_sl(trade)
 
     def _open_pyramid(self, parent: OpenTrade) -> None:
         """
@@ -429,6 +449,49 @@ class OrderManager:
                 f"entry={current:.5f} SL={sl_price:.5f} TP={tp_price:.5f} | "
                 f"risk=${risk_usd:.2f} RR={rr:.1f}"
             )
+
+    def _trail_sl(self, trade: OpenTrade) -> None:
+        """
+        Trail the SL of a position behind its high-water mark.
+        trail_dist = trade.sl_pips * trail_r_after_pyramid
+        SL only ever moves in the profitable direction — never back.
+        """
+        tick = self.client.get_tick(trade.symbol)
+        if not tick:
+            return
+
+        current    = tick["ask"] if trade.action == "BUY" else tick["bid"]
+        trail_dist = trade.sl_pips * self.trail_r_after_pyramid
+
+        if trade.action == "BUY":
+            if trade.high_water_mark == 0.0:
+                trade.high_water_mark = current
+            else:
+                trade.high_water_mark = max(trade.high_water_mark, current)
+            new_sl = round(trade.high_water_mark - trail_dist, 5)
+            if new_sl > trade.sl:
+                if self.client.modify_sl(trade.ticket, new_sl):
+                    logger.info(
+                        f"Trail SL | {trade.symbol} ticket={trade.ticket} "
+                        f"SL {trade.sl:.5f} -> {new_sl:.5f} "
+                        f"(HWM={trade.high_water_mark:.5f})"
+                    )
+                    trade.sl = new_sl
+
+        else:  # SELL
+            if trade.high_water_mark == 0.0:
+                trade.high_water_mark = current
+            else:
+                trade.high_water_mark = min(trade.high_water_mark, current)
+            new_sl = round(trade.high_water_mark + trail_dist, 5)
+            if new_sl < trade.sl:
+                if self.client.modify_sl(trade.ticket, new_sl):
+                    logger.info(
+                        f"Trail SL | {trade.symbol} ticket={trade.ticket} "
+                        f"SL {trade.sl:.5f} -> {new_sl:.5f} "
+                        f"(LWM={trade.high_water_mark:.5f})"
+                    )
+                    trade.sl = new_sl
 
     # ── Position monitoring ──────────────────────────────────────────────────
 
