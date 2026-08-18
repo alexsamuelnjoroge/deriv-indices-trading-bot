@@ -301,6 +301,10 @@ class ProBot:
                             bar = bars[-1]
                             sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
+                                logger.debug(
+                                    f"Signal | {sym} {sig.action} "
+                                    f"[{sig.strategy}] {sig.reason}"
+                                )
                                 self.order_mgr.on_signal(sym, sig,
                                                          bar_epoch=bar.get("epoch", 0))
 
@@ -434,6 +438,7 @@ class ProBot:
             logger.error("Cannot connect to MT5. Is terminal running?")
             return
 
+        self.order_mgr.reconcile()
         self._build()
 
         if not self._feeds:
