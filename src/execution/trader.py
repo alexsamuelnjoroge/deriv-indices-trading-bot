@@ -39,6 +39,8 @@ class Trader:
         duration: int,
         duration_unit: str,
         multiplier: int = 0,
+        growth_rate: float = 0.03,
+        hold_ticks: int = 5,
         strategy=None,
         alerter=None,
     ):
@@ -48,13 +50,33 @@ class Trader:
         self.duration      = duration
         self.duration_unit = duration_unit
         self.multiplier    = multiplier   # 0 = binary options mode
+        self.growth_rate   = growth_rate  # ACCU: fraction growth per tick (e.g. 0.03)
+        self.hold_ticks    = hold_ticks   # ACCU: ticks to hold before auto-sell
         self._open: dict[str, dict] = {}
+        self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
         self._strategy = strategy
         self._alerter  = alerter
 
         self.client.on_contract_update(self._on_contract_update)
 
+    async def _tick_open_accus(self) -> None:
+        """Decrement tick counters for open Accumulator contracts; sell when expired."""
+        if not self._open_accu:
+            return
+        for cid in list(self._open_accu):
+            self._open_accu[cid] -= 1
+            if self._open_accu[cid] <= 0:
+                del self._open_accu[cid]
+                if cid in self._open:   # still open (not knocked out by barrier)
+                    try:
+                        await self.client.sell_contract(cid)
+                    except Exception as e:
+                        logger.error(f"[{self.symbol}] Failed to close ACCU {cid}: {e}")
+
     async def execute(self, signal: Signal):
+        # Always tick ACCU counters so hold-period closes happen on time
+        await self._tick_open_accus()
+
         if signal.action == "HOLD":
             return
 
@@ -69,15 +91,36 @@ class Trader:
             return
 
         logger.info(f"[{self.symbol}] Signal: {signal.action} | {signal.reason}")
-        stake        = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
-        is_multi     = signal.sl_pct is not None and self.multiplier > 0
+        stake    = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
+        is_multi = signal.sl_pct is not None and self.multiplier > 0
 
         try:
-            if is_multi:
+            if signal.action == "BUY_ACCU":
+                result = await self.client.buy_accumulator(
+                    symbol=self.symbol,
+                    growth_rate=self.growth_rate,
+                    stake=stake,
+                )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": "BUY_ACCU",
+                    "contract_type": "ACCU",
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": False,
+                    "is_accumulator": True,
+                }
+                self._open_accu[contract_id] = self.hold_ticks
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"Opened ACCU | ID: {contract_id} | Stake: {stake} | "
+                    f"Hold: {self.hold_ticks}t | Reason: {signal.reason}"
+                )
+
+            elif is_multi:
                 contract_type = _MULTI_TYPE[signal.action]
                 sl_amount     = round(stake * self.multiplier * signal.sl_pct, 2)
                 tp_amount     = round(stake * self.multiplier * signal.tp_pct, 2)
-
                 result = await self.client.buy_multiplier(
                     symbol=self.symbol,
                     contract_type=contract_type,
@@ -86,10 +129,22 @@ class Trader:
                     sl_amount=sl_amount,
                     tp_amount=tp_amount,
                 )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": signal.action,
+                    "contract_type": contract_type,
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": True,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
+                )
+
             else:
                 contract_type = _BINARY_TYPE[signal.action]
                 duration      = signal.contract_duration if signal.contract_duration is not None else self.duration
-
                 result = await self.client.buy_contract(
                     symbol=self.symbol,
                     contract_type=contract_type,
@@ -97,19 +152,18 @@ class Trader:
                     duration_unit=self.duration_unit,
                     stake=stake,
                 )
-
-            contract_id = str(result["contract_id"])
-            self._open[contract_id] = {
-                "signal_action": signal.action,
-                "contract_type": contract_type,
-                "stake":         stake,
-                "buy_price":     float(result.get("buy_price", stake)),
-                "is_multiplier": is_multi,
-            }
-            self.risk.on_contract_opened()
-            logger.info(
-                f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
-            )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": signal.action,
+                    "contract_type": contract_type,
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
+                )
 
         except Exception as e:
             logger.error(f"Failed to open contract [{type(e).__name__}]: {e}")
@@ -120,6 +174,7 @@ class Trader:
             return
 
         meta      = self._open.pop(contract_id)
+        self._open_accu.pop(contract_id, None)   # clean up if barrier knocked it out
         buy_price = meta["stake"]
 
         # Multiplier contracts carry a direct 'profit' field; binary use sell_price - buy_price

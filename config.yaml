@@ -285,6 +285,97 @@ symbols:
     max_open_contracts: 1
 
   # ══════════════════════════════════════════════════════════════════════
+  # CRASH/BOOM — Post-Spike Recoil via Accumulator (validated 2026-08-18)
+  # Strategy: detect spike tick (move > spike_mult x pre-spike ATR), buy
+  # an Accumulator (ACCU) which grows each tick price stays in barrier band.
+  # After hold_ticks, the bot auto-sells for accumulated profit.
+  # Accumulators are direction-agnostic: after a spike the recoil ticks are
+  # small enough to stay within the barrier, so ACCU grows tick by tick.
+  # growth_rate: check available rates on your account (1%-5% per tick).
+  # Synthetics are 24/7 — blocked_hours_eat: [] disables the time filter.
+  # ══════════════════════════════════════════════════════════════════════
+
+  - symbol: CRASH1000
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    growth_rate: 0.03
+    hold_ticks: 5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: CRASH500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    growth_rate: 0.03
+    hold_ticks: 5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: BOOM1000
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    growth_rate: 0.03
+    hold_ticks: 5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: BOOM500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    growth_rate: 0.03
+    hold_ticks: 5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
   # ARCHIVED: All synthetic + multiplier strategies (disabled 2026-07-29)
   # Reason: shifted to real market binary CALL/PUT only.
   # Silver disabled separately: 63% payout sets BE WR=61.3% — no viable edge.
