@@ -31,6 +31,7 @@ from src.strategies.donchian import DonchianStrategy
 from src.strategies.rsi_multiplier import RSIMultiplierStrategy
 from src.strategies.rsi_binary import RSIBinaryStrategy
 from src.strategies.mtf_v5 import MTFV5Strategy
+from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -83,7 +84,8 @@ def build_risk_config(symbol_entry: dict, base_risk: dict) -> dict:
     """Merge per-symbol risk overrides (max_stake, min_stake, etc.) onto global risk config."""
     cfg = dict(base_risk)
     risk_keys = {"max_stake", "min_stake", "stake_percent", "use_kelly",
-                 "daily_loss_limit", "payout_pct", "max_open_contracts"}
+                 "daily_loss_limit", "payout_pct", "max_open_contracts",
+                 "blocked_hours_eat", "rolling_window", "min_rolling_wr"}
     for k in risk_keys:
         if k in symbol_entry:
             cfg[k] = symbol_entry[k]
@@ -285,6 +287,12 @@ async def run(watch_only: bool = False):
             except Exception as e:
                 logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
 
+        elif strategy_type == "crash_boom_recoil":
+            # Crash/Boom spike-recoil: no candle seeding needed — warms up from live ticks.
+            strategy = CrashBoomRecoilStrategy(sym_cfg)
+            logger.info(f"[{symbol}/crash_boom_recoil] Ready — warms up from first "
+                        f"{sym_cfg.get('atr_period', 50) + 2} live ticks")
+
         elif strategy_type == "mtf_v5":
             strategy     = MTFV5Strategy(sym_cfg)
             htf_count    = sym_cfg.get("ema_period", 100) + sym_cfg.get("slope_bars", 3) + 20
@@ -318,6 +326,8 @@ async def run(watch_only: bool = False):
             sym_cfg.get("contract_duration", 10),
             sym_cfg.get("contract_duration_unit", "t"),
             multiplier=sym_cfg.get("multiplier", 0),
+            growth_rate=sym_cfg.get("growth_rate", 0.03),
+            hold_ticks=sym_cfg.get("hold_ticks", 5),
             strategy=strategy,
             alerter=alerter,
         )
@@ -337,7 +347,7 @@ async def run(watch_only: bool = False):
                     dur = signal.contract_duration if signal.contract_duration is not None \
                           else contract_duration
                     b.risk.on_tick_halted(current_price, signal.action, ct, dur)
-                elif not wonly and signal.action != "HOLD":
+                elif not wonly:
                     await b.trader.execute(signal)
             return handler
 

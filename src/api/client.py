@@ -394,6 +394,41 @@ class DerivClient:
         await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
         return buy_resp["buy"]
 
+    async def buy_accumulator(
+        self,
+        symbol: str,
+        growth_rate: float,  # e.g. 0.03 = 3% per tick
+        stake: float,
+    ) -> dict:
+        """Buy an Accumulator contract. Grows by growth_rate each tick price stays within barrier."""
+        proposal_resp = await self._send({
+            "proposal": 1,
+            "amount": round(stake, 2),
+            "basis": "stake",
+            "contract_type": "ACCU",
+            "growth_rate": growth_rate,
+            "underlying_symbol": symbol,
+        })
+        proposal_id = proposal_resp["proposal"]["id"]
+        logger.debug(
+            f"ACCU proposal {proposal_id} | {symbol} | "
+            f"growth={growth_rate * 100:.0f}%/tick | stake={stake}"
+        )
+        buy_resp    = await self._send({"buy": proposal_id, "price": stake})
+        contract_id = buy_resp["buy"]["contract_id"]
+        logger.info(
+            f"ACCU bought: {contract_id} | {symbol} | "
+            f"growth={growth_rate * 100:.0f}%/tick | stake={stake}"
+        )
+        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        return buy_resp["buy"]
+
+    async def sell_contract(self, contract_id: str) -> dict:
+        """Manually close an open contract (Accumulator sell-at-market)."""
+        resp = await self._send({"sell": int(contract_id), "price": 0})
+        logger.info(f"Contract sold: {contract_id}")
+        return resp
+
 
 # ── Module-level helpers ────────────────────────────────────────────────
 
