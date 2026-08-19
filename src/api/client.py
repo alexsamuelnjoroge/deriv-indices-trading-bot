@@ -401,8 +401,12 @@ class DerivClient:
         stake: float,
         currency: str = "USD",
     ) -> dict:
-        """Buy an Accumulator contract. Grows by growth_rate each tick price stays within barrier."""
-        proposal_resp = await self._send({
+        """Buy an Accumulator contract. Grows by growth_rate each tick price stays within barrier.
+
+        ACCU proposals expire within 1-2 ticks (price is always moving), so the buy
+        is retried once with a fresh proposal if the first attempt gets InvalidContractProposal.
+        """
+        params = {
             "proposal": 1,
             "amount": round(stake, 2),
             "basis": "stake",
@@ -410,13 +414,25 @@ class DerivClient:
             "currency": currency,
             "growth_rate": growth_rate,
             "underlying_symbol": symbol,
-        })
-        proposal_id = proposal_resp["proposal"]["id"]
-        logger.debug(
-            f"ACCU proposal {proposal_id} | {symbol} | "
-            f"growth={growth_rate * 100:.0f}%/tick | stake={stake}"
-        )
-        buy_resp    = await self._send({"buy": proposal_id, "price": stake})
+        }
+        for attempt in range(2):
+            proposal_resp = await self._send(params)
+            proposal_id   = proposal_resp["proposal"]["id"]
+            logger.debug(
+                f"ACCU proposal {proposal_id} | {symbol} | "
+                f"growth={growth_rate * 100:.0f}%/tick | stake={stake}"
+                + (f" (retry {attempt})" if attempt else "")
+            )
+            try:
+                buy_resp = await self._send({"buy": proposal_id, "price": stake})
+                break
+            except RuntimeError as exc:
+                if attempt == 0 and "InvalidContractProposal" in str(exc):
+                    logger.warning(
+                        f"[{symbol}] ACCU proposal expired, retrying with fresh quote"
+                    )
+                    continue
+                raise
         contract_id = buy_resp["buy"]["contract_id"]
         logger.info(
             f"ACCU bought: {contract_id} | {symbol} | "
