@@ -294,8 +294,9 @@ symbols:
   # growth_rate: check available rates on your account (1%-5% per tick).
   # Synthetics are 24/7 — blocked_hours_eat: [] disables the time filter.
   # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
-  #   CRASH1000: MARGINAL (2/4)   BOOM1000: MARGINAL (2/4)
-  #   BOOM600:   MOSTLY OK (3/4)  <-- best performer
+  # confirm_threshold=1.0 (size-only gate, no direction check — ACCU is direction-agnostic)
+  #   CRASH1000: MARGINAL (2/4)   BOOM1000: MOSTLY OK (3/4)
+  #   BOOM600:   MOSTLY OK (3/4)  <-- best performer  spike_mult=20
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
@@ -309,6 +310,8 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 8
+    barrier_pct: 0.00000235   # real Deriv barrier at 4% growth (from check_contracts.py)
+    confirm_threshold: 1.0    # skip if first recoil tick > 100% of barrier (ACCU is direction-agnostic)
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -330,6 +333,8 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 8
+    barrier_pct: 0.00000235
+    confirm_threshold: 1.0
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -352,6 +357,8 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 8
+    barrier_pct: 0.00000395
+    confirm_threshold: 1.0
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
