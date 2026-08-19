@@ -99,6 +99,7 @@ def run_walk_forward(
     volatility_filter_window: int = 0,
     volatility_filter_mult: float = 3.0,
     barrier_pct_override=None,
+    confirm_threshold: float = 0.3,
 ):
     expected_rate = sym_cfg["expected_rate"]
     atr_period    = 50
@@ -119,6 +120,8 @@ def run_walk_forward(
         "rsi_period":               14,
         "hold_ticks":               HOLD_TICKS,
         "growth_rate":              GROWTH_RATE,
+        "barrier_pct":              barrier_pct,
+        "confirm_threshold":        confirm_threshold,
         "trend_filter_window":      trend_filter_window,
         "volatility_filter_window": volatility_filter_window,
         "volatility_filter_mult":   volatility_filter_mult,
@@ -225,9 +228,12 @@ def main():
                              "Skips entry when recent tick range > mult x ATR.")
     parser.add_argument("--vol-mult",     type=float, default=3.0, dest="vol_mult",
                         help="Max allowed range in ATR multiples for vol filter (default 3.0)")
-    parser.add_argument("--barrier-pct", type=float, default=None, dest="barrier_pct",
-                        help="ACCU barrier as fraction of price per tick (e.g. 0.003). "
-                             "Get the real value by running check_contracts.py first.")
+    parser.add_argument("--barrier-pct",      type=float, default=None,  dest="barrier_pct",
+                        help="ACCU barrier as fraction of price per tick. "
+                             "Get real value from check_contracts.py. Default: per-symbol from CONFIGS.")
+    parser.add_argument("--confirm-threshold", type=float, default=1.0,   dest="confirm_threshold",
+                        help="Max barrier fraction the confirm tick may consume (default 1.0 = 100%%). "
+                             "Set 0 to disable confirmation gate entirely.")
     args = parser.parse_args()
 
     if args.symbol:
@@ -260,6 +266,7 @@ def main():
             volatility_filter_window=args.vol_filter,
             volatility_filter_mult=args.vol_mult,
             barrier_pct_override=barrier_override,
+            confirm_threshold=args.confirm_threshold,
         )
 
     print()
