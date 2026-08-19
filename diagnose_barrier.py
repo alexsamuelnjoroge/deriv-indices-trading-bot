@@ -3,58 +3,59 @@ Measure real BOOM1000 tick-by-tick moves vs the ACCU barrier.
 
 Answers: why does the backtest show 84% WR but live shows 55%?
 
-Collects N live ticks, computes the per-tick pct_move distribution, and
-shows what fraction exceed the barrier — which directly determines the
-real knockout probability per tick.
+Collects N live ticks via the same DerivClient used by the main bot,
+then shows what fraction of normal ticks exceed the barrier — which
+directly determines the real per-tick knockout probability.
 
 Usage:
-  python diagnose_barrier.py                  # 500 ticks, BOOM1000, barrier=2.35e-6
-  python diagnose_barrier.py --count 1000
-  python diagnose_barrier.py --symbol BOOM600 --barrier 3.95e-6
+  python3 diagnose_barrier.py                  # 500 ticks, BOOM1000, 2.35e-6
+  python3 diagnose_barrier.py --count 1000
+  python3 diagnose_barrier.py --symbol BOOM600 --barrier 3.95e-6
 """
 
 import argparse
 import asyncio
-import json
 import os
 import sys
 from dotenv import load_dotenv
 
 load_dotenv()
+sys.path.insert(0, ".")
+from src.api.client import DerivClient
 
-DERIV_WS_URL = "wss://ws.binaryws.com/websockets/v3"
-HOLD_TICKS   = 8
-GROWTH_RATE  = 0.04
+GROWTH_RATE = 0.04
+HOLD_TICKS  = 8
 
 
 async def collect_live_ticks(symbol: str, count: int, token: str, app_id: str) -> list[float]:
-    import websockets
-
-    url = f"{DERIV_WS_URL}?app_id={app_id}"
     prices: list[float] = []
+    done = asyncio.Event()
 
-    print(f"Connecting to Deriv WebSocket ...")
-    async with websockets.connect(url) as ws:
-        await ws.send(json.dumps({"authorize": token}))
-        auth = json.loads(await ws.recv())
-        if "error" in auth:
-            print(f"Auth error: {auth['error']}")
-            return []
+    client = DerivClient(api_token=token, app_id=app_id)
 
-        await ws.send(json.dumps({"ticks": symbol, "subscribe": 1}))
-        print(f"Collecting {count} live ticks for {symbol} ...")
+    async def on_tick(tick: dict):
+        p = float(tick.get("quote", tick.get("last_price", 0)))
+        if p > 0:
+            prices.append(p)
+            n = len(prices)
+            if n % 50 == 0:
+                print(f"  ... {n}/{count}", end="\r", flush=True)
+            if n >= count:
+                done.set()
 
-        while len(prices) < count:
-            raw = await asyncio.wait_for(ws.recv(), timeout=30)
-            msg = json.loads(raw)
-            if msg.get("msg_type") == "tick":
-                p = float(msg["tick"].get("quote", 0))
-                if p > 0:
-                    prices.append(p)
-                    n = len(prices)
-                    if n % 50 == 0:
-                        print(f"  ... {n}/{count}", end="\r", flush=True)
+    client.on_tick(symbol, on_tick)
 
+    print("Connecting ...")
+    await client.connect()
+    print(f"Collecting {count} live ticks for {symbol} ...")
+    await client.subscribe_ticks(symbol)
+
+    try:
+        await asyncio.wait_for(done.wait(), timeout=600)
+    except asyncio.TimeoutError:
+        print(f"\nTimeout — collected {len(prices)} ticks.")
+
+    await client.disconnect()
     print(f"\nCollected {len(prices)} ticks.")
     return prices
 
@@ -70,58 +71,58 @@ def analyse(prices: list[float], barrier: float, hold: int) -> None:
         if prev > 0:
             moves.append(abs(curr - prev) / prev)
 
-    n = len(moves)
+    n            = len(moves)
     sorted_moves = sorted(moves)
     median_move  = sorted_moves[n // 2]
-    spike_thresh = median_move * 50  # 50x median = spike
+    spike_thresh = median_move * 50
 
     spike_idxs   = [i for i, m in enumerate(moves) if m > spike_thresh]
     normal_moves  = [m for m in moves if m <= spike_thresh]
 
-    avg_price    = sum(prices) / len(prices)
-    barrier_abs  = avg_price * barrier
-
-    accu_payout  = (1 + GROWTH_RATE) ** hold - 1
-    be_wr        = 100 / (1 + accu_payout)
+    avg_price   = sum(prices) / len(prices)
+    barrier_abs = avg_price * barrier
+    accu_payout = (1 + GROWTH_RATE) ** hold - 1
+    be_wr       = 100 / (1 + accu_payout)
 
     SEP = "=" * 60
     print()
     print(SEP)
-    print(f"  {prices[0]:.2f} → {prices[-1]:.2f}  |  avg price {avg_price:.4f}")
-    print(f"  Barrier : ±{barrier_abs:.6f}  ({barrier*1e6:.2f}e-6, {barrier*100:.6f}% of price)")
-    print(f"  Spikes  : {len(spike_idxs)} detected (>{spike_thresh:.2e}, {len(normal_moves)} normal ticks)")
+    print(f"  {prices[0]:.2f} -> {prices[-1]:.2f}  |  avg price {avg_price:.4f}")
+    print(f"  Barrier : +/-{barrier_abs:.6f}  ({barrier:.2e}, {barrier*100:.6f}% of price)")
+    print(f"  Spikes  : {len(spike_idxs)} detected  |  {len(normal_moves)} normal ticks")
     print(SEP)
 
     if not normal_moves:
         print("  No normal ticks found.")
         return
 
-    exceed       = [m for m in normal_moves if m > barrier]
-    exceed_pct   = len(exceed) / len(normal_moves) * 100
-    p_survive_1  = 1 - exceed_pct / 100
-    p_survive_n  = p_survive_1 ** hold
-    ev           = p_survive_n * accu_payout - (1 - p_survive_n)
+    exceed      = [m for m in normal_moves if m > barrier]
+    exceed_pct  = len(exceed) / len(normal_moves) * 100
+    p_survive_1 = 1 - exceed_pct / 100
+    p_survive_n = p_survive_1 ** hold
+    ev          = p_survive_n * accu_payout - (1 - p_survive_n)
 
-    avg_n  = sum(normal_moves) / len(normal_moves)
-    med_n  = sorted(normal_moves)[len(normal_moves) // 2]
+    avg_n = sum(normal_moves) / len(normal_moves)
+    med_n = sorted(normal_moves)[len(normal_moves) // 2]
 
     print(f"\n  NORMAL tick moves  ({len(normal_moves)} ticks):")
     print(f"    Median  : {med_n:.2e}  ({med_n/barrier:.2f}x barrier)")
     print(f"    Average : {avg_n:.2e}  ({avg_n/barrier:.2f}x barrier)")
     print(f"    > barrier : {len(exceed)}/{len(normal_moves)} = {exceed_pct:.2f}%")
 
-    print(f"\n  ACCU survival simulation  (growth={GROWTH_RATE*100:.0f}%/tick, hold={hold}t):")
+    print(f"\n  ACCU simulation  (growth={GROWTH_RATE*100:.0f}%/tick x {hold}t):")
     print(f"    P(survive 1 tick)    = {p_survive_1*100:.2f}%")
-    print(f"    P(survive {hold} ticks)  = {p_survive_n*100:.1f}%  ← predicted WR")
+    print(f"    P(survive {hold} ticks)  = {p_survive_n*100:.1f}%  <- predicted WR")
     print(f"    Breakeven WR         = {be_wr:.1f}%")
     print(f"    EV per stake unit    = {ev:+.4f}  ({'PROFITABLE' if ev > 0 else 'LOSING'})")
 
-    print(f"\n  Tick size distribution (multiples of barrier):")
+    print(f"\n  Tick size distribution:")
     for mult in [0.25, 0.5, 1.0, 2.0, 5.0, 10.0]:
         t     = barrier * mult
         below = sum(1 for m in normal_moves if m <= t)
         bar   = "#" * (below * 30 // len(normal_moves))
-        print(f"    < {mult:5.2f}x ({t:.2e}): {below:5}/{len(normal_moves)} = {below/len(normal_moves)*100:5.1f}%  {bar}")
+        print(f"    < {mult:5.2f}x barrier ({t:.2e}): {below:5}/{len(normal_moves)} "
+              f"= {below/len(normal_moves)*100:5.1f}%  {bar}")
 
     # Post-spike analysis
     post_spike: list[float] = []
@@ -131,7 +132,7 @@ def analyse(prices: list[float], barrier: float, hold: int) -> None:
             if k < len(moves) and moves[k] <= spike_thresh:
                 post_spike.append(moves[k])
 
-    print(f"\n  POST-SPIKE ticks (ticks 1-{hold+2} after each spike, {len(post_spike)} samples):")
+    print(f"\n  POST-SPIKE ticks  ({len(post_spike)} samples from {len(spike_idxs)} spikes):")
     if post_spike:
         ps_exceed     = sum(1 for m in post_spike if m > barrier)
         ps_exceed_pct = ps_exceed / len(post_spike) * 100
@@ -139,36 +140,34 @@ def analyse(prices: list[float], barrier: float, hold: int) -> None:
         ps_survive_n  = (1 - ps_exceed_pct / 100) ** hold
         ps_ev         = ps_survive_n * accu_payout - (1 - ps_survive_n)
         ratio         = ps_exceed_pct / exceed_pct if exceed_pct > 0 else 0
-        print(f"    Avg move        : {avg_ps:.2e}  ({avg_ps/barrier:.2f}x barrier)")
-        print(f"    > barrier       : {ps_exceed}/{len(post_spike)} = {ps_exceed_pct:.2f}%"
-              f"  ({ratio:.1f}x baseline)")
-        print(f"    Predicted WR    : {ps_survive_n*100:.1f}%")
-        print(f"    EV per stake    : {ps_ev:+.4f}  ({'PROFITABLE' if ps_ev > 0 else 'LOSING'})")
+        print(f"    Avg move       : {avg_ps:.2e}  ({avg_ps/barrier:.2f}x barrier)")
+        print(f"    > barrier      : {ps_exceed}/{len(post_spike)} = {ps_exceed_pct:.2f}%"
+              f"  ({ratio:.1f}x baseline rate)")
+        print(f"    Predicted WR   : {ps_survive_n*100:.1f}%")
+        print(f"    EV per stake   : {ps_ev:+.4f}  ({'PROFITABLE' if ps_ev > 0 else 'LOSING'})")
     else:
-        print(f"    No post-spike ticks (no spikes in this sample?)")
+        print("    No spikes in this sample.")
 
     print()
     print(SEP)
     print("  DIAGNOSIS:")
     if exceed_pct < 2:
-        verdict = "LOW breach rate — backtest should be accurate. Discrepancy is variance or regime change."
+        verdict = "LOW breach rate (<2%). Backtest should be accurate.\n  Discrepancy is likely variance, regime change, or entry timing."
     elif exceed_pct < 6:
-        verdict = ("MODERATE breach rate. Historical data may have been sparser (compressed) than live,\n"
-                   "  inflating backtest WR. Real edge is smaller than backtested.")
+        verdict = ("MODERATE breach rate (2-6%). Historical (cached) tick data is sparser\n"
+                   "  than live ticks — backtest WR is inflated. Real edge is smaller.")
     else:
-        verdict = ("HIGH breach rate — barrier is too tight vs real tick sizes.\n"
-                   "  ACCU at this barrier has NO edge. Stop trading immediately.")
+        verdict = ("HIGH breach rate (>6%). The barrier is too tight for real tick sizes.\n"
+                   "  ACCU at this barrier/symbol has NO edge at any hold period.")
 
-    print(f"  Baseline breach rate {exceed_pct:.1f}% → {verdict}")
+    print(f"  Baseline: {exceed_pct:.1f}% of normal ticks breach barrier -> {verdict}")
 
-    if post_spike:
-        if ps_exceed_pct > exceed_pct * 1.5:
-            print(f"\n  POST-SPIKE VOLATILITY ELEVATED ({ps_exceed_pct:.1f}% vs {exceed_pct:.1f}% baseline).")
-            print("  Entering right after a spike puts you into a WORSE environment.")
-            print("  The recoil hypothesis is wrong — spikes are followed by higher volatility.")
-        else:
-            print(f"\n  Post-spike volatility normal ({ps_exceed_pct:.1f}% vs {exceed_pct:.1f}% baseline).")
-            print("  Spike-entry timing is NOT the cause of losses.")
+    if post_spike and ps_exceed_pct > exceed_pct * 1.5:
+        print(f"\n  WARNING: Post-spike ticks breach barrier {ps_exceed_pct:.1f}% vs {exceed_pct:.1f}% baseline.")
+        print("  Spike-entry is worse than random entry. Recoil hypothesis is WRONG.")
+    elif post_spike and len(spike_idxs) > 0:
+        print(f"\n  Post-spike breach ({ps_exceed_pct:.1f}%) ~ baseline ({exceed_pct:.1f}%).")
+        print("  Spike-entry timing does NOT cause extra knockouts.")
 
     print(SEP)
     print()
@@ -180,16 +179,15 @@ async def main():
     parser.add_argument("--count",   type=int, default=500,
                         help="Live ticks to collect (default 500, ~5-10 min)")
     parser.add_argument("--barrier", type=float, default=2.35e-6,
-                        help="barrier_pct from check_contracts.py (default 2.35e-6 for BOOM1000 4%%)")
-    parser.add_argument("--hold",    type=int, default=HOLD_TICKS,
-                        help=f"Hold ticks to simulate (default {HOLD_TICKS})")
+                        help="barrier_pct (default 2.35e-6 = BOOM1000 at 4%% growth)")
+    parser.add_argument("--hold",    type=int, default=HOLD_TICKS)
     args = parser.parse_args()
 
     token  = os.getenv("DERIV_TOKEN") or os.getenv("DERIV_API_TOKEN", "")
     app_id = os.getenv("DERIV_APP_ID", "1089")
 
     if not token:
-        print("ERROR: set DERIV_TOKEN in .env")
+        print("ERROR: DERIV_TOKEN not set in .env")
         return
 
     prices = await collect_live_ticks(args.symbol, args.count, token, app_id)
