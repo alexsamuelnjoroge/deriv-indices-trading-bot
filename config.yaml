@@ -285,7 +285,7 @@ symbols:
     max_open_contracts: 1
 
   # ══════════════════════════════════════════════════════════════════════
-  # CRASH/BOOM — Post-Spike Recoil via Accumulator (validated 2026-08-18)
+  # CRASH/BOOM — Post-Spike Recoil via Accumulator (validated 2026-08-19)
   # Strategy: detect spike tick (move > spike_mult x pre-spike ATR), buy
   # an Accumulator (ACCU) which grows each tick price stays in barrier band.
   # After hold_ticks, the bot auto-sells for accumulated profit.
@@ -293,30 +293,13 @@ symbols:
   # small enough to stay within the barrier, so ACCU grows tick by tick.
   # growth_rate: check available rates on your account (1%-5% per tick).
   # Synthetics are 24/7 — blocked_hours_eat: [] disables the time filter.
+  # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
+  #   CRASH1000: MARGINAL (2/4)   BOOM1000: MARGINAL (2/4)
+  #   BOOM600:   MOSTLY OK (3/4)  <-- best performer
+  #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
   - symbol: CRASH1000
-    enabled: true
-    strategy_type: crash_boom_recoil
-    symbol_type: crash
-    spike_mult: 15.0
-    atr_period: 50
-    cooldown_ticks: 5
-    loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 8
-    contract_duration: 0
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
-    use_kelly: false
-    payout_pct: 0.87
-    max_open_contracts: 1
-    blocked_hours_eat: []
-
-  - symbol: CRASH500
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
@@ -358,8 +341,53 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  - symbol: BOOM500
+  # MOSTLY OK (3/4) — best performer in full 14-symbol backtest 2026-08-19
+  - symbol: BOOM600
     enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 20.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # NO EDGE — disabled 2026-08-19 after backtest
+  - symbol: CRASH500
+    enabled: false
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # NO EDGE — disabled 2026-08-19 after backtest
+  - symbol: BOOM500
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 15.0

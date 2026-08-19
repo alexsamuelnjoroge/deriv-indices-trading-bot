@@ -10,6 +10,12 @@ Payout model (binary tick contracts):
   Win  →  +stake × payout_pct   (e.g. 87% of stake as profit)
   Loss →  -stake
   Breakeven win rate = 1 / (1 + payout_pct)  ≈ 53.5% at 87%
+
+Payout model (Accumulator contracts, BUY_ACCU):
+  Win  →  +stake × ((1 + growth_rate)^hold_ticks - 1)
+  Loss →  -stake   (barrier breached during hold)
+  Barrier: each tick's percentage move must stay within barrier_pct of price.
+  barrier_pct default 2.4e-6 (≈ 0.00024% per tick — tune with --barrier-pct).
 """
 
 from dataclasses import dataclass, field
@@ -113,6 +119,12 @@ class BacktestEngine:
         self.duration: int = strategy_cfg.get("contract_duration", 5)
         self._strategy_class = strategy_class or RSIReversalStrategy
 
+        # Accumulator simulation parameters
+        self.hold_ticks  = strategy_cfg.get("hold_ticks", 8)
+        self.growth_rate = strategy_cfg.get("growth_rate", 0.04)
+        self.barrier_pct = risk_cfg.get("barrier_pct", 2.4e-6)  # % of price per tick
+        self.accu_payout = (1 + self.growth_rate) ** self.hold_ticks - 1
+
     def run(
         self,
         ticks: list[dict],
@@ -135,22 +147,40 @@ class BacktestEngine:
 
         # pending contract: set when a signal fires, settled `duration` ticks later
         pending: Optional[dict] = None
+        prev_price: Optional[float] = None
 
         for i, raw in enumerate(ticks):
             tick_store.add(raw)
             current_price = float(raw["quote"])
 
-            # ── Settle pending contract ───────────────────────────
-            if pending is not None and i >= pending["exit_idx"]:
-                ct = pending["contract_type"]
-                entry_price = pending["entry_price"]
-                stake = pending["stake"]
+            # ── ACCU barrier check (every tick during hold) ───────
+            if (pending is not None and pending.get("is_accu")
+                    and not pending["knocked_out"]
+                    and prev_price is not None
+                    and i > pending["entry_idx"]):
+                pct_move = abs(current_price - prev_price) / prev_price if prev_price > 0 else 0
+                if pct_move > pending["barrier_pct"]:
+                    pending["knocked_out"] = True
 
-                won = (
-                    (ct == "CALL" and current_price > entry_price) or
-                    (ct == "PUT"  and current_price < entry_price)
-                )
-                profit = round(stake * self.payout_pct if won else -stake, 2)
+            # ── Settle pending contract ───────────────────────────
+            settle = pending is not None and (
+                i >= pending["exit_idx"] or pending.get("knocked_out")
+            )
+            if settle:
+                ct          = pending["contract_type"]
+                entry_price = pending["entry_price"]
+                stake       = pending["stake"]
+
+                if pending.get("is_accu"):
+                    won    = not pending["knocked_out"]
+                    profit = round(stake * self.accu_payout if won else -stake, 2)
+                else:
+                    won = (
+                        (ct == "CALL" and current_price > entry_price) or
+                        (ct == "PUT"  and current_price < entry_price)
+                    )
+                    profit = round(stake * self.payout_pct if won else -stake, 2)
+
                 status = "won" if won else "lost"
 
                 bt_trade = BacktestTrade(
@@ -187,16 +217,33 @@ class BacktestEngine:
                             atr=signal.atr,
                             atr_baseline=signal.atr_baseline,
                         )
-                        dur = signal.contract_duration if signal.contract_duration is not None else self.duration
-                        pending = {
-                            "entry_idx":    i,
-                            "exit_idx":     i + dur,
-                            "entry_price":  current_price,
-                            "contract_type": CONTRACT_TYPE[signal.action],
-                            "stake":        stake,
-                            "reason":       signal.reason,
-                        }
+                        if signal.action == "BUY_ACCU":
+                            pending = {
+                                "entry_idx":    i,
+                                "exit_idx":     i + self.hold_ticks,
+                                "entry_price":  current_price,
+                                "contract_type": "ACCU",
+                                "stake":        stake,
+                                "reason":       signal.reason,
+                                "is_accu":      True,
+                                "barrier_pct":  self.barrier_pct,
+                                "knocked_out":  False,
+                            }
+                        else:
+                            dur = signal.contract_duration if signal.contract_duration is not None else self.duration
+                            pending = {
+                                "entry_idx":    i,
+                                "exit_idx":     i + dur,
+                                "entry_price":  current_price,
+                                "contract_type": CONTRACT_TYPE[signal.action],
+                                "stake":        stake,
+                                "reason":       signal.reason,
+                                "is_accu":      False,
+                                "knocked_out":  False,
+                            }
                         risk.on_contract_opened()
+
+            prev_price = current_price
 
         result.final_balance = risk.current_balance
         return result

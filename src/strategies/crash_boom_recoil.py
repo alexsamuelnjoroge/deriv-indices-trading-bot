@@ -22,11 +22,18 @@ Detection rule:
     Boom  + upward   move (prices[-1] > prices[-2]) -> BUY_FALL
 
 Config keys (all optional):
-  symbol_type      "crash" or "boom"       (default: "crash")
-  spike_mult       ATR multiple threshold  (default: 15.0)
-  atr_period       Lookback for baseline   (default: 50)
-  cooldown_ticks   evaluate() skips after spike fires  (default: 5)
-  loss_cooldown    Consecutive losses before extra skip (default: 0)
+  symbol_type              "crash" or "boom"                   (default: "crash")
+  spike_mult               ATR multiple threshold              (default: 15.0)
+  atr_period               Lookback for baseline               (default: 50)
+  cooldown_ticks           evaluate() skips after spike fires  (default: 5)
+  loss_cooldown            Consecutive losses before extra skip (default: 0)
+  trend_filter_window      Ticks to measure pre-spike trend; 0=off (default: 0)
+                           CRASH: only enter if trend was UP (recoil aligns)
+                           BOOM:  only enter if trend was DOWN
+  volatility_filter_window Ticks to measure 1m range; 0=off (default: 0)
+  volatility_filter_mult   Max allowed range in ATR multiples (default: 3.0)
+                           Skips entry when recent ticks are too large
+                           (high volatility -> higher barrier breach risk)
 """
 
 from .base import BaseStrategy, Signal
@@ -36,11 +43,14 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.symbol_type    = str(config.get("symbol_type", "crash")).lower()
-        self.spike_mult     = float(config.get("spike_mult", 15.0))
-        self.atr_period     = int(config.get("atr_period", 50))
-        self.cooldown_ticks = int(config.get("cooldown_ticks", 5))
-        self.loss_cooldown  = int(config.get("loss_cooldown", 0))
+        self.symbol_type             = str(config.get("symbol_type", "crash")).lower()
+        self.spike_mult              = float(config.get("spike_mult", 15.0))
+        self.atr_period              = int(config.get("atr_period", 50))
+        self.cooldown_ticks          = int(config.get("cooldown_ticks", 5))
+        self.loss_cooldown           = int(config.get("loss_cooldown", 0))
+        self.trend_filter_window     = int(config.get("trend_filter_window", 0))
+        self.volatility_filter_window = int(config.get("volatility_filter_window", 0))
+        self.volatility_filter_mult  = float(config.get("volatility_filter_mult", 3.0))
 
         self._cooldown           = 0
         self._consecutive_losses = 0
@@ -116,6 +126,31 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         abs_move  = abs(last_move)
         mult      = abs_move / pre_atr
         threshold = self.spike_mult * pre_atr
+
+        # Trend filter: pre-spike trend must align with expected recoil direction.
+        # Uses prices[-(window+1):-1] to exclude the spike tick itself.
+        if self.trend_filter_window > 0 and abs_move >= threshold:
+            w = min(self.trend_filter_window, n - 2)
+            pre_trend = prices[-2] - prices[-(w + 2)]
+            if self.symbol_type == "crash" and pre_trend <= 0:
+                return Signal(action="HOLD",
+                              reason=f"Trend filter: pre-spike trend {pre_trend:+.4f} not upward",
+                              atr=pre_atr)
+            if self.symbol_type == "boom" and pre_trend >= 0:
+                return Signal(action="HOLD",
+                              reason=f"Trend filter: pre-spike trend {pre_trend:+.4f} not downward",
+                              atr=pre_atr)
+
+        # Volatility filter: 1m tick range must be small relative to ATR.
+        # Large range = big ticks = higher barrier breach risk during hold.
+        if self.volatility_filter_window > 0 and abs_move >= threshold:
+            w = min(self.volatility_filter_window, n - 2)
+            recent = prices[-(w + 2):-1]
+            tick_range = max(recent) - min(recent)
+            if tick_range > self.volatility_filter_mult * pre_atr:
+                return Signal(action="HOLD",
+                              reason=f"Volatility filter: range {tick_range:.4f} > {self.volatility_filter_mult}x ATR",
+                              atr=pre_atr)
 
         if self.symbol_type == "crash" and last_move < 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks

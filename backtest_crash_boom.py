@@ -36,15 +36,31 @@ logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {mes
 # while ignoring the rare outlier normal tick.
 # CRASH300 / BOOM300 are not available in all Deriv regions -- add if you have access.
 
+# barrier_pct: real ACCU barrier at 4% growth, fetched from Deriv API via check_contracts.py
 CONFIGS = {
-    "CRASH1000": {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 1000},
-    "CRASH500":  {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 500},
-    "BOOM1000":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 1000},
-    "BOOM500":   {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 500},
+    "CRASH1000": {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 1000, "barrier_pct": 2.35e-6},
+    "CRASH900":  {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 900,  "barrier_pct": 2.61e-6},
+    "CRASH600":  {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 600,  "barrier_pct": 3.93e-6},
+    "CRASH500":  {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 500,  "barrier_pct": 4.73e-6},
+    "CRASH300N": {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 300,  "barrier_pct": 2.06e-5},
+    "CRASH150N": {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 150,  "barrier_pct": 1.61e-6},
+    "CRASH50":   {"symbol_type": "crash", "spike_mult": 15.0, "expected_rate": 50,   "barrier_pct": 2.15e-6},
+    "BOOM1000":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 1000, "barrier_pct": 2.35e-6},
+    "BOOM900":   {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 900,  "barrier_pct": 2.62e-6},
+    "BOOM600":   {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 600,  "barrier_pct": 3.95e-6},
+    "BOOM500":   {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 500,  "barrier_pct": 4.73e-6},
+    "BOOM300N":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 300,  "barrier_pct": 2.08e-5},
+    "BOOM150N":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 150,  "barrier_pct": 1.61e-6},
+    "BOOM50":    {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 50,   "barrier_pct": 2.15e-6},
 }
 
-PAYOUT_PCT   = 0.87    # Deriv synthetic binary payout (verify on your account)
+GROWTH_RATE  = 0.04    # ACCU growth rate per tick (matches config.yaml)
+HOLD_TICKS   = 8      # ACCU hold period in ticks (matches config.yaml)
+BARRIER_PCT  = 2.4e-6 # Default — run check_contracts.py to get the real value per symbol.
 STARTING_BAL = 1000.0
+
+# Effective ACCU payout: compound growth over hold period
+ACCU_PAYOUT = (1 + GROWTH_RATE) ** HOLD_TICKS - 1  # e.g. 1.04^8 - 1 = 36.9%
 
 RISK_CFG = {
     "stake_percent":      2.0,
@@ -52,8 +68,9 @@ RISK_CFG = {
     "min_stake":          0.35,
     "daily_loss_limit":   100.0,   # 100 = effectively disabled for backtesting
     "use_kelly":          False,
-    "payout_pct":         PAYOUT_PCT,
+    "payout_pct":         ACCU_PAYOUT,
     "max_open_contracts": 1,
+    "barrier_pct":        BARRIER_PCT,
 }
 
 SEP_WIDE = "=" * 70
@@ -78,30 +95,40 @@ def run_walk_forward(
     window_size: int,
     fresh: bool,
     spike_mult_override,
+    trend_filter_window: int = 0,
+    volatility_filter_window: int = 0,
+    volatility_filter_mult: float = 3.0,
+    barrier_pct_override=None,
 ):
     expected_rate = sym_cfg["expected_rate"]
     atr_period    = 50
     cooldown      = 5
     contract_dur  = 3
 
-    spike_mult = spike_mult_override if spike_mult_override is not None else sym_cfg["spike_mult"]
+    spike_mult  = spike_mult_override if spike_mult_override is not None else sym_cfg["spike_mult"]
+    barrier_pct = barrier_pct_override if barrier_pct_override is not None else sym_cfg.get("barrier_pct", BARRIER_PCT)
 
     strategy_cfg = {
-        "symbol_type":       sym_cfg["symbol_type"],
-        "spike_mult":        spike_mult,
-        "atr_period":        atr_period,
-        "cooldown_ticks":    cooldown,
-        "loss_cooldown":     0,
-        "contract_duration": contract_dur,
-        "bar_size":          1,
-        "rsi_period":        14,
+        "symbol_type":              sym_cfg["symbol_type"],
+        "spike_mult":               spike_mult,
+        "atr_period":               atr_period,
+        "cooldown_ticks":           cooldown,
+        "loss_cooldown":            0,
+        "contract_duration":        contract_dur,
+        "bar_size":                 1,
+        "rsi_period":               14,
+        "hold_ticks":               HOLD_TICKS,
+        "growth_rate":              GROWTH_RATE,
+        "trend_filter_window":      trend_filter_window,
+        "volatility_filter_window": volatility_filter_window,
+        "volatility_filter_mult":   volatility_filter_mult,
     }
 
     total_ticks = window_size * num_windows
 
     print()
     print(SEP_WIDE)
-    print(f"  {symbol}  ({sym_cfg['symbol_type'].upper()})  |  spike_mult={spike_mult}")
+    print(f"  {symbol}  ({sym_cfg['symbol_type'].upper()})  |  spike_mult={spike_mult}  |  barrier_pct={barrier_pct:.2e}")
     print(f"  expected 1 spike per {expected_rate} ticks")
     print(f"  Fetching {total_ticks:,} ticks ({num_windows} x {window_size:,}) ...")
     print(SEP_THIN)
@@ -123,10 +150,11 @@ def run_walk_forward(
     for w in range(num_windows):
         segment = ticks[w * window_size: (w + 1) * window_size]
 
+        risk_cfg = {**RISK_CFG, "barrier_pct": barrier_pct}
         engine = BacktestEngine(
             strategy_cfg=strategy_cfg,
-            risk_cfg=RISK_CFG,
-            payout_pct=PAYOUT_PCT,
+            risk_cfg=risk_cfg,
+            payout_pct=ACCU_PAYOUT,
             strategy_class=CrashBoomRecoilStrategy,
         )
         result = engine.run(segment, starting_balance=STARTING_BAL)
@@ -154,12 +182,20 @@ def run_walk_forward(
     passes_total = sum(window_results)
     verdict      = _verdict(passes_total, num_windows)
 
+    filters = []
+    if trend_filter_window:
+        filters.append(f"trend_filter={trend_filter_window}t")
+    if volatility_filter_window:
+        filters.append(f"vol_filter={volatility_filter_window}t(x{volatility_filter_mult})")
+    filter_str = ", ".join(filters) if filters else "none"
+
     print(SEP_THIN)
     print(f"  => {passes_total}/{num_windows} windows pass | {verdict}")
     print(
         f"     config_hint: spike_mult={spike_mult}, atr_period={atr_period},"
         f" cooldown={cooldown}, contract_dur={contract_dur}t"
     )
+    print(f"     filters: {filter_str}")
 
     if verdict == "ROBUST":
         print(f"  ACTION: enable {symbol} in config.yaml with crash_boom_recoil strategy")
@@ -179,8 +215,19 @@ def main():
                         help="Number of walk-forward windows (default 4)")
     parser.add_argument("--fresh",      action="store_true",
                         help="Re-download tick data (ignore cache)")
-    parser.add_argument("--spike-mult", type=float, default=None, dest="spike_mult",
+    parser.add_argument("--spike-mult",  type=float, default=None,  dest="spike_mult",
                         help="Override spike_mult for all symbols")
+    parser.add_argument("--trend-filter", type=int, default=0, dest="trend_filter",
+                        help="Pre-spike trend window in ticks; 0=off (default 0). "
+                             "CRASH: only enter if trend was up. BOOM: only if down.")
+    parser.add_argument("--vol-filter",   type=int, default=0, dest="vol_filter",
+                        help="1m volatility window in ticks; 0=off (default 0). "
+                             "Skips entry when recent tick range > mult x ATR.")
+    parser.add_argument("--vol-mult",     type=float, default=3.0, dest="vol_mult",
+                        help="Max allowed range in ATR multiples for vol filter (default 3.0)")
+    parser.add_argument("--barrier-pct", type=float, default=None, dest="barrier_pct",
+                        help="ACCU barrier as fraction of price per tick (e.g. 0.003). "
+                             "Get the real value by running check_contracts.py first.")
     args = parser.parse_args()
 
     if args.symbol:
@@ -191,9 +238,15 @@ def main():
     else:
         symbols = CONFIGS
 
-    be_pct = round(100 / (1 + PAYOUT_PCT), 1)
+    barrier_override = args.barrier_pct  # None means use per-symbol value from CONFIGS
+
+    be_pct = round(100 / (1 + ACCU_PAYOUT), 1)
     print(f"\nCrash/Boom Recoil Backtest -- {args.windows} windows x {args.count:,} ticks")
-    print(f"Payout: {PAYOUT_PCT * 100:.0f}%  |  Breakeven WR: {be_pct}%")
+    print(f"ACCU: growth={GROWTH_RATE*100:.0f}%/tick x {HOLD_TICKS}t  |  Win payout: {ACCU_PAYOUT*100:.1f}%  |  Breakeven WR: {be_pct:.1f}%")
+    if barrier_override is not None:
+        print(f"Barrier override: {barrier_override:.2e} ({barrier_override*100:.6f}% of price per tick)")
+    else:
+        print("Barrier: per-symbol from CONFIGS (real values from Deriv API)")
 
     for symbol, cfg in symbols.items():
         run_walk_forward(
@@ -203,6 +256,10 @@ def main():
             window_size=args.count,
             fresh=args.fresh,
             spike_mult_override=args.spike_mult,
+            trend_filter_window=args.trend_filter,
+            volatility_filter_window=args.vol_filter,
+            volatility_filter_mult=args.vol_mult,
+            barrier_pct_override=barrier_override,
         )
 
     print()
