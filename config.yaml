@@ -302,8 +302,9 @@ symbols:
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
-    growth_rate: 0.03
-    hold_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -322,8 +323,9 @@ symbols:
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
-    growth_rate: 0.03
-    hold_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -342,8 +344,9 @@ symbols:
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
-    growth_rate: 0.03
-    hold_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -362,8 +365,9 @@ symbols:
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
-    growth_rate: 0.03
-    hold_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
