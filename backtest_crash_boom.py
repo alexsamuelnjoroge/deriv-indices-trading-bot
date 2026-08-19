@@ -99,7 +99,9 @@ def run_walk_forward(
     volatility_filter_window: int = 0,
     volatility_filter_mult: float = 3.0,
     barrier_pct_override=None,
-    confirm_threshold: float = 0.3,
+    confirm_threshold: float = 1.0,
+    growth_rate_override: float = GROWTH_RATE,
+    hold_ticks_override: int = HOLD_TICKS,
 ):
     expected_rate = sym_cfg["expected_rate"]
     atr_period    = 50
@@ -108,6 +110,9 @@ def run_walk_forward(
 
     spike_mult  = spike_mult_override if spike_mult_override is not None else sym_cfg["spike_mult"]
     barrier_pct = barrier_pct_override if barrier_pct_override is not None else sym_cfg.get("barrier_pct", BARRIER_PCT)
+    growth_rate = growth_rate_override
+    hold_ticks  = hold_ticks_override
+    accu_payout = (1 + growth_rate) ** hold_ticks - 1
 
     strategy_cfg = {
         "symbol_type":              sym_cfg["symbol_type"],
@@ -118,8 +123,8 @@ def run_walk_forward(
         "contract_duration":        contract_dur,
         "bar_size":                 1,
         "rsi_period":               14,
-        "hold_ticks":               HOLD_TICKS,
-        "growth_rate":              GROWTH_RATE,
+        "hold_ticks":               hold_ticks,
+        "growth_rate":              growth_rate,
         "barrier_pct":              barrier_pct,
         "confirm_threshold":        confirm_threshold,
         "trend_filter_window":      trend_filter_window,
@@ -131,7 +136,9 @@ def run_walk_forward(
 
     print()
     print(SEP_WIDE)
+    be_pct = round(100 / (1 + accu_payout), 1)
     print(f"  {symbol}  ({sym_cfg['symbol_type'].upper()})  |  spike_mult={spike_mult}  |  barrier_pct={barrier_pct:.2e}")
+    print(f"  growth={growth_rate*100:.0f}%/tick x {hold_ticks}t  |  payout={accu_payout*100:.1f}%  |  BE={be_pct:.1f}%")
     print(f"  expected 1 spike per {expected_rate} ticks")
     print(f"  Fetching {total_ticks:,} ticks ({num_windows} x {window_size:,}) ...")
     print(SEP_THIN)
@@ -157,7 +164,7 @@ def run_walk_forward(
         engine = BacktestEngine(
             strategy_cfg=strategy_cfg,
             risk_cfg=risk_cfg,
-            payout_pct=ACCU_PAYOUT,
+            payout_pct=accu_payout,
             strategy_class=CrashBoomRecoilStrategy,
         )
         result = engine.run(segment, starting_balance=STARTING_BAL)
@@ -234,6 +241,12 @@ def main():
     parser.add_argument("--confirm-threshold", type=float, default=1.0,   dest="confirm_threshold",
                         help="Max barrier fraction the confirm tick may consume (default 1.0 = 100%%). "
                              "Set 0 to disable confirmation gate entirely.")
+    parser.add_argument("--growth-rate", type=float, default=None, dest="growth_rate",
+                        help="ACCU growth rate per tick (default 0.04 = 4%%). "
+                             "Higher rate = better payout but tighter barrier.")
+    parser.add_argument("--hold-ticks", type=int, default=None, dest="hold_ticks",
+                        help="Ticks to hold ACCU before selling (default 8). "
+                             "More ticks = higher payout but more knockout exposure.")
     args = parser.parse_args()
 
     if args.symbol:
@@ -244,11 +257,14 @@ def main():
     else:
         symbols = CONFIGS
 
-    barrier_override = args.barrier_pct  # None means use per-symbol value from CONFIGS
+    barrier_override  = args.barrier_pct   # None = per-symbol from CONFIGS
+    growth_rate_arg   = args.growth_rate if args.growth_rate is not None else GROWTH_RATE
+    hold_ticks_arg    = args.hold_ticks  if args.hold_ticks  is not None else HOLD_TICKS
+    accu_payout_arg   = (1 + growth_rate_arg) ** hold_ticks_arg - 1
 
-    be_pct = round(100 / (1 + ACCU_PAYOUT), 1)
+    be_pct = round(100 / (1 + accu_payout_arg), 1)
     print(f"\nCrash/Boom Recoil Backtest -- {args.windows} windows x {args.count:,} ticks")
-    print(f"ACCU: growth={GROWTH_RATE*100:.0f}%/tick x {HOLD_TICKS}t  |  Win payout: {ACCU_PAYOUT*100:.1f}%  |  Breakeven WR: {be_pct:.1f}%")
+    print(f"ACCU: growth={growth_rate_arg*100:.0f}%/tick x {hold_ticks_arg}t  |  Win payout: {accu_payout_arg*100:.1f}%  |  Breakeven WR: {be_pct:.1f}%")
     if barrier_override is not None:
         print(f"Barrier override: {barrier_override:.2e} ({barrier_override*100:.6f}% of price per tick)")
     else:
@@ -267,6 +283,8 @@ def main():
             volatility_filter_mult=args.vol_mult,
             barrier_pct_override=barrier_override,
             confirm_threshold=args.confirm_threshold,
+            growth_rate_override=growth_rate_arg,
+            hold_ticks_override=hold_ticks_arg,
         )
 
     print()

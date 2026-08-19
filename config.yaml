@@ -295,38 +295,17 @@ symbols:
   # Synthetics are 24/7 — blocked_hours_eat: [] disables the time filter.
   # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
   # confirm_threshold=1.0 (size-only gate, no direction check — ACCU is direction-agnostic)
-  #   CRASH1000: MARGINAL (2/4)   BOOM1000: MOSTLY OK (3/4)
-  #   BOOM600:   MOSTLY OK (3/4)  <-- best performer  spike_mult=20
+  #   BOOM1000:  ROBUST-candidate (avg WR 84.2%, 11pp above BE) — PRIMARY, stake scaled up
+  #   CRASH1000: MARGINAL (2/4, avg WR 70%, BELOW BE) — disabled
+  #   BOOM600:   MOSTLY OK (3/4, avg WR 73.5%, barely above BE) — disabled
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
+  # MARGINAL (2/4) avg WR 70% — below breakeven (73.1%). Disabled: loses money over time.
   - symbol: CRASH1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
-    spike_mult: 15.0
-    atr_period: 50
-    cooldown_ticks: 5
-    loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 8
-    barrier_pct: 0.00000235   # real Deriv barrier at 4% growth (from check_contracts.py)
-    confirm_threshold: 1.0    # skip if first recoil tick > 100% of barrier (ACCU is direction-agnostic)
-    contract_duration: 0
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
-    use_kelly: false
-    payout_pct: 0.87
-    max_open_contracts: 1
-    blocked_hours_eat: []
-
-  - symbol: BOOM1000
-    enabled: true
-    strategy_type: crash_boom_recoil
-    symbol_type: boom
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
@@ -346,9 +325,35 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # MOSTLY OK (3/4) — best performer in full 14-symbol backtest 2026-08-19
-  - symbol: BOOM600
+  # MOSTLY OK (3/4) avg WR 84.2% — 11pp above breakeven. Primary ACCU symbol.
+  # Stake scaled to match account: 2% of balance, capped at 20 USD.
+  - symbol: BOOM1000
     enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
+    barrier_pct: 0.00000235
+    confirm_threshold: 1.0
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 20.0
+    stake_percent: 2.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # MOSTLY OK (3/4) avg WR 73.5% — only 0.4pp above breakeven (73.1%). Disabled: net breakeven,
+  # drags down profitability in volatile periods. Re-enable if account grows and variance is acceptable.
+  - symbol: BOOM600
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 20.0
