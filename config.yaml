@@ -325,8 +325,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # MOSTLY OK (3/4) avg WR 84.2% — 11pp above breakeven. Primary ACCU symbol.
-  # Stake scaled to match account: 2% of balance, capped at 20 USD.
+  # BOOM1000 — live WR 55% (below 73.1% BE). Stake locked at minimum while diagnosing.
+  # Re-raise stake_percent/max_stake only after diagnose_barrier.py confirms real edge.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -343,8 +343,8 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 20.0
-    stake_percent: 2.0
+    max_stake: 1.0
+    stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1

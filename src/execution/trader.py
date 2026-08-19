@@ -112,9 +112,9 @@ class Trader:
                 }
                 self._open_accu[contract_id] = self.hold_ticks
                 self.risk.on_contract_opened()
-                logger.info(
-                    f"Opened ACCU | ID: {contract_id} | Stake: {stake} | "
-                    f"Hold: {self.hold_ticks}t | Reason: {signal.reason}"
+                logger.warning(
+                    f"[{self.symbol}] ACCU opened | ID: {contract_id} | "
+                    f"stake={stake:.2f} | hold={self.hold_ticks}t | {signal.reason}"
                 )
 
             elif is_multi:
@@ -195,6 +195,23 @@ class Trader:
         )
 
         self.risk.on_contract_closed(trade)
+
+        if meta.get("is_accumulator"):
+            outcome = "WIN" if profit > 0 else "LOSS (knockout)"
+            logger.warning(
+                f"[{self.symbol}] ACCU {contract_id} {outcome} | "
+                f"stake={buy_price:.2f} profit={profit:+.2f} | "
+                f"WR={self.risk.win_rate:.1f}% ({self.risk.total_trades}t) | "
+                f"bal={self.risk.current_balance:.2f}"
+            )
+        else:
+            outcome = "WIN" if profit > 0 else "LOSS"
+            logger.warning(
+                f"[{self.symbol}] {meta['contract_type']} {outcome} | "
+                f"stake={buy_price:.2f} profit={profit:+.2f} | "
+                f"WR={self.risk.win_rate:.1f}% ({self.risk.total_trades}t) | "
+                f"bal={self.risk.current_balance:.2f}"
+            )
 
         if self._strategy and hasattr(self._strategy, "on_result"):
             self._strategy.on_result(profit > 0)
