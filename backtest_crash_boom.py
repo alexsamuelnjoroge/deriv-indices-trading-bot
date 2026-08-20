@@ -102,6 +102,9 @@ def run_walk_forward(
     confirm_threshold: float = 1.0,
     growth_rate_override: float = GROWTH_RATE,
     hold_ticks_override: int = HOLD_TICKS,
+    use_binary: bool = False,
+    binary_payout: float = 0.87,
+    binary_duration: int = 5,
 ):
     expected_rate = sym_cfg["expected_rate"]
     atr_period    = 50
@@ -114,13 +117,17 @@ def run_walk_forward(
     hold_ticks  = hold_ticks_override
     accu_payout = (1 + growth_rate) ** hold_ticks - 1
 
+    # Binary mode overrides payout and contract duration
+    effective_payout = binary_payout if use_binary else accu_payout
+    effective_dur    = binary_duration if use_binary else contract_dur
+
     strategy_cfg = {
         "symbol_type":              sym_cfg["symbol_type"],
         "spike_mult":               spike_mult,
         "atr_period":               atr_period,
         "cooldown_ticks":           cooldown,
         "loss_cooldown":            0,
-        "contract_duration":        contract_dur,
+        "contract_duration":        effective_dur,
         "bar_size":                 1,
         "rsi_period":               14,
         "hold_ticks":               hold_ticks,
@@ -130,15 +137,17 @@ def run_walk_forward(
         "trend_filter_window":      trend_filter_window,
         "volatility_filter_window": volatility_filter_window,
         "volatility_filter_mult":   volatility_filter_mult,
+        "use_binary":               use_binary,
     }
 
     total_ticks = window_size * num_windows
 
     print()
     print(SEP_WIDE)
-    be_pct = round(100 / (1 + accu_payout), 1)
+    be_pct = round(100 / (1 + effective_payout), 1)
+    mode_str = f"BINARY {binary_duration}t ({binary_payout*100:.0f}% payout)" if use_binary else f"ACCU growth={growth_rate*100:.0f}%/tick x {hold_ticks}t"
     print(f"  {symbol}  ({sym_cfg['symbol_type'].upper()})  |  spike_mult={spike_mult}  |  barrier_pct={barrier_pct:.2e}")
-    print(f"  growth={growth_rate*100:.0f}%/tick x {hold_ticks}t  |  payout={accu_payout*100:.1f}%  |  BE={be_pct:.1f}%")
+    print(f"  {mode_str}  |  payout={effective_payout*100:.1f}%  |  BE={be_pct:.1f}%")
     print(f"  expected 1 spike per {expected_rate} ticks")
     print(f"  Fetching {total_ticks:,} ticks ({num_windows} x {window_size:,}) ...")
     print(SEP_THIN)
@@ -164,7 +173,7 @@ def run_walk_forward(
         engine = BacktestEngine(
             strategy_cfg=strategy_cfg,
             risk_cfg=risk_cfg,
-            payout_pct=accu_payout,
+            payout_pct=effective_payout,
             strategy_class=CrashBoomRecoilStrategy,
         )
         result = engine.run(segment, starting_balance=STARTING_BAL)
@@ -247,6 +256,14 @@ def main():
     parser.add_argument("--hold-ticks", type=int, default=None, dest="hold_ticks",
                         help="Ticks to hold ACCU before selling (default 8). "
                              "More ticks = higher payout but more knockout exposure.")
+    parser.add_argument("--binary", action="store_true",
+                        help="Test binary CALL/PUT after spike instead of ACCU. "
+                             "CRASH spike -> CALL (recoil up). BOOM spike -> PUT (recoil down). "
+                             "Payout 87%%, breakeven 53.5%%.")
+    parser.add_argument("--binary-payout", type=float, default=0.87, dest="binary_payout",
+                        help="Binary payout fraction (default 0.87 = 87%%).")
+    parser.add_argument("--binary-duration", type=int, default=5, dest="binary_duration",
+                        help="Binary contract duration in ticks (default 5).")
     args = parser.parse_args()
 
     if args.symbol:
@@ -262,9 +279,17 @@ def main():
     hold_ticks_arg    = args.hold_ticks  if args.hold_ticks  is not None else HOLD_TICKS
     accu_payout_arg   = (1 + growth_rate_arg) ** hold_ticks_arg - 1
 
-    be_pct = round(100 / (1 + accu_payout_arg), 1)
-    print(f"\nCrash/Boom Recoil Backtest -- {args.windows} windows x {args.count:,} ticks")
-    print(f"ACCU: growth={growth_rate_arg*100:.0f}%/tick x {hold_ticks_arg}t  |  Win payout: {accu_payout_arg*100:.1f}%  |  Breakeven WR: {be_pct:.1f}%")
+    if args.binary:
+        eff_payout = args.binary_payout
+        be_pct     = round(100 / (1 + eff_payout), 1)
+        print(f"\nCrash/Boom Binary CALL/PUT Backtest -- {args.windows} windows x {args.count:,} ticks")
+        print(f"Binary: {args.binary_duration}t contract  |  Payout: {eff_payout*100:.0f}%  |  Breakeven WR: {be_pct:.1f}%")
+        print("Signal: CRASH spike -> CALL (recoil up)  |  BOOM spike -> PUT (recoil down)")
+    else:
+        eff_payout = accu_payout_arg
+        be_pct     = round(100 / (1 + eff_payout), 1)
+        print(f"\nCrash/Boom Recoil Backtest -- {args.windows} windows x {args.count:,} ticks")
+        print(f"ACCU: growth={growth_rate_arg*100:.0f}%/tick x {hold_ticks_arg}t  |  Win payout: {eff_payout*100:.1f}%  |  Breakeven WR: {be_pct:.1f}%")
     if barrier_override is not None:
         print(f"Barrier override: {barrier_override:.2e} ({barrier_override*100:.6f}% of price per tick)")
     else:
@@ -285,6 +310,9 @@ def main():
             confirm_threshold=args.confirm_threshold,
             growth_rate_override=growth_rate_arg,
             hold_ticks_override=hold_ticks_arg,
+            use_binary=args.binary,
+            binary_payout=args.binary_payout,
+            binary_duration=args.binary_duration,
         )
 
     print()
