@@ -1,409 +1,276 @@
 """
-Multiplier strategy backtest — EMA trend filter + RSI pullback entry.
+Multiplier (MULTUP/MULTDOWN) backtest for Crash/Boom post-spike recoil.
 
-Strategy logic:
-  - Compute EMA(ema_period) on bar closes as the trend direction signal.
-  - EMA slope = EMA[i] - EMA[i - slope_bars] determines if trend is up or down.
-  - Entry signal (uptrend):  EMA rising  AND RSI(rsi_period) < rsi_entry → MULTUP
-  - Entry signal (downtrend): EMA falling AND RSI(rsi_period) > (100-rsi_entry) → MULTDOWN
-  - SL and TP expressed as % of entry price — instrument-agnostic, works for
-    EUR/USD, Gold, or any symbol.
-  - Commission = 2% of stake (flat, paid regardless of outcome).
+Simulates real multiplier contract mechanics tick-by-tick:
+  - Enter MULTUP after CRASH spike, MULTDOWN after BOOM spike
+  - Hold until TP hits (win), SL hits (loss), or max_hold_ticks expires
+  - Commission deducted at open ($0.02 per $1 stake from API check)
 
-Economics with x100 multiplier:
-  - 1% price move = 100% of stake profit (at x100)
-  - Commission = 2% of stake ($0.20 on $10 stake)
-  - With 1.0% TP / 0.5% SL: net win = 98% stake, net loss = 52% stake
-  - Breakeven WR = 52/(98+52) = 34.7%
+Sweeps SL/TP combinations to find the optimal risk parameters.
 
 Usage:
-  python backtest_multiplier.py                          # frxXAUUSD 1h, default sweep
-  python backtest_multiplier.py --symbol frxEURUSD
-  python backtest_multiplier.py --granularity 3600       # 1-hour bars (default)
-  python backtest_multiplier.py --granularity 14400      # 4-hour bars
-  python backtest_multiplier.py --no-fresh               # reuse cached candles
+  python backtest_multiplier.py                          # all 5 symbols, sweep SL/TP
+  python backtest_multiplier.py --symbol CRASH1000
+  python backtest_multiplier.py --multiplier 200
+  python backtest_multiplier.py --sl 0.001 --tp 0.003   # fixed SL/TP, no sweep
+  python backtest_multiplier.py --fresh                  # re-download tick data
 """
 
 import argparse
-import asyncio
-import json
-import math
-import os
-from datetime import datetime, timezone
+import sys
 
-from dotenv import load_dotenv
+from loguru import logger
 
-load_dotenv()
+from src.data.history import fetch_ticks
+from src.data.tick_store import TickStore
+from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 
-# ── Args ───────────────────────────────────────────────────────────────────────
-parser = argparse.ArgumentParser()
-parser.add_argument("--symbol",      default="frxXAUUSD")
-parser.add_argument("--granularity", type=int, default=3600,
-                    help="Bar size in seconds: 3600=1h (default), 14400=4h, 86400=daily")
-parser.add_argument("--no-fresh",    action="store_true", help="Reuse cached candles")
-args = parser.parse_args()
+logger.remove()
+logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {message}")
 
-SYMBOL      = args.symbol
-GRANULARITY = args.granularity
-CACHE_FILE  = f"cache_{SYMBOL}_{GRANULARITY}s_candles.json"
+# Per-symbol config: same spike detection params as ACCU backtest
+CONFIGS = {
+    "CRASH1000": {"symbol_type": "crash", "spike_mult": 15.0, "barrier_pct": 2.35e-6},
+    "CRASH900":  {"symbol_type": "crash", "spike_mult": 15.0, "barrier_pct": 2.61e-6},
+    "CRASH600":  {"symbol_type": "crash", "spike_mult": 15.0, "barrier_pct": 3.93e-6},
+    "BOOM900":   {"symbol_type": "boom",  "spike_mult": 15.0, "barrier_pct": 2.62e-6},
+    "BOOM600":   {"symbol_type": "boom",  "spike_mult": 15.0, "barrier_pct": 3.95e-6},
+}
 
-# ── Multiplier contract parameters ────────────────────────────────────────────
-MULTIPLIER     = 100     # x100 multiplier (available on EUR/USD and Gold)
-COMMISSION_PCT = 0.02    # 2% of stake, paid upfront regardless of outcome
+STAKE             = 1.0
+COMMISSION        = 0.02   # flat per trade from API: $0.02 per $1 stake at 100x
 
-# ── Fetch candles via legacy Deriv WS (more history than new OTP endpoint) ────
-async def fetch_candles(symbol, granularity, count_per_call=5000, n_calls=8):
-    import websockets, json as _j
-    app_id = os.getenv("DERIV_APP_ID", "1089")
-    ws_url = f"wss://ws.derivws.com/websockets/v3?app_id={app_id}"
+# SL/TP sweep: expressed as fraction of PRICE MOVE.
+# Multiply by (stake × multiplier) to get dollar amounts.
+# At 100x: sl_pct=0.001 → SL=$0.10  (price moves 0.1% against us)
+SL_VALUES = [0.0005, 0.001, 0.002, 0.003]   # 0.05%, 0.1%, 0.2%, 0.3%
+TP_VALUES = [0.001, 0.002, 0.003, 0.005, 0.010]  # 0.1%, 0.2%, 0.3%, 0.5%, 1.0%
 
-    all_candles, seen, end = [], set(), "latest"
-    async with websockets.connect(ws_url) as ws:
-        for chunk_i in range(n_calls):
-            await ws.send(_j.dumps({
-                "ticks_history": symbol, "style": "candles",
-                "granularity": granularity, "count": count_per_call,
-                "end": end, "req_id": chunk_i + 1,
-            }))
-            msg = _j.loads(await asyncio.wait_for(ws.recv(), timeout=30))
-            if msg.get("error"):
-                print(f"  API error: {msg['error'].get('message')}")
-                break
-            candles = msg.get("candles", [])
-            if not candles:
-                break
-            new = [c for c in candles if c["epoch"] not in seen]
-            for c in new:
-                seen.add(c["epoch"])
-            all_candles = new + all_candles
-            end = candles[0]["epoch"] - 1
-            print(f"  Chunk {chunk_i+1}: +{len(new)} bars  (total {len(all_candles):,})")
-            if len(new) < count_per_call:
-                break
-    all_candles.sort(key=lambda c: c["epoch"])
-    return all_candles
+SEP  = "=" * 72
+THIN = "-" * 72
 
 
-def load_candles():
-    if args.no_fresh and os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE) as f:
-            data = json.load(f)
-        print(f"  Loaded {len(data):,} bars from cache")
-        return data
-    print(f"Fetching {SYMBOL} {GRANULARITY}s candles…")
-    candles = asyncio.run(fetch_candles(SYMBOL, GRANULARITY))
-    with open(CACHE_FILE, "w") as f:
-        json.dump(candles, f)
-    return candles
+def _be_wr(sl_dollar: float, tp_dollar: float, commission: float) -> float:
+    """Win rate needed to break even: wr*(tp-c) = (1-wr)*(sl+c)."""
+    return (sl_dollar + commission) / (tp_dollar + sl_dollar) * 100
 
 
-# ── Indicators ─────────────────────────────────────────────────────────────────
-def compute_ema(closes, period):
-    ema = [None] * len(closes)
-    alpha = 2 / (period + 1)
-    for i, p in enumerate(closes):
-        if i == 0:
-            ema[i] = p
-        else:
-            ema[i] = alpha * p + (1 - alpha) * ema[i - 1]
-    # Mark the first (period-1) values as None (not yet warmed up)
-    for i in range(period - 1):
-        ema[i] = None
-    return ema
+def simulate_window(
+    ticks: list[dict],
+    symbol_type: str,
+    spike_mult: float,
+    barrier_pct: float,
+    multiplier: int,
+    sl_pct: float,
+    tp_pct: float,
+    max_hold: int,
+) -> dict:
+    """Replay one data window through the strategy with multiplier settlement."""
+    strategy_cfg = {
+        "symbol_type":    symbol_type,
+        "spike_mult":     spike_mult,
+        "atr_period":     50,
+        "cooldown_ticks": 5,
+        "loss_cooldown":  0,
+        "barrier_pct":    barrier_pct,
+        "confirm_threshold": 1.0,
+        "use_binary":     True,  # returns BUY_RISE / BUY_FALL
+    }
+    strategy   = CrashBoomRecoilStrategy(strategy_cfg)
+    tick_store = TickStore(rsi_period=14, bar_size=1)
 
+    sl_dollar = STAKE * multiplier * sl_pct
+    tp_dollar = STAKE * multiplier * tp_pct
 
-def compute_rsi(closes, period):
-    rsi = [None] * len(closes)
-    if len(closes) < period + 1:
-        return rsi
-    deltas = [closes[i] - closes[i-1] for i in range(1, len(closes))]
-    gains  = [max(0, d) for d in deltas]
-    losses = [max(0, -d) for d in deltas]
-    avg_g = sum(gains[:period]) / period
-    avg_l = sum(losses[:period]) / period
-    for i in range(period, len(closes)):
-        g = (avg_g * (period - 1) + gains[i-1]) / period
-        l = (avg_l * (period - 1) + losses[i-1]) / period
-        avg_g, avg_l = g, l
-        rs = g / l if l > 0 else float("inf")
-        rsi[i] = 100 - 100 / (1 + rs)
-    return rsi
+    balance = 0.0
+    trades  = []
+    pending = None
 
+    for i, raw in enumerate(ticks):
+        tick_store.add(raw)
+        price = float(raw["quote"])
 
-# ── Trade simulation ──────────────────────────────────────────────────────────
-def simulate_trade(candles, entry_idx, direction, sl_pct, tp_pct, max_bars):
-    """
-    direction: +1 = MULTUP (long), -1 = MULTDOWN (short)
-    sl_pct / tp_pct: decimal fractions of entry price (e.g. 0.005 = 0.5%)
-    Returns ('tp', pct_move), ('sl', pct_move), or ('timeout', pct_move)
-    where pct_move is signed (positive = price went up).
-    """
-    entry = candles[entry_idx]["open"]
-    tp_price = entry * (1 + direction * tp_pct)
-    sl_price = entry * (1 - direction * sl_pct)
+        # ── Check open multiplier contract ─────────────────────────────
+        if pending is not None:
+            ep = pending["entry_price"]
+            ct = pending["contract_type"]
 
-    for i in range(entry_idx, min(entry_idx + max_bars, len(candles))):
-        high = candles[i]["high"]
-        low  = candles[i]["low"]
+            pnl = STAKE * multiplier * (
+                (price - ep) / ep if ct == "MULTUP" else (ep - price) / ep
+            )
+            held = i - pending["entry_idx"]
+            closed = False
 
-        if direction == 1:   # long: SL below, TP above
-            if low  <= sl_price: return "sl",      (sl_price - entry) / entry
-            if high >= tp_price: return "tp",      (tp_price - entry) / entry
-        else:                 # short: SL above, TP below
-            if high >= sl_price: return "sl",      (sl_price - entry) / entry
-            if low  <= tp_price: return "tp",      (tp_price - entry) / entry
+            if pnl >= tp_dollar:
+                profit, won = tp_dollar - COMMISSION, True
+                closed = True
+            elif pnl <= -sl_dollar:
+                profit, won = -(sl_dollar + COMMISSION), False
+                closed = True
+            elif held >= max_hold:
+                profit = pnl - COMMISSION
+                won    = profit > 0
+                closed = True
 
-    close = candles[min(entry_idx + max_bars - 1, len(candles) - 1)]["close"]
-    return "timeout", (close - entry) / entry
+            if closed:
+                balance += profit
+                trades.append({"won": won, "profit": profit, "held": held})
+                strategy.on_result(won)
+                pending = None
 
+        # ── Evaluate strategy for new entry ────────────────────────────
+        if pending is None:
+            signal = strategy.evaluate(tick_store)
+            if signal.action in ("BUY_RISE", "BUY_FALL"):
+                ct = "MULTUP" if signal.action == "BUY_RISE" else "MULTDOWN"
+                pending = {
+                    "entry_idx":    i,
+                    "entry_price":  price,
+                    "contract_type": ct,
+                }
 
-# ── Core backtest ─────────────────────────────────────────────────────────────
-def run_backtest(candles, ema_period, slope_bars, rsi_period, rsi_entry,
-                 sl_pct, tp_pct, max_bars, min_n=20):
-    """
-    rsi_entry: RSI level below which we enter MULTUP in uptrend (e.g. 40).
-               Mirror is (100 - rsi_entry) for MULTDOWN in downtrend.
-    Returns dict with trade stats, or None if too few trades.
-    """
-    closes = [c["close"] for c in candles]
-    ema    = compute_ema(closes, ema_period)
-    rsi    = compute_rsi(closes, rsi_period)
+    total = len(trades)
+    wins  = sum(1 for t in trades if t["won"])
+    net   = sum(t["profit"] for t in trades)
+    wr    = wins / total * 100 if total > 0 else 0.0
+    avg_h = sum(t["held"] for t in trades) / total if total > 0 else 0.0
 
-    wins = losses = timeouts = 0
-    total_ev = 0.0
-    last_exit_bar = -1
-
-    warmup = max(ema_period, rsi_period, slope_bars) + 2
-
-    for i in range(warmup, len(candles) - max_bars - 1):
-        if i <= last_exit_bar:
-            continue
-
-        e   = ema[i]
-        r   = rsi[i]
-        e_prev = ema[i - slope_bars]
-        if e is None or r is None or e_prev is None:
-            continue
-
-        slope_up   = e > e_prev
-        slope_down = e < e_prev
-
-        direction = None
-        if slope_up   and r < rsi_entry:
-            direction = +1   # uptrend pullback → MULTUP
-        elif slope_down and r > (100 - rsi_entry):
-            direction = -1   # downtrend bounce → MULTDOWN
-
-        if direction is None:
-            continue
-
-        entry_bar = i + 1
-        if entry_bar >= len(candles):
-            continue
-
-        outcome, pct_move = simulate_trade(
-            candles, entry_bar, direction, sl_pct, tp_pct, max_bars)
-
-        # P&L as fraction of stake
-        if outcome == "tp":
-            wins += 1
-            ev = MULTIPLIER * tp_pct - COMMISSION_PCT
-        elif outcome == "sl":
-            losses += 1
-            ev = -(MULTIPLIER * sl_pct + COMMISSION_PCT)
-        else:
-            timeouts += 1
-            # Actual P&L from price at timeout close
-            ev = MULTIPLIER * pct_move * direction - COMMISSION_PCT
-
-        total_ev += ev
-        last_exit_bar = entry_bar + max_bars if outcome == "timeout" else entry_bar
-
-    n = wins + losses + timeouts
-    if n < min_n:
-        return None
-    wr = wins / (wins + losses) * 100 if (wins + losses) > 0 else 0
     return {
-        "n": n, "wins": wins, "losses": losses, "timeouts": timeouts,
-        "wr": wr, "ev_per_trade": total_ev / n,
+        "trades": total, "wins": wins, "wr": wr,
+        "net": net, "avg_held": avg_h,
+        "be_wr": _be_wr(sl_dollar, tp_dollar, COMMISSION),
     }
 
 
-# ── Parameter sweep ───────────────────────────────────────────────────────────
-def sweep(candles):
-    results = []
+def run_symbol(
+    symbol: str,
+    cfg: dict,
+    multiplier: int,
+    num_windows: int,
+    window_size: int,
+    max_hold: int,
+    sl_fixed: float | None,
+    tp_fixed: float | None,
+    fresh: bool,
+) -> None:
+    total_ticks = window_size * num_windows
+    print()
+    print(SEP)
+    print(f"  {symbol}  |  multiplier={multiplier}x  |  stake=${STAKE:.2f}  |  commission=${COMMISSION:.2f}/trade")
+    print(f"  Fetching {total_ticks:,} ticks ({num_windows} x {window_size:,})  max_hold={max_hold}t ...")
+    print(THIN)
 
-    for ema_period in [20, 50, 100, 200]:
-        for slope_bars in [5, 10]:
-            for rsi_period in [7, 10, 14]:
-                for rsi_entry in [30, 35, 40, 45]:
-                    for sl_pct in [0.003, 0.005, 0.0075, 0.01]:
-                        for tp_pct in [0.005, 0.0075, 0.01, 0.015, 0.02]:
-                            if tp_pct <= sl_pct:
-                                continue
-                            for max_bars in [12, 24, 48, 96]:
-                                r = run_backtest(candles, ema_period, slope_bars,
-                                                 rsi_period, rsi_entry,
-                                                 sl_pct, tp_pct, max_bars)
-                                if r is None:
-                                    continue
-                                rr = tp_pct / sl_pct
-                                be_wr = (MULTIPLIER * sl_pct + COMMISSION_PCT) / (
-                                    MULTIPLIER * tp_pct - COMMISSION_PCT +
-                                    MULTIPLIER * sl_pct + COMMISSION_PCT) * 100
-                                results.append({
-                                    **r,
-                                    "ema": ema_period, "slope_bars": slope_bars,
-                                    "rsi_p": rsi_period, "rsi_entry": rsi_entry,
-                                    "sl_pct": sl_pct, "tp_pct": tp_pct,
-                                    "max_bars": max_bars,
-                                    "rr": rr, "be_wr": be_wr,
-                                })
-    results.sort(key=lambda x: x["ev_per_trade"], reverse=True)
-    return results
+    try:
+        ticks = fetch_ticks(symbol, count=total_ticks, fresh=fresh)
+    except RuntimeError as e:
+        print(f"  ERROR: {e}")
+        return
+
+    if len(ticks) < window_size:
+        print(f"  Only {len(ticks)} ticks — skipping.")
+        return
+
+    ticks = ticks[-num_windows * window_size:]
+
+    sl_values = [sl_fixed] if sl_fixed is not None else SL_VALUES
+    tp_values = [tp_fixed] if tp_fixed is not None else TP_VALUES
+
+    header = (f"  {'SL':>5}  {'TP':>5}  {'R:R':>4}  {'BE%':>5}  "
+              + "  ".join(f"W{w+1} WR% / net$" for w in range(num_windows))
+              + "  Result")
+    print(header)
+    print("  " + "-" * (len(header) - 2))
+
+    best_passes = -1
+    best_row    = ""
+
+    for sl_pct in sl_values:
+        for tp_pct in tp_values:
+            if tp_pct <= sl_pct:
+                continue
+
+            sl_d = STAKE * multiplier * sl_pct
+            tp_d = STAKE * multiplier * tp_pct
+            rr   = tp_pct / sl_pct
+            be   = _be_wr(sl_d, tp_d, COMMISSION)
+
+            row_parts = [f"  {sl_pct*100:>4.2f}%  {tp_pct*100:>4.2f}%  {rr:>4.1f}  {be:>5.1f}%"]
+            passes = 0
+            for w in range(num_windows):
+                seg = ticks[w * window_size: (w + 1) * window_size]
+                r   = simulate_window(
+                    seg, cfg["symbol_type"], cfg["spike_mult"], cfg["barrier_pct"],
+                    multiplier, sl_pct, tp_pct, max_hold,
+                )
+                ok = r["wr"] >= r["be_wr"] and r["trades"] >= 3
+                passes += ok
+                flag = "P" if ok else "F"
+                row_parts.append(
+                    f"  {r['wr']:>5.1f}%({r['trades']:>2}t) {r['net']:>+6.2f}{flag}"
+                )
+            verdict = "ROBUST" if passes == num_windows else f"{passes}/{num_windows}"
+            row = "  ".join(row_parts) + f"  {verdict}"
+            print(row)
+
+            if passes > best_passes:
+                best_passes = passes
+                best_row    = f"sl={sl_pct:.4f}  tp={tp_pct:.4f}  (R:R {rr:.1f})"
+
+    print(THIN)
+    if best_passes == num_windows:
+        print(f"  BEST: {best_row}  => all windows PASS")
+        print(f"  ACTION: enable {symbol} in config.yaml with strategy_type: crash_boom_recoil")
+        print(f"          multiplier: {multiplier}  sl_pct: ...  tp_pct: ...  (see ROBUST row above)")
+    elif best_passes >= num_windows * 3 // 4:
+        print(f"  BEST: {best_row}  => {best_passes}/{num_windows} windows pass (MOSTLY OK)")
+    else:
+        print(f"  No robust SL/TP found — multiplier strategy has no edge on {symbol}")
 
 
-def print_table(results, top_n=25):
-    print(f"\n{'EMA':>4} {'Sl':>2} {'RSI':>3} {'Entry':>5}  "
-          f"{'SL%':>5} {'TP%':>5} {'R:R':>4} {'MaxB':>4}  "
-          f"{'N':>4} {'WR':>6} {'BEwr':>6} {'EV/tr':>8}  Notes")
-    print("-" * 90)
-    for r in results[:top_n]:
-        notes = "PROFITABLE" if r["ev_per_trade"] > 0 else (
-                "near b/e"  if r["ev_per_trade"] > -0.05 else "")
-        above = "**" if r["wr"] > r["be_wr"] else "  "
-        print(
-            f"{r['ema']:>4} {r['slope_bars']:>2} {r['rsi_p']:>3} {r['rsi_entry']:>5}  "
-            f"{r['sl_pct']*100:>4.2f}% {r['tp_pct']*100:>4.2f}% {r['rr']:>4.1f} {r['max_bars']:>4}  "
-            f"{r['n']:>4} {r['wr']:>5.1f}% {r['be_wr']:>5.1f}% {r['ev_per_trade']:>+8.4f}  "
-            f"{above}{notes}"
+def main():
+    parser = argparse.ArgumentParser(description="Multiplier contract backtest")
+    parser.add_argument("--symbol",     default=None,  help="Single symbol (e.g. CRASH1000)")
+    parser.add_argument("--multiplier", type=int,   default=100, help="Multiplier value (default 100)")
+    parser.add_argument("--windows",    type=int,   default=4,   help="Walk-forward windows (default 4)")
+    parser.add_argument("--count",      type=int,   default=15000, help="Ticks per window (default 15000)")
+    parser.add_argument("--max-hold",   type=int,   default=500,  dest="max_hold",
+                        help="Max ticks before force-closing (default 500)")
+    parser.add_argument("--sl",         type=float, default=None,
+                        help="Fixed SL as fraction of price move (e.g. 0.001 = 0.1%%). Default: sweep")
+    parser.add_argument("--tp",         type=float, default=None,
+                        help="Fixed TP as fraction of price move (e.g. 0.003 = 0.3%%). Default: sweep")
+    parser.add_argument("--fresh",      action="store_true", help="Re-download tick data")
+    args = parser.parse_args()
+
+    if args.symbol:
+        if args.symbol not in CONFIGS:
+            print(f"Unknown symbol '{args.symbol}'. Available: {list(CONFIGS)}")
+            return
+        symbols = {args.symbol: CONFIGS[args.symbol]}
+    else:
+        symbols = CONFIGS
+
+    print(f"\nMultiplier Backtest  |  {args.multiplier}x  |  {args.windows} windows × {args.count:,} ticks")
+    print(f"Commission ${COMMISSION:.2f} per trade  |  max_hold={args.max_hold} ticks")
+    print(f"SL/TP expressed as fraction of price move  (×{args.multiplier} = dollar P/L on $1 stake)")
+    print(f"Breakeven WR formula: (SL$ + commission) / (TP$ + SL$)")
+
+    for symbol, cfg in symbols.items():
+        run_symbol(
+            symbol=symbol, cfg=cfg,
+            multiplier=args.multiplier,
+            num_windows=args.windows,
+            window_size=args.count,
+            max_hold=args.max_hold,
+            sl_fixed=args.sl,
+            tp_fixed=args.tp,
+            fresh=args.fresh,
         )
 
-
-# ── Walk-forward validation ───────────────────────────────────────────────────
-def walk_forward(candles, best_params, n_splits=3):
-    """Split data into n_splits folds and validate best params on each."""
-    split_size = len(candles) // n_splits
-    print(f"\nWalk-forward validation ({n_splits} folds of ~{split_size} bars each):")
-    print(f"{'Fold':>5}  {'Period':20}  {'N':>4}  {'WR':>6}  {'EV/tr':>8}  {'Result':10}")
-    print("-" * 65)
-    all_ev = []
-    for fold in range(n_splits):
-        start = fold * split_size
-        end   = (fold + 1) * split_size if fold < n_splits - 1 else len(candles)
-        chunk = candles[start:end]
-        t0 = datetime.fromtimestamp(chunk[0]["epoch"],  tz=timezone.utc).strftime("%m/%d")
-        t1 = datetime.fromtimestamp(chunk[-1]["epoch"], tz=timezone.utc).strftime("%m/%d")
-        r = run_backtest(chunk, min_n=5, **best_params)
-        if r is None:
-            print(f"{fold+1:>5}  {t0}–{t1:20}  too few signals (<5)")
-            continue
-        result_str = "PASS" if r["ev_per_trade"] > 0 else "FAIL"
-        print(f"{fold+1:>5}  {t0}–{t1:20}  {r['n']:>4}  {r['wr']:>5.1f}%  "
-              f"{r['ev_per_trade']:>+8.4f}  {result_str}")
-        all_ev.append(r["ev_per_trade"])
-    if all_ev:
-        print(f"\n  Mean EV across folds: {sum(all_ev)/len(all_ev):+.4f}")
-        print(f"  Folds with positive EV: {sum(1 for e in all_ev if e > 0)}/{len(all_ev)}")
-
-
-# ── Main ──────────────────────────────────────────────────────────────────────
-def main():
-    candles = load_candles()
-    n = len(candles)
-    if n < 200:
-        print("Not enough data.")
-        return
-
-    t0 = datetime.fromtimestamp(candles[0]["epoch"],  tz=timezone.utc)
-    t1 = datetime.fromtimestamp(candles[-1]["epoch"], tz=timezone.utc)
-
-    bar_label = (f"{GRANULARITY//3600}h" if GRANULARITY >= 3600
-                 else f"{GRANULARITY//60}m")
-    print(f"\n{SYMBOL}  {bar_label} bars  |  {n:,} bars")
-    print(f"Period: {t0.strftime('%Y-%m-%d')} to {t1.strftime('%Y-%m-%d')}")
-    print(f"Commission: {COMMISSION_PCT*100:.0f}% of stake (flat per trade)")
-    print(f"Multiplier: x{MULTIPLIER}")
     print()
-
-    # ── Economics reminder ──
-    sl_ex, tp_ex = 0.005, 0.01
-    net_win  = MULTIPLIER * tp_ex  - COMMISSION_PCT
-    net_loss = MULTIPLIER * sl_ex  + COMMISSION_PCT
-    be_wr    = net_loss / (net_win + net_loss) * 100
-    print(f"Example: SL={sl_ex*100:.1f}%  TP={tp_ex*100:.1f}%  =>  "
-          f"net win={net_win*100:.0f}% stake  |  net loss={net_loss*100:.0f}% stake  |  "
-          f"breakeven WR = {be_wr:.1f}%")
-
-    # ── Baseline ──
-    print("\nBaseline (EMA50/slope10, RSI10<40, SL0.5%, TP1.0%, max24bars):")
-    r = run_backtest(candles, 50, 10, 10, 40, 0.005, 0.010, 24)
-    if r:
-        net_w  = MULTIPLIER * 0.010 - COMMISSION_PCT
-        net_l  = MULTIPLIER * 0.005 + COMMISSION_PCT
-        be     = net_l / (net_w + net_l) * 100
-        print(f"  N={r['n']}  Wins={r['wins']}  Losses={r['losses']}  Timeouts={r['timeouts']}")
-        print(f"  WR={r['wr']:.1f}%  (breakeven {be:.1f}%)  EV/trade={r['ev_per_trade']:+.4f}")
-        if r["ev_per_trade"] > 0:
-            print("  ** PROFITABLE at baseline parameters **")
-        else:
-            print(f"  Gap to breakeven: {be - r['wr']:.1f}pp")
-    else:
-        print("  Too few signals at baseline.")
-
-    # ── Full sweep ──
-    print("\nRunning parameter sweep…  (this may take 30-60s)")
-    all_results = sweep(candles)
-
-    profitable = [x for x in all_results if x["ev_per_trade"] > 0]
-    print(f"\nSweep complete: {len(all_results)} combinations  |  "
-          f"profitable: {len(profitable)}")
-    print_table(all_results)
-
-    if not profitable:
-        print("\nNo profitable combinations found.")
-        print("Conclusion: EMA+RSI pullback does NOT show reliable edge on this")
-        print("symbol/timeframe with these parameter ranges.")
-        return
-
-    # ── Best config summary ──
-    best = profitable[0]
-    print(f"\n{'='*60}")
-    print("BEST CONFIGURATION")
-    print(f"{'='*60}")
-    print(f"  Strategy : EMA({best['ema']}) slope/{best['slope_bars']}bars  +  "
-          f"RSI({best['rsi_p']}) entry < {best['rsi_entry']}")
-    print(f"  SL / TP  : {best['sl_pct']*100:.2f}% / {best['tp_pct']*100:.2f}%  "
-          f"({best['rr']:.1f}:1 R:R)")
-    hold_min = best['max_bars'] * GRANULARITY // 60
-    hold_str = f"{hold_min//60}h" if hold_min % 60 == 0 else f"{hold_min}m"
-    print(f"  Max hold : {best['max_bars']} bars  ({hold_str})")
-    print(f"  N={best['n']}  WR={best['wr']:.1f}%  (breakeven {best['be_wr']:.1f}%)  "
-          f"EV={best['ev_per_trade']:+.4f}/trade")
-    sl_usd = best["sl_pct"]  * MULTIPLIER * 10
-    tp_usd = best["tp_pct"]  * MULTIPLIER * 10
-    print(f"\n  In dollars ($10 stake, x{MULTIPLIER}):")
-    print(f"  SL=${sl_usd:.2f}  |  TP=${tp_usd:.2f}  |  Commission=$0.20")
-    ev_usd = best["ev_per_trade"] * 10
-    print(f"  Expected return per trade: ${ev_usd:+.2f}  "
-          f"({best['ev_per_trade']*100:+.1f}% of stake)")
-
-    # ── Walk-forward check ──
-    # Use the highest-N profitable config for WF — best EV often has too few signals
-    high_n_profitable = sorted(profitable, key=lambda x: x["n"], reverse=True)
-    wf_cfg = high_n_profitable[0]
-    wf_params = {
-        "ema_period": wf_cfg["ema"], "slope_bars": wf_cfg["slope_bars"],
-        "rsi_period": wf_cfg["rsi_p"], "rsi_entry": wf_cfg["rsi_entry"],
-        "sl_pct": wf_cfg["sl_pct"], "tp_pct": wf_cfg["tp_pct"],
-        "max_bars": wf_cfg["max_bars"],
-    }
-    print(f"\n(Walk-forward uses highest-N profitable config: "
-          f"EMA{wf_cfg['ema']}/RSI{wf_cfg['rsi_p']}<{wf_cfg['rsi_entry']} "
-          f"SL{wf_cfg['sl_pct']*100:.2f}%/TP{wf_cfg['tp_pct']*100:.2f}% "
-          f"N={wf_cfg['n']})")
-    walk_forward(candles, wf_params, n_splits=3)
-    print()
+    print(SEP)
+    print("Done.")
+    print("Rows marked ROBUST: enable in config.yaml with the matching sl_pct / tp_pct.")
 
 
 if __name__ == "__main__":
