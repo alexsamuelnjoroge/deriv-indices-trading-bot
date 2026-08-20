@@ -25,14 +25,14 @@ async def main():
         for dur in DURATIONS:
             try:
                 prop = await client._send({
-                    "proposal":       1,
-                    "amount":         1.0,
-                    "basis":          "stake",
-                    "contract_type":  "CALL",
-                    "currency":       "USD",
-                    "duration":       dur,
-                    "duration_unit":  "t",
-                    "symbol":         symbol,
+                    "proposal":          1,
+                    "amount":            1.0,
+                    "basis":             "stake",
+                    "contract_type":     "CALL",
+                    "currency":          "USD",
+                    "duration":          dur,
+                    "duration_unit":     "t",
+                    "underlying_symbol": symbol,
                 })
                 p      = prop.get("proposal", {})
                 err    = prop.get("error", {})
