@@ -206,6 +206,18 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                 return Signal(action="HOLD", reason="BOOM spike: awaiting confirm tick", atr=pre_atr)
             return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
 
+        # Volatility indices: ACCU is direction-agnostic — fire on any large tick.
+        if self.symbol_type == "vol" and abs_move >= threshold:
+            self._cooldown = self.cooldown_ticks
+            reason = f"VOL spike: {last_move:+.4f} ({mult:.0f}xATR) -> ACCU"
+            if self.barrier_pct > 0:
+                self._waiting_confirmation = True
+                self._pending_reason       = reason
+                self._pending_atr          = pre_atr
+                self._pending_action       = "BUY_ACCU"
+                return Signal(action="HOLD", reason="VOL spike: awaiting confirm tick", atr=pre_atr)
+            return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
+
         # Jump indices: spikes in both directions.
         # Large DOWN spike → BUY_RISE (CALL). Large UP spike → BUY_FALL (PUT).
         if self.symbol_type == "jump" and abs_move >= threshold:

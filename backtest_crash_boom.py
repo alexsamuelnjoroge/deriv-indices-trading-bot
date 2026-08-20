@@ -60,6 +60,22 @@ CONFIGS = {
     "JD50":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 100,  "barrier_pct": 0},
     "JD75":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 70,   "barrier_pct": 0},
     "JD100": {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 50,   "barrier_pct": 0},
+    # Volatility indices: ACCU direction-agnostic. Barrier_pct at 4% growth from check_vol_accu.py.
+    # Two tests:
+    #   Spike test:    --symbol 1HZ10V --growth-rate 0.04               (spike_mult=10, rare entries)
+    #   Baseline test: --symbol 1HZ10V --growth-rate 0.04 --spike-mult 1 --confirm-threshold 0
+    # 1HZ10V at 4%: only vol index with estimated positive baseline edge (+2.3%) — test first.
+    "1HZ10V":  {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 3.612e-05},
+    "1HZ15V":  {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 5.419e-05},
+    "1HZ25V":  {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 9.031e-05},
+    "1HZ50V":  {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 1.806e-04},
+    "1HZ75V":  {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 2.709e-04},
+    "1HZ100V": {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 3.612e-04},
+    "R_10":    {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 5.109e-05},
+    "R_25":    {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 1.277e-04},
+    "R_50":    {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 2.554e-04},
+    "R_75":    {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 3.831e-04},
+    "R_100":   {"symbol_type": "vol", "spike_mult": 10.0, "expected_rate": 500, "barrier_pct": 5.109e-04},
 }
 
 GROWTH_RATE  = 0.04    # ACCU growth rate per tick (matches config.yaml)
