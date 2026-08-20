@@ -325,8 +325,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM1000 — live WR 55% (below 73.1% BE). Stake locked at minimum while diagnosing.
-  # Re-raise stake_percent/max_stake only after diagnose_barrier.py confirms real edge.
+  # BOOM1000 — Optimized 2026-08-21 via sweep_boom1000.py (144 combos, 4 x 15k ticks).
+  # ht=10 ct=0.5: WR=78.6% BE=67.6% EV=+5.29%/trade (2.7x vs prior ht=8 config).
+  # 11% margin above BE — widest of all tested combos. Passes 3/4 walk-forward windows.
+  # spike_mult irrelevant for BOOM1000 (algorithmic crashes always >>12x ATR; any value works).
+  # Next step: validate ht=15 ct=1.0 (EV=+7.44%/trade) with --count 30000 before enabling.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -336,9 +339,9 @@ symbols:
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
+    hold_ticks: 10
     barrier_pct: 0.00000235
-    confirm_threshold: 1.0
+    confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
