@@ -51,7 +51,7 @@ async def collect_live_ticks(symbol: str, count: int, token: str, app_id: str) -
     await client.subscribe_ticks(symbol)
 
     try:
-        await asyncio.wait_for(done.wait(), timeout=600)
+        await asyncio.wait_for(done.wait(), timeout=7200)  # 2h max
     except asyncio.TimeoutError:
         print(f"\nTimeout — collected {len(prices)} ticks.")
 
