@@ -49,6 +49,9 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self.volatility_filter_window = int(config.get("volatility_filter_window", 0))
         self.volatility_filter_mult   = float(config.get("volatility_filter_mult", 3.0))
         self.trend_filter_window      = int(config.get("trend_filter_window", 0))
+        # Binary mode: enter CALL/PUT after spike instead of ACCU.
+        # CRASH spike → BUY_RISE (recoil up). BOOM spike → BUY_FALL (recoil down).
+        self.use_binary               = bool(config.get("use_binary", False))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
@@ -100,14 +103,16 @@ class CrashBoomRecoilStrategy(BaseStrategy):
             return Signal(action="HOLD", reason="Pre-spike ATR not ready")
 
         # ── Gate 2: Confirmation tick (fires on tick AFTER spike) ─────────
-        # ACCU is direction-agnostic — we only check SIZE, not direction.
-        # A large first post-spike tick signals a volatile period where barrier
-        # breach is likely. A small tick means the market has settled.
+        # ACCU only — checks SIZE of first post-spike tick; skips if still volatile.
+        # Binary mode skips this gate (direction, not size, determines the win).
         if self._waiting_confirmation:
             self._waiting_confirmation = False
             abs_tick = abs(prices[-1] - prices[-2])
 
-            if self.barrier_pct > 0 and self.confirm_threshold > 0 and prices[-2] > 0:
+            if (not self.use_binary
+                    and self.barrier_pct > 0
+                    and self.confirm_threshold > 0
+                    and prices[-2] > 0):
                 tick_pct    = abs_tick / prices[-2]
                 max_allowed = self.confirm_threshold * self.barrier_pct
                 if tick_pct > max_allowed:
@@ -120,7 +125,8 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                         atr=self._pending_atr,
                     )
 
-            return Signal(action="BUY_ACCU", reason=self._pending_reason, atr=self._pending_atr)
+            buy_action = ("BUY_RISE" if self.symbol_type == "crash" else "BUY_FALL") if self.use_binary else "BUY_ACCU"
+            return Signal(action=buy_action, reason=self._pending_reason, atr=self._pending_atr)
 
         # ── Cooldown checks ───────────────────────────────────────────────
         if self._extra_cooldown > 0:
@@ -176,9 +182,9 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         if self.symbol_type == "crash" and last_move < 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            reason = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> ACCU recoil"
-            if self.barrier_pct > 0:
-                # Defer entry by 1 tick — await confirmation
+            mode   = "binary CALL" if self.use_binary else "ACCU recoil"
+            reason = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
@@ -187,8 +193,9 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         if self.symbol_type == "boom" and last_move > 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            reason = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> ACCU recoil"
-            if self.barrier_pct > 0:
+            mode   = "binary PUT" if self.use_binary else "ACCU recoil"
+            reason = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
