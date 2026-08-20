@@ -43,6 +43,7 @@ async def main():
             continue
 
         barriers = {}
+        _debug_done = False
         for gr in [0.03, 0.04]:
             try:
                 prop = await client._send({
@@ -54,14 +55,33 @@ async def main():
                     "growth_rate":       gr,
                     "underlying_symbol": symbol,
                 })
-                p    = prop.get("proposal", {})
+                p = prop.get("proposal", {})
+                # Debug: dump all keys for first symbol/growth to find barrier fields
+                if not _debug_done:
+                    _debug_done = True
+                    print(f"\n  [DEBUG {symbol} gr={gr}] proposal keys: {list(p.keys())}")
+                    # Print any key that looks barrier-related
+                    for k, v in p.items():
+                        if any(x in k.lower() for x in ("barrier", "spot", "limit", "tick", "high", "low")):
+                            print(f"    {k} = {v}")
+                    # Also check limit_order or contract_details sub-dicts
+                    for k, v in p.items():
+                        if isinstance(v, dict):
+                            print(f"    {k} (dict) = {v}")
                 spot = float(p.get("spot", 0) or 0)
                 hb   = float(p.get("high_barrier", 0) or 0)
+                # Also try alternative field names
+                if hb == 0:
+                    hb = float(p.get("barrier",      0) or 0)
+                if hb == 0:
+                    hb = float(p.get("upper_barrier", 0) or 0)
                 if spot > 0 and hb > 0:
                     bp = (hb - spot) / spot
                     barriers[gr] = bp
             except Exception as e:
                 barriers[gr] = None
+                if not _debug_done:
+                    print(f"\n  [ERROR {symbol} gr={gr}]: {e}")
 
         b3 = f"{barriers.get(0.03):.2e}" if barriers.get(0.03) else "N/A"
         b4 = f"{barriers.get(0.04):.2e}" if barriers.get(0.04) else "N/A"
