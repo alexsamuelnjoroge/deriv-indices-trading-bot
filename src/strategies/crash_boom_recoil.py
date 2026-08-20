@@ -59,6 +59,7 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self._waiting_confirmation = False
         self._pending_reason       = ""
         self._pending_atr          = None
+        self._pending_action       = ""   # stores the buy action through the confirm-tick delay
 
     # ------------------------------------------------------------------ #
     #  Pre-spike ATR (computed excluding the current tick)
@@ -125,8 +126,7 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                         atr=self._pending_atr,
                     )
 
-            buy_action = ("BUY_RISE" if self.symbol_type == "crash" else "BUY_FALL") if self.use_binary else "BUY_ACCU"
-            return Signal(action=buy_action, reason=self._pending_reason, atr=self._pending_atr)
+            return Signal(action=self._pending_action, reason=self._pending_reason, atr=self._pending_atr)
 
         # ── Cooldown checks ───────────────────────────────────────────────
         if self._extra_cooldown > 0:
@@ -182,25 +182,45 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         if self.symbol_type == "crash" and last_move < 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            mode   = "binary CALL" if self.use_binary else "ACCU recoil"
-            reason = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            buy_action = "BUY_RISE" if self.use_binary else "BUY_ACCU"
+            mode       = "binary CALL" if self.use_binary else "ACCU recoil"
+            reason     = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
             if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
+                self._pending_action       = buy_action
                 return Signal(action="HOLD", reason="CRASH spike: awaiting confirm tick", atr=pre_atr)
             return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
 
         if self.symbol_type == "boom" and last_move > 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            mode   = "binary PUT" if self.use_binary else "ACCU recoil"
-            reason = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            buy_action = "BUY_FALL" if self.use_binary else "BUY_ACCU"
+            mode       = "binary PUT" if self.use_binary else "ACCU recoil"
+            reason     = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
             if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
+                self._pending_action       = buy_action
                 return Signal(action="HOLD", reason="BOOM spike: awaiting confirm tick", atr=pre_atr)
             return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
+
+        # Jump indices: spikes in both directions.
+        # Large DOWN spike → BUY_RISE (CALL). Large UP spike → BUY_FALL (PUT).
+        if self.symbol_type == "jump" and abs_move >= threshold:
+            self._cooldown = self.cooldown_ticks
+            if last_move < 0:
+                buy_action = "BUY_RISE"
+                reason     = f"JUMP down spike: -{abs_move:.4f} ({mult:.0f}xATR) -> binary CALL"
+            else:
+                buy_action = "BUY_FALL"
+                reason     = f"JUMP up spike: +{abs_move:.4f} ({mult:.0f}xATR) -> binary PUT"
+            self._waiting_confirmation = True
+            self._pending_reason       = reason
+            self._pending_atr          = pre_atr
+            self._pending_action       = buy_action
+            return Signal(action="HOLD", reason="JUMP spike: awaiting confirm tick", atr=pre_atr)
 
         return Signal(
             action="HOLD",

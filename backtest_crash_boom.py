@@ -52,6 +52,14 @@ CONFIGS = {
     "BOOM300N":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 300,  "barrier_pct": 2.08e-5},
     "BOOM150N":  {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 150,  "barrier_pct": 1.61e-6},
     "BOOM50":    {"symbol_type": "boom",  "spike_mult": 15.0, "expected_rate": 50,   "barrier_pct": 2.15e-6},
+    # Jump indices: spikes in both directions. expected_rate = ticks between any spike.
+    # spike_mult=10 is lower than CRASH/BOOM because Jump spikes are less extreme.
+    # barrier_pct=0 (no ACCU available); binary mode only.
+    "JD10":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 500,  "barrier_pct": 0},
+    "JD25":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 200,  "barrier_pct": 0},
+    "JD50":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 100,  "barrier_pct": 0},
+    "JD75":  {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 70,   "barrier_pct": 0},
+    "JD100": {"symbol_type": "jump", "spike_mult": 10.0, "expected_rate": 50,   "barrier_pct": 0},
 }
 
 GROWTH_RATE  = 0.04    # ACCU growth rate per tick (matches config.yaml)
