@@ -19,22 +19,22 @@ async def main():
 
     for symbol in SYMBOLS:
         print(f"\n{'='*60}")
-        print(f"  {symbol} — contracts_for detail")
+        print(f"  {symbol} — ALL available contract types")
         print(f"{'='*60}")
         resp      = await client._send({"contracts_for": symbol})
         available = resp.get("contracts_for", {}).get("available", [])
 
+        seen = {}
         for c in available:
             ct = c.get("contract_type", "?")
-            if ct not in ("CALL", "CALLE", "PUT", "PUTE"):
+            if ct in seen:
                 continue
+            seen[ct] = True
             min_dur  = c.get("min_contract_duration", "?")
             max_dur  = c.get("max_contract_duration", "?")
             exp_type = c.get("expiry_type", "?")
-            start_tp = c.get("start_type", "?")
             cat      = c.get("contract_category_display", "?")
-            print(f"  {ct:<8} | expiry={exp_type:<10} start={start_tp:<10}"
-                  f" | min={min_dur}  max={max_dur}  | {cat}")
+            print(f"  {ct:<16} | expiry={exp_type:<12} | min={str(min_dur):<6}  max={max_dur}  | {cat}")
 
     await client.disconnect()
 
