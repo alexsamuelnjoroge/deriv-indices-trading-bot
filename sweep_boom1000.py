@@ -1,14 +1,18 @@
 """
-BOOM1000 ACCU parameter sweep.
+CRASH/BOOM ACCU parameter sweep across any symbol.
 
 Sweeps hold_ticks × growth_rate × spike_mult × confirm_threshold
 and ranks combinations by net EV = (WR - BE) × payout per trade.
 
+Barrier_pct is pulled per-symbol from backtest_crash_boom.CONFIGS so
+each symbol uses its correct real Deriv API value.
+
 Usage:
-  python sweep_boom1000.py                 # full sweep
-  python sweep_boom1000.py --fresh         # re-download tick data
-  python sweep_boom1000.py --windows 4    # walk-forward windows (default 4)
-  python sweep_boom1000.py --count 15000  # ticks per window (default 15000)
+  python sweep_boom1000.py                          # BOOM1000 (default)
+  python sweep_boom1000.py --symbol CRASH1000
+  python sweep_boom1000.py --symbol ALL             # sweep every CRASH/BOOM symbol
+  python sweep_boom1000.py --fresh                  # re-download tick data
+  python sweep_boom1000.py --windows 4 --count 15000
 """
 
 import argparse
@@ -16,6 +20,7 @@ import sys
 
 from loguru import logger
 
+from backtest_crash_boom import CONFIGS
 from src.backtest.engine import BacktestEngine
 from src.data.history import fetch_ticks
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
@@ -23,10 +28,13 @@ from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 logger.remove()
 logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {message}")
 
-SYMBOL      = "BOOM1000"   # overridden by --symbol
-BARRIER_PCT = 2.35e-6     # real Deriv ACCU barrier at 4% growth (from check_contracts.py)
 ATR_PERIOD  = 50
 COOLDOWN    = 5
+
+# Symbols eligible for ACCU sweep (must have barrier_pct > 0 in CONFIGS)
+ALL_SYMBOLS = [s for s, cfg in CONFIGS.items()
+               if cfg.get("barrier_pct", 0) > 0
+               and cfg.get("symbol_type") in ("crash", "boom")]
 
 # Parameter sweep ranges
 HOLD_TICKS_VALUES     = [6, 8, 10, 12, 15, 20]
@@ -41,7 +49,6 @@ RISK_BASE = {
     "daily_loss_limit":   100.0,
     "use_kelly":          False,
     "max_open_contracts": 1,
-    "barrier_pct":        BARRIER_PCT,
 }
 
 SEP  = "=" * 90
@@ -49,7 +56,7 @@ THIN = "-" * 90
 
 
 def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult,
-              confirm_threshold, symbol_type="boom"):
+              confirm_threshold, symbol_type="boom", barrier_pct=2.35e-6):
     payout   = (1 + growth_rate) ** hold_ticks - 1
     be       = 1.0 / (1.0 + payout)
     strategy_cfg = {
@@ -60,10 +67,10 @@ def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult,
         "loss_cooldown":     0,
         "hold_ticks":        hold_ticks,
         "growth_rate":       growth_rate,
-        "barrier_pct":       BARRIER_PCT,
+        "barrier_pct":       barrier_pct,
         "confirm_threshold": confirm_threshold,
     }
-    risk_cfg = {**RISK_BASE, "payout_pct": payout}
+    risk_cfg = {**RISK_BASE, "barrier_pct": barrier_pct, "payout_pct": payout}
 
     wins_total = losses_total = trades_total = 0
     net_total  = 0.0
@@ -106,84 +113,96 @@ def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult,
 
 
 def main():
-    parser = argparse.ArgumentParser(description="BOOM/CRASH ACCU parameter sweep")
-    parser.add_argument("--symbol",  default="BOOM1000")
+    parser = argparse.ArgumentParser(description="CRASH/BOOM ACCU parameter sweep")
+    parser.add_argument("--symbol",  default="BOOM1000",
+                        help="Symbol name, or ALL to sweep every CRASH/BOOM symbol")
     parser.add_argument("--fresh",   action="store_true")
     parser.add_argument("--windows", type=int, default=4)
     parser.add_argument("--count",   type=int, default=15000)
     args = parser.parse_args()
 
-    symbol      = args.symbol.upper()
-    symbol_type = "crash" if symbol.startswith("CRASH") else "boom"
+    if args.symbol.upper() == "ALL":
+        symbols = ALL_SYMBOLS
+    else:
+        symbols = [args.symbol.upper()]
 
-    total_ticks = args.count * args.windows
-    print(f"\n{symbol} ACCU Parameter Sweep  |  {args.windows} windows x {args.count:,} ticks")
-    print(f"barrier_pct={BARRIER_PCT:.2e}  |  symbol_type={symbol_type}")
-    print(f"Fetching {total_ticks:,} ticks ...")
-    print(SEP)
+    for symbol in symbols:
+        if symbol not in CONFIGS:
+            print(f"ERROR: {symbol} not in CONFIGS — skipping.")
+            continue
 
-    ticks = fetch_ticks(symbol, count=total_ticks, fresh=args.fresh)
-    if len(ticks) < args.count:
-        print(f"ERROR: Only {len(ticks)} ticks available.")
-        return
-    ticks = ticks[-args.windows * args.count:]
+        cfg         = CONFIGS[symbol]
+        symbol_type = cfg["symbol_type"]
+        barrier_pct = cfg["barrier_pct"]
 
-    combos = [
-        (ht, gr, sm, ct)
-        for ht in HOLD_TICKS_VALUES
-        for gr in GROWTH_RATE_VALUES
-        for sm in SPIKE_MULT_VALUES
-        for ct in CONFIRM_THRESH_VALUES
-    ]
-    print(f"Running {len(combos)} combinations ...\n")
+        total_ticks = args.count * args.windows
+        print(f"\n{symbol} ACCU Parameter Sweep  |  {args.windows} windows x {args.count:,} ticks")
+        print(f"barrier_pct={barrier_pct:.2e}  |  symbol_type={symbol_type}")
+        print(f"Fetching {total_ticks:,} ticks ...")
+        print(SEP)
 
-    results = []
-    for i, (ht, gr, sm, ct) in enumerate(combos, 1):
-        r = run_combo(ticks, args.windows, args.count, ht, gr, sm, ct, symbol_type)
-        results.append(r)
-        if i % 10 == 0:
-            print(f"  ... {i}/{len(combos)} done", flush=True)
+        ticks = fetch_ticks(symbol, count=total_ticks, fresh=args.fresh)
+        if len(ticks) < args.count:
+            print(f"  Only {len(ticks)} ticks available — skipping.")
+            continue
+        ticks = ticks[-args.windows * args.count:]
 
-    # Sort by passes desc, then ev_pct desc
-    results.sort(key=lambda x: (x["passes"], x["ev_pct"]), reverse=True)
+        combos = [
+            (ht, gr, sm, ct)
+            for ht in HOLD_TICKS_VALUES
+            for gr in GROWTH_RATE_VALUES
+            for sm in SPIKE_MULT_VALUES
+            for ct in CONFIRM_THRESH_VALUES
+        ]
+        print(f"Running {len(combos)} combinations ...\n")
 
-    print()
-    print(SEP)
-    print(f"  {'ht':>2}  {'gr':>3}  {'sm':>4}  {'ct':>3}  {'payout':>6}  {'BE%':>5}  "
-          f"{'WR%':>5}  {'edge%':>6}  {'EV%/trade':>9}  {'trades':>6}  {'net$':>8}  pass")
-    print(THIN)
+        results = []
+        for i, (ht, gr, sm, ct) in enumerate(combos, 1):
+            r = run_combo(ticks, args.windows, args.count, ht, gr, sm, ct,
+                          symbol_type, barrier_pct)
+            results.append(r)
+            if i % 10 == 0:
+                print(f"  ... {i}/{len(combos)} done", flush=True)
 
-    for r in results[:40]:    # top 40
-        flag = " <<" if r["passes"] == r["windows"] and r["ev_pct"] > 3 else ""
-        print(
-            f"  {r['hold_ticks']:>2}  {r['growth_rate']*100:>3.0f}%  {r['spike_mult']:>4.0f}  "
-            f"{r['confirm_threshold']:>3.1f}  {r['payout']:>6.1f}%  {r['be']:>5.1f}%  "
-            f"{r['wr']:>5.1f}%  {r['edge']:>+6.2f}%  {r['ev_pct']:>+9.3f}%  "
-            f"{r['trades']:>6}  {r['net']:>+8.2f}  {r['passes']}/{r['windows']}{flag}"
-        )
+        # Sort by passes desc, then ev_pct desc
+        results.sort(key=lambda x: (x["passes"], x["ev_pct"]), reverse=True)
 
-    print(THIN)
-    best = results[0]
-    print(f"\nBest: hold_ticks={best['hold_ticks']} growth_rate={best['growth_rate']*100:.0f}% "
-          f"spike_mult={best['spike_mult']:.0f} confirm_threshold={best['confirm_threshold']:.1f}")
-    print(f"      WR={best['wr']:.1f}%  BE={best['be']:.1f}%  edge={best['edge']:+.2f}%  "
-          f"EV={best['ev_pct']:+.3f}%/trade  passes={best['passes']}/{best['windows']}")
+        print()
+        print(SEP)
+        print(f"  {'ht':>2}  {'gr':>3}  {'sm':>4}  {'ct':>3}  {'payout':>6}  {'BE%':>5}  "
+              f"{'WR%':>5}  {'edge%':>6}  {'EV%/trade':>9}  {'trades':>6}  {'net$':>8}  pass")
+        print(THIN)
 
-    # Summary by hold_ticks (averaged over other params)
-    print()
-    print(SEP)
-    print("Hold-ticks summary (best combo per hold_ticks):")
-    print(THIN)
-    seen = set()
-    for r in results:
-        if r["hold_ticks"] not in seen:
-            seen.add(r["hold_ticks"])
+        for r in results[:40]:
+            flag = " <<" if r["passes"] == r["windows"] and r["ev_pct"] > 3 else ""
             print(
-                f"  ht={r['hold_ticks']:>2}  gr={r['growth_rate']*100:.0f}%  "
-                f"sm={r['spike_mult']:.0f}  ct={r['confirm_threshold']:.1f}  "
-                f"WR={r['wr']:.1f}%  BE={r['be']:.1f}%  "
-                f"EV={r['ev_pct']:+.3f}%/trade  passes={r['passes']}/{r['windows']}"
+                f"  {r['hold_ticks']:>2}  {r['growth_rate']*100:>3.0f}%  {r['spike_mult']:>4.0f}  "
+                f"{r['confirm_threshold']:>3.1f}  {r['payout']:>6.1f}%  {r['be']:>5.1f}%  "
+                f"{r['wr']:>5.1f}%  {r['edge']:>+6.2f}%  {r['ev_pct']:>+9.3f}%  "
+                f"{r['trades']:>6}  {r['net']:>+8.2f}  {r['passes']}/{r['windows']}{flag}"
             )
+
+        print(THIN)
+        best = results[0]
+        print(f"\nBest: hold_ticks={best['hold_ticks']} growth_rate={best['growth_rate']*100:.0f}% "
+              f"spike_mult={best['spike_mult']:.0f} confirm_threshold={best['confirm_threshold']:.1f}")
+        print(f"      WR={best['wr']:.1f}%  BE={best['be']:.1f}%  edge={best['edge']:+.2f}%  "
+              f"EV={best['ev_pct']:+.3f}%/trade  passes={best['passes']}/{best['windows']}")
+
+        print()
+        print(SEP)
+        print("Hold-ticks summary (best combo per hold_ticks):")
+        print(THIN)
+        seen = set()
+        for r in results:
+            if r["hold_ticks"] not in seen:
+                seen.add(r["hold_ticks"])
+                print(
+                    f"  ht={r['hold_ticks']:>2}  gr={r['growth_rate']*100:.0f}%  "
+                    f"sm={r['spike_mult']:.0f}  ct={r['confirm_threshold']:.1f}  "
+                    f"WR={r['wr']:.1f}%  BE={r['be']:.1f}%  "
+                    f"EV={r['ev_pct']:+.3f}%/trade  passes={r['passes']}/{r['windows']}"
+                )
 
     print()
     print("Column guide:")
