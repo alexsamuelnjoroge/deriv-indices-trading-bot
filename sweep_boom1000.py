@@ -26,7 +26,7 @@ from src.data.history import fetch_ticks
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 
 logger.remove()
-logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {message}")
+logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
 
 ATR_PERIOD  = 50
 COOLDOWN    = 5
