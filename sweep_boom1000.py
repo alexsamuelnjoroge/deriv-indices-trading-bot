@@ -23,8 +23,8 @@ from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 logger.remove()
 logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {message}")
 
-SYMBOL      = "BOOM1000"
-BARRIER_PCT = 2.35e-6    # real Deriv ACCU barrier at 4% growth (from check_contracts.py)
+SYMBOL      = "BOOM1000"   # overridden by --symbol
+BARRIER_PCT = 2.35e-6     # real Deriv ACCU barrier at 4% growth (from check_contracts.py)
 ATR_PERIOD  = 50
 COOLDOWN    = 5
 
@@ -105,19 +105,23 @@ def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult, 
 
 
 def main():
-    parser = argparse.ArgumentParser(description="BOOM1000 ACCU parameter sweep")
+    parser = argparse.ArgumentParser(description="BOOM/CRASH ACCU parameter sweep")
+    parser.add_argument("--symbol",  default="BOOM1000")
     parser.add_argument("--fresh",   action="store_true")
     parser.add_argument("--windows", type=int, default=4)
     parser.add_argument("--count",   type=int, default=15000)
     args = parser.parse_args()
 
+    symbol      = args.symbol.upper()
+    symbol_type = "crash" if symbol.startswith("CRASH") else "boom"
+
     total_ticks = args.count * args.windows
-    print(f"\nBOOM1000 ACCU Parameter Sweep  |  {args.windows} windows x {args.count:,} ticks")
-    print(f"barrier_pct={BARRIER_PCT:.2e}  |  symbol_type=boom")
+    print(f"\n{symbol} ACCU Parameter Sweep  |  {args.windows} windows x {args.count:,} ticks")
+    print(f"barrier_pct={BARRIER_PCT:.2e}  |  symbol_type={symbol_type}")
     print(f"Fetching {total_ticks:,} ticks ...")
     print(SEP)
 
-    ticks = fetch_ticks(SYMBOL, count=total_ticks, fresh=args.fresh)
+    ticks = fetch_ticks(symbol, count=total_ticks, fresh=args.fresh)
     if len(ticks) < args.count:
         print(f"ERROR: Only {len(ticks)} ticks available.")
         return
