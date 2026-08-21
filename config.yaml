@@ -296,6 +296,7 @@ symbols:
   # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
   # confirm_threshold=1.0 (size-only gate, no direction check — ACCU is direction-agnostic)
   #   BOOM1000:  ROBUST-candidate (avg WR 84.2%, 11pp above BE) — PRIMARY, stake scaled up
+  #   BOOM900:   ROBUST 4/4 — WR≈83.4% BE=73.1% EV=+3.783%/trade (ht=8 ct=0.5) — ENABLED
   #   CRASH1000: ROBUST 4/4 — WR 78.1% BE 67.6% EV +5.08%/trade (ht=10 ct=0.5) — ENABLED
   #   BOOM600:   MOSTLY OK (3/4, avg WR 73.5%, barely above BE) — disabled
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
@@ -343,6 +344,31 @@ symbols:
     growth_rate: 0.04
     hold_ticks: 10
     barrier_pct: 0.00000235
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.87
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM900 — Optimized 2026-08-21 via sweep_boom1000.py --symbol ALL (144 combos, 4 x 15k ticks).
+  # ht=8 ct=0.5 sm=12: WR≈83.4% BE=73.1% EV=+3.783%/trade. Passes 4/4 walk-forward windows.
+  - symbol: BOOM900
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
+    barrier_pct: 0.00000262
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
