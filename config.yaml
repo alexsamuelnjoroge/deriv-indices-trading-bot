@@ -451,6 +451,49 @@ symbols:
     blocked_hours_eat: []
 
   # ══════════════════════════════════════════════════════════════════════
+  # DIGIT-EVEN — Structural even/odd digit bias in R_50 and R_75 (2026-08-21)
+  # Deriv's synthetic price generator produces even last digits ~55% of the time.
+  # DIGITEVEN pays 95% profit (BE=51.28%). Edge holds across all 4 walk-forward windows.
+  # No signal or warm-up — fires on every tick. 24/7 synthetics (no hour filter).
+  #   R_50: WR=55.0%  edge=+3.72%/trade  4/4 ROBUST  (edge band: +3.56% to +3.82%)
+  #   R_75: WR=54.7%  edge=+3.42%/trade  4/4 ROBUST  (edge band: +2.78% to +4.16%)
+  # ══════════════════════════════════════════════════════════════════════
+
+  # R_50 DIGITEVEN — tightest edge band, most consistent window-to-window
+  - symbol: R_50
+    enabled: true
+    strategy_type: digit_even
+    precision: 3
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # R_75 DIGITEVEN — slightly wider edge variance, same structural bias
+  - symbol: R_75
+    enabled: true
+    strategy_type: digit_even
+    precision: 3
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
   # ARCHIVED: All synthetic + multiplier strategies (disabled 2026-07-29)
   # Reason: shifted to real market binary CALL/PUT only.
   # Silver disabled separately: 63% payout sets BE WR=61.3% — no viable edge.

@@ -142,6 +142,27 @@ class Trader:
                     f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
                 )
 
+            elif signal.action == "BUY_EVEN":
+                result = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type="DIGITEVEN",
+                    duration=1,
+                    duration_unit="t",
+                    stake=stake,
+                )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": "BUY_EVEN",
+                    "contract_type": "DIGITEVEN",
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"[{self.symbol}] DIGITEVEN | ID: {contract_id} | stake={stake:.2f}"
+                )
+
             else:
                 contract_type = _BINARY_TYPE[signal.action]
                 duration      = signal.contract_duration if signal.contract_duration is not None else self.duration

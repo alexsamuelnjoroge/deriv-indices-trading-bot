@@ -32,6 +32,7 @@ from src.strategies.rsi_multiplier import RSIMultiplierStrategy
 from src.strategies.rsi_binary import RSIBinaryStrategy
 from src.strategies.mtf_v5 import MTFV5Strategy
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
+from src.strategies.digit_even import DigitEvenStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -292,6 +293,11 @@ async def run(watch_only: bool = False):
             strategy = CrashBoomRecoilStrategy(sym_cfg)
             logger.info(f"[{symbol}/crash_boom_recoil] Ready — warms up from first "
                         f"{sym_cfg.get('atr_period', 50) + 2} live ticks")
+
+        elif strategy_type == "digit_even":
+            # Structural even/odd digit bias in R_50/R_75 — no warm-up needed.
+            strategy = DigitEvenStrategy(sym_cfg)
+            logger.info(f"[{symbol}/digit_even] Ready — fires on every tick")
 
         elif strategy_type == "mtf_v5":
             strategy     = MTFV5Strategy(sym_cfg)
