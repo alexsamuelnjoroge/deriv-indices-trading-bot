@@ -21,10 +21,8 @@ Usage:
 import argparse
 import sys
 from collections import Counter
-from math import sqrt
 
 from loguru import logger
-from scipy import stats as scipy_stats
 
 logger.remove()
 logger.add(sys.stderr, level="WARNING", format="{time:HH:mm:ss} | {level} | {message}")
@@ -39,39 +37,48 @@ THIN = "-" * 72
 
 
 def last_digit(price: float) -> int:
-    """Extract last decimal digit from a price string representation."""
-    s = f"{price:.5f}"   # e.g. "4828.36000"
-    # Strip trailing zeros and get final non-zero digit
-    s_clean = s.replace(".", "")
-    # Take the last non-zero digit; if all zeros, digit is 0
-    for ch in reversed(s_clean):
+    """Extract last non-zero decimal digit from a price string representation."""
+    s = f"{price:.5f}".replace(".", "")
+    for ch in reversed(s):
         if ch != "0":
             return int(ch)
     return 0
+
+
+def _chi2_sig(chi2: float) -> str:
+    """Significance label for chi-square with df=9 (10 digit categories)."""
+    if chi2 >= 27.88:
+        return "NON-UNIFORM p<0.001 ***"
+    if chi2 >= 21.67:
+        return "NON-UNIFORM p<0.01  **"
+    if chi2 >= 16.92:
+        return "NON-UNIFORM p<0.05  *"
+    if chi2 >= 14.68:
+        return "borderline  p<0.10  ~"
+    return "UNIFORM     p>0.10"
 
 
 def analyze_digits(ticks: list[dict]) -> dict:
     """Count last-digit frequencies and compute chi-square test for uniformity."""
     counts = Counter()
     for t in ticks:
-        price = float(t["quote"])
-        counts[last_digit(price)] += 1
+        counts[last_digit(float(t["quote"]))] += 1
 
     total = sum(counts.values())
     freq  = {d: counts.get(d, 0) / total for d in range(10)}
 
-    # Chi-square test: are digits uniformly distributed?
-    observed  = [counts.get(d, 0) for d in range(10)]
-    expected  = [total / 10.0] * 10
-    chi2, p   = scipy_stats.chisquare(observed, f_exp=expected)
+    expected_each = total / 10.0
+    chi2 = sum((counts.get(d, 0) - expected_each) ** 2 / expected_each
+               for d in range(10) if expected_each > 0)
+    sig = _chi2_sig(chi2)
 
     return {
         "total":    total,
         "counts":   dict(counts),
         "freq":     freq,
         "chi2":     chi2,
-        "p_value":  p,
-        "uniform":  p > 0.05,
+        "sig":      sig,
+        "uniform":  "UNIFORM" in sig,
     }
 
 
@@ -80,14 +87,14 @@ def digit_edge(freq: dict) -> list[tuple]:
     For each digit, compute:
       - DIFFER edge: P(win)=1-freq[d], payout ~95%, edge over BE 51.3%
       - MATCH edge:  P(win)=freq[d], payout ~9x (need payout check), edge over BE ~10%
-    Returns list of (digit, differ_wr, match_wr, recommendation) sorted by differ edge desc.
+    Returns list sorted by differ_edge descending.
     """
     results = []
     for d in range(10):
-        differ_wr = (1 - freq.get(d, 0.1)) * 100
-        match_wr  = freq.get(d, 0.1) * 100
-        differ_edge = differ_wr - 51.3   # vs BE at 95% payout
-        match_edge  = match_wr  - 10.0   # vs BE at 9x payout (rough)
+        differ_wr   = (1 - freq.get(d, 0.1)) * 100
+        match_wr    = freq.get(d, 0.1) * 100
+        differ_edge = differ_wr - 51.3
+        match_edge  = match_wr  - 10.0
         results.append((d, differ_wr, differ_edge, match_wr, match_edge))
     results.sort(key=lambda x: x[2], reverse=True)
     return results
@@ -111,18 +118,15 @@ def main():
             print(f"  {symbol}: ERROR {e}")
             continue
 
-        ticks = ticks[-args.count:]
+        ticks  = ticks[-args.count:]
         result = analyze_digits(ticks)
         freq   = result["freq"]
         edges  = digit_edge(freq)
 
-        uniform_str = "UNIFORM" if result["uniform"] else f"NON-UNIFORM (p={result['p_value']:.4f})"
         print()
-        print(f"  {symbol}  |  n={result['total']:,}  |  chi2={result['chi2']:.2f}  |  {uniform_str}")
+        print(f"  {symbol}  |  n={result['total']:,}  |  chi2={result['chi2']:.2f}  |  {result['sig']}")
         print(THIN)
-
-        # Print digit frequency table
-        print(f"  Digit  {'Freq%':>6}  {'Count':>6}  {'DIFFER WR%':>10}  {'DIFFER edge':>12}  {'MATCH WR%':>10}")
+        print(f"  {'Digit':>5}  {'Freq%':>6}  {'Count':>6}  {'DIFFER WR%':>10}  {'DIFFER edge':>12}  {'MATCH WR%':>10}")
         for d, differ_wr, differ_edge, match_wr, match_edge in edges:
             flag = ""
             if differ_edge > 3:
@@ -136,39 +140,36 @@ def main():
                 f"{differ_wr:>10.2f}%  {differ_edge:>+11.2f}%  {match_wr:>10.2f}%{flag}"
             )
 
-        # Best differ opportunity
         best = edges[0]
-        best_digit, best_differ_wr, best_differ_edge = best[0], best[1], best[2]
         summary_rows.append({
             "symbol": symbol, "n": result["total"],
-            "uniform": result["uniform"], "p": result["p_value"],
-            "best_digit": best_digit, "best_differ_wr": best_differ_wr,
-            "best_differ_edge": best_differ_edge,
+            "sig": result["sig"], "uniform": result["uniform"],
+            "chi2": result["chi2"],
+            "best_digit": best[0], "best_differ_wr": best[1],
+            "best_differ_edge": best[2],
         })
 
-    # Summary table
     print()
     print(SEP)
     print("  SUMMARY — Best DIFFER opportunity per symbol")
     print(THIN)
-    print(f"  {'Symbol':<10}  {'n':>6}  {'Uniform?':>9}  p-value  "
-          f"  Best digit  {'DIFFER WR%':>10}  {'Edge over BE':>12}")
-    print(f"  {'-'*10}  {'-'*6}  {'-'*9}  {'-'*7}  "
-          f"  {'-'*10}  {'-'*10}  {'-'*12}")
+    print(f"  {'Symbol':<10}  {'n':>6}  {'chi2':>6}  {'Significance':<25}  "
+          f"{'Best digit':>10}  {'DIFFER WR%':>10}  {'Edge over BE':>12}")
+    print(f"  {'-'*10}  {'-'*6}  {'-'*6}  {'-'*25}  "
+          f"  {'-'*9}  {'-'*10}  {'-'*12}")
 
     for r in summary_rows:
-        uni   = "YES" if r["uniform"] else "NO *"
-        flag  = "  << EDGE" if r["best_differ_edge"] > 1.5 else ""
+        flag = "  << EDGE" if r["best_differ_edge"] > 1.5 else ""
         print(
-            f"  {r['symbol']:<10}  {r['n']:>6}  {uni:>9}  {r['p']:>7.4f}"
-            f"  {r['best_digit']:>11}  {r['best_differ_wr']:>10.2f}%  "
-            f"{r['best_differ_edge']:>+11.2f}%{flag}"
+            f"  {r['symbol']:<10}  {r['n']:>6}  {r['chi2']:>6.1f}  "
+            f"{r['sig']:<25}  {r['best_digit']:>10}  "
+            f"{r['best_differ_wr']:>10.2f}%  {r['best_differ_edge']:>+11.2f}%{flag}"
         )
 
     print()
     print("DIFFER payout ~95% -> BE = 51.3%.  Edge = DIFFER WR - 51.3%.")
-    print("MATCH payout ~9x  -> BE = 10%.     Edge = MATCH WR - 10%.")
-    print("Non-uniform (p<0.05): digit frequencies deviate from expected 10%.")
+    print("MATCH payout ~9x   -> BE = ~10%.   Edge = MATCH WR - 10%.")
+    print("Non-uniform (chi2 > 16.92 at df=9 = p<0.05).")
     print("Strong edge: run --count 50000 on promising symbols to confirm.")
 
 

@@ -85,30 +85,44 @@ async def main():
         print(f"  Current spot: {spot}")
         print(THIN)
 
-        # Digit contracts (correct param: last_digit)
-        print("  DIGIT contracts:")
+        # Digit contracts — try several candidate parameter names
+        print("  DIGIT contracts (probing correct param name):")
         for ct in ["DIGITDIFF", "DIGITMATCH"]:
-            for d in range(10):
+            found = False
+            for param_name, param_val in [
+                ("barrier", "5"),
+                ("barrier", 5),
+                ("prediction", 5),
+                ("digit", 5),
+                ("selected_tick", 5),
+            ]:
                 r = await probe(client, {**base, "underlying_symbol": symbol,
                     "contract_type": ct, "duration": 1, "duration_unit": "t",
-                    "last_digit": d})
+                    **{param_name: param_val}})
+                status = "OK" if r["ok"] else r.get("code", "ERR")
+                msg    = r.get("msg", "")[:50] if not r["ok"] else ""
+                print(f"    {ct} param={param_name}={param_val!r}  → {status}  {msg}")
                 if r["ok"]:
-                    print_result(f"  {ct} digit={d}", r)
-                    break   # only need one working example per type
-                elif "MissingRequiredDigit" not in r.get("msg", ""):
-                    print_result(f"  {ct} digit={d}", r)
+                    found = True
                     break
+                if r.get("code") not in ("InputValidationFailed", "ContractCreationFailure"):
+                    break   # unexpected error, stop trying
 
-        for ct in ["DIGITOVER", "DIGITUNDER"]:
-            for d in [4, 5, 6]:
+        for ct in ["DIGITOVER", "DIGITUNDER", "DIGITEVEN", "DIGITODD"]:
+            for param_name, param_val in [
+                ("barrier", "5"),
+                ("barrier", 5),
+                (None, None),     # no digit param (for EVEN/ODD)
+            ]:
+                req_extra = {} if param_name is None else {param_name: param_val}
                 r = await probe(client, {**base, "underlying_symbol": symbol,
                     "contract_type": ct, "duration": 1, "duration_unit": "t",
-                    "last_digit": d})
-                if r["ok"]:
-                    print_result(f"  {ct} last_digit={d}", r)
-                    break
-                elif "MissingRequiredDigit" not in r.get("msg", ""):
-                    print_result(f"  {ct} last_digit={d}", r)
+                    **req_extra})
+                status = "OK" if r["ok"] else r.get("code", "ERR")
+                msg    = r.get("msg", "")[:50] if not r["ok"] else ""
+                label  = f"no-param" if param_name is None else f"{param_name}={param_val!r}"
+                print(f"    {ct} {label}  → {status}  {msg}")
+                if r["ok"] or param_name is None:
                     break
 
         print()
