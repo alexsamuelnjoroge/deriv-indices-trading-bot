@@ -48,11 +48,12 @@ SEP  = "=" * 90
 THIN = "-" * 90
 
 
-def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult, confirm_threshold):
+def run_combo(ticks, windows, window_size, hold_ticks, growth_rate, spike_mult,
+              confirm_threshold, symbol_type="boom"):
     payout   = (1 + growth_rate) ** hold_ticks - 1
     be       = 1.0 / (1.0 + payout)
     strategy_cfg = {
-        "symbol_type":       "boom",
+        "symbol_type":       symbol_type,
         "spike_mult":        spike_mult,
         "atr_period":        ATR_PERIOD,
         "cooldown_ticks":    COOLDOWN,
@@ -138,7 +139,7 @@ def main():
 
     results = []
     for i, (ht, gr, sm, ct) in enumerate(combos, 1):
-        r = run_combo(ticks, args.windows, args.count, ht, gr, sm, ct)
+        r = run_combo(ticks, args.windows, args.count, ht, gr, sm, ct, symbol_type)
         results.append(r)
         if i % 10 == 0:
             print(f"  ... {i}/{len(combos)} done", flush=True)
