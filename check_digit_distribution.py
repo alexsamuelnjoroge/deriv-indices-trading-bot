@@ -1,21 +1,15 @@
 """
 Analyze last-digit distribution of Volatility and Jump index tick prices.
 
-If any digit appears significantly more or less than 10% of the time,
-DIGITDIFF (bet the last digit will NOT be X) or DIGITMATCH (bet it WILL be X)
-contracts become exploitable.
-
-Key math:
-  DIGITDIFF payout ~95%: need WR > 51.3% to be profitable.
-    If digit X appears 11% of the time -> DIFFER from X wins 89% -> WR=89% >> 51.3%  HUGE EDGE
-    If digit X appears 9% of the time  -> DIFFER from X wins 91% -> even better
-  DIGITMATCH payout ~9x-10x: need WR > ~9% to be profitable.
-    If digit X appears 15% of the time -> MATCH X wins 15% >> 9%  EDGE
+FIXED: Uses precision-aware last digit extraction.
+Prior version incorrectly stripped trailing zeros (Python floats lose 9382.450 → 9382.45),
+causing digit 0 to appear never — a pure artifact. This version detects pip precision
+from the tick data and extracts the correct last digit.
 
 Usage:
   python check_digit_distribution.py              # all symbols, 10k ticks each
-  python check_digit_distribution.py --count 50000  # more ticks for better stats
-  python check_digit_distribution.py --fresh      # re-download
+  python check_digit_distribution.py --count 50000
+  python check_digit_distribution.py --fresh
 """
 
 import argparse
@@ -32,17 +26,63 @@ from src.data.history import fetch_ticks
 SYMBOLS = ["R_10", "R_25", "R_50", "R_75", "R_100",
            "1HZ10V", "1HZ25V", "1HZ100V", "JD10", "JD25"]
 
+# Known pip sizes (decimal places) per symbol
+# Used to extract the correct last digit for digit contracts
+SYMBOL_PRECISION = {
+    "R_10":    3,
+    "R_25":    3,
+    "R_50":    3,
+    "R_75":    3,
+    "R_100":   3,
+    "1HZ10V":  2,
+    "1HZ25V":  2,
+    "1HZ100V": 2,
+    "JD10":    3,
+    "JD25":    3,
+}
+
 SEP  = "=" * 72
 THIN = "-" * 72
 
 
-def last_digit(price: float) -> int:
-    """Extract last non-zero decimal digit from a price string representation."""
-    s = f"{price:.5f}".replace(".", "")
-    for ch in reversed(s):
-        if ch != "0":
-            return int(ch)
-    return 0
+def detect_precision(prices: list[float]) -> int:
+    """
+    Detect price precision (decimal places) from tick data.
+    Finds the number of decimal places that gives the smallest non-zero
+    remainders when rounding — i.e., the pip granularity.
+    """
+    sample = [p for p in prices[:500] if p > 0]
+    if len(sample) < 10:
+        return 3
+
+    # Try precisions 0..5; find the one where int(price * 10^p) % 10
+    # gives maximum variance (non-degenerate distribution of last digits)
+    best_p = 3
+    best_var = -1
+    for p in range(1, 6):
+        scale = 10 ** p
+        digits = [int(round(pr * scale)) % 10 for pr in sample]
+        counts = Counter(digits)
+        n_distinct = len(counts)
+        # The correct precision should give ~10 distinct digit values (not degenerate)
+        if n_distinct >= 8:
+            # Compute variance of digit counts (more uniform = real pip level)
+            avg = len(sample) / 10.0
+            var = sum((c - avg) ** 2 for c in counts.values()) / 10
+            # We prefer the LOWEST precision where we still see ≥8 distinct digits
+            # (adding more decimal places just shifts last digit, not more informative)
+            if n_distinct > best_var:
+                best_p   = p
+                best_var = n_distinct
+            break   # take first p that satisfies ≥8 distinct digits
+
+    return best_p
+
+
+def last_digit(price: float, precision: int) -> int:
+    """Extract last digit at the given decimal precision."""
+    scale = 10 ** precision
+    return int(round(price * scale)) % 10
 
 
 def _chi2_sig(chi2: float) -> str:
@@ -58,11 +98,10 @@ def _chi2_sig(chi2: float) -> str:
     return "UNIFORM     p>0.10"
 
 
-def analyze_digits(ticks: list[dict]) -> dict:
-    """Count last-digit frequencies and compute chi-square test for uniformity."""
+def analyze_digits(ticks: list[dict], precision: int) -> dict:
     counts = Counter()
     for t in ticks:
-        counts[last_digit(float(t["quote"]))] += 1
+        counts[last_digit(float(t["quote"]), precision)] += 1
 
     total = sum(counts.values())
     freq  = {d: counts.get(d, 0) / total for d in range(10)}
@@ -72,22 +111,15 @@ def analyze_digits(ticks: list[dict]) -> dict:
                for d in range(10) if expected_each > 0)
     sig = _chi2_sig(chi2)
 
-    return {
-        "total":    total,
-        "counts":   dict(counts),
-        "freq":     freq,
-        "chi2":     chi2,
-        "sig":      sig,
-        "uniform":  "UNIFORM" in sig,
-    }
+    return {"total": total, "counts": dict(counts), "freq": freq,
+            "chi2": chi2, "sig": sig, "uniform": "UNIFORM" in sig}
 
 
 def digit_edge(freq: dict) -> list[tuple]:
     """
-    For each digit, compute:
-      - DIFFER edge: P(win)=1-freq[d], payout ~95%, edge over BE 51.3%
-      - MATCH edge:  P(win)=freq[d], payout ~9x (need payout check), edge over BE ~10%
-    Returns list sorted by differ_edge descending.
+    For each digit, compute differ and match edges.
+    DIGITDIFF payout ~95% (profit) → BE = 51.3%
+    DIGITMATCH: payout varies by digit (inverse of frequency)
     """
     results = []
     for d in range(10):
@@ -106,7 +138,7 @@ def main():
     parser.add_argument("--fresh", action="store_true")
     args = parser.parse_args()
 
-    print(f"\nDigit Distribution Analysis  |  {args.count:,} ticks per symbol")
+    print(f"\nDigit Distribution Analysis (precision-aware)  |  {args.count:,} ticks/symbol")
     print(SEP)
 
     summary_rows = []
@@ -119,19 +151,31 @@ def main():
             continue
 
         ticks  = ticks[-args.count:]
-        result = analyze_digits(ticks)
+        prices = [float(t["quote"]) for t in ticks]
+
+        # Determine precision
+        precision = SYMBOL_PRECISION.get(symbol)
+        if precision is None:
+            precision = detect_precision(prices)
+            src = "detected"
+        else:
+            src = "known"
+
+        result = analyze_digits(ticks, precision)
         freq   = result["freq"]
         edges  = digit_edge(freq)
 
         print()
-        print(f"  {symbol}  |  n={result['total']:,}  |  chi2={result['chi2']:.2f}  |  {result['sig']}")
+        print(f"  {symbol}  |  precision={precision}dp ({src})  |  n={result['total']:,}  |  "
+              f"chi2={result['chi2']:.2f}  |  {result['sig']}")
         print(THIN)
-        print(f"  {'Digit':>5}  {'Freq%':>6}  {'Count':>6}  {'DIFFER WR%':>10}  {'DIFFER edge':>12}  {'MATCH WR%':>10}")
+        print(f"  {'Digit':>5}  {'Freq%':>6}  {'Count':>6}  {'DIFFER WR%':>10}  "
+              f"{'DIFFER edge':>12}  {'MATCH WR%':>10}")
         for d, differ_wr, differ_edge, match_wr, match_edge in edges:
             flag = ""
-            if differ_edge > 3:
+            if differ_edge > 5:
                 flag = "  *** STRONG DIFFER EDGE"
-            elif differ_edge > 1:
+            elif differ_edge > 2:
                 flag = "  *   DIFFER EDGE"
             elif match_edge > 2:
                 flag = "  **  MATCH EDGE"
@@ -142,7 +186,7 @@ def main():
 
         best = edges[0]
         summary_rows.append({
-            "symbol": symbol, "n": result["total"],
+            "symbol": symbol, "n": result["total"], "precision": precision,
             "sig": result["sig"], "uniform": result["uniform"],
             "chi2": result["chi2"],
             "best_digit": best[0], "best_differ_wr": best[1],
@@ -153,24 +197,25 @@ def main():
     print(SEP)
     print("  SUMMARY — Best DIFFER opportunity per symbol")
     print(THIN)
-    print(f"  {'Symbol':<10}  {'n':>6}  {'chi2':>6}  {'Significance':<25}  "
+    print(f"  {'Symbol':<10}  {'prec':>4}  {'n':>6}  {'chi2':>6}  {'Significance':<25}  "
           f"{'Best digit':>10}  {'DIFFER WR%':>10}  {'Edge over BE':>12}")
-    print(f"  {'-'*10}  {'-'*6}  {'-'*6}  {'-'*25}  "
+    print(f"  {'-'*10}  {'-'*4}  {'-'*6}  {'-'*6}  {'-'*25}  "
           f"  {'-'*9}  {'-'*10}  {'-'*12}")
 
     for r in summary_rows:
-        flag = "  << EDGE" if r["best_differ_edge"] > 1.5 else ""
+        flag = "  << EDGE" if r["best_differ_edge"] > 5 else ""
         print(
-            f"  {r['symbol']:<10}  {r['n']:>6}  {r['chi2']:>6.1f}  "
+            f"  {r['symbol']:<10}  {r['precision']:>4}  {r['n']:>6}  {r['chi2']:>6.1f}  "
             f"{r['sig']:<25}  {r['best_digit']:>10}  "
             f"{r['best_differ_wr']:>10.2f}%  {r['best_differ_edge']:>+11.2f}%{flag}"
         )
 
     print()
     print("DIFFER payout ~95% -> BE = 51.3%.  Edge = DIFFER WR - 51.3%.")
-    print("MATCH payout ~9x   -> BE = ~10%.   Edge = MATCH WR - 10%.")
+    print("DIGITEVEN/ODD payout ~95% -> BE = 51.3%.  Uniform dist: WR=50% -> -1.3% edge.")
     print("Non-uniform (chi2 > 16.92 at df=9 = p<0.05).")
-    print("Strong edge: run --count 50000 on promising symbols to confirm.")
+    print("NOTE: 'DIFFER edge' here assumes DIGITDIFF payout is ~95% for all digits.")
+    print("      Run check_digit_payouts.py to verify actual per-digit payouts.")
 
 
 if __name__ == "__main__":
