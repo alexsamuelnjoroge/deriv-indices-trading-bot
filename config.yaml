@@ -296,14 +296,16 @@ symbols:
   # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
   # confirm_threshold=1.0 (size-only gate, no direction check — ACCU is direction-agnostic)
   #   BOOM1000:  ROBUST-candidate (avg WR 84.2%, 11pp above BE) — PRIMARY, stake scaled up
-  #   CRASH1000: MARGINAL (2/4, avg WR 70%, BELOW BE) — disabled
+  #   CRASH1000: ROBUST 4/4 — WR 78.1% BE 67.6% EV +5.08%/trade (ht=10 ct=0.5) — ENABLED
   #   BOOM600:   MOSTLY OK (3/4, avg WR 73.5%, barely above BE) — disabled
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
-  # MARGINAL (2/4) avg WR 70% — below breakeven (73.1%). Disabled: loses money over time.
+  # CRASH1000 — Optimized 2026-08-21 via sweep_boom1000.py --symbol CRASH1000 (144 combos, 4 x 15k ticks).
+  # ht=10 ct=0.5: WR=78.1% BE=67.6% EV=+5.08%/trade (was ht=8 ct=1.0: WR=70% BELOW BE=73.1% → disabled).
+  # spike_mult irrelevant (crash spikes always >>12x ATR). Passes 4/4 walk-forward windows.
   - symbol: CRASH1000
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     spike_mult: 15.0
@@ -311,15 +313,15 @@ symbols:
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
+    hold_ticks: 10
     barrier_pct: 0.00000235
-    confirm_threshold: 1.0
+    confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
+    max_stake: 1.0
+    stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
