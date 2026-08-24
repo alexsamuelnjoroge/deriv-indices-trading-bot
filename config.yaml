@@ -347,6 +347,7 @@ symbols:
   # CRASH1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
   # ht=8 gr=5% sm=12 ct=0.5: WR=69.4% BE=67.7% EV=+0.84%/trade, passes=3/4.
   # win=$0.477 vs loss=$1.00. Barrier 2.27e-6 from Deriv API at 5% growth.
+  # Kelly capped at $1 max_stake — thin edge, Kelly will auto-reduce stake if live WR underperforms.
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -365,14 +366,15 @@ symbols:
     min_stake: 1.0
     max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.477
     max_open_contracts: 1
     blocked_hours_eat: []
 
   # CRASH900 — 4% growth sweep 2026-08-24 (sweep_boom1000.py --count 30000, 4 x 30k ticks).
   # ht=20 gr=4% sm=12 ct=0.5: WR=58.6% BE=45.6% EV=+15.46%/trade, passes=3/4.
-  # win=$1.191 vs loss=$1.00 (0.84x recovery). Barrier 2.61e-6 at 4% growth (Deriv API).
+  # win=$1.191 vs loss=$1.00. Kelly enabled: half-K at WR=58.6% payout=119.1% -> ~12% of balance.
+  # max_stake=$5 raised 2026-08-24: strong EV warrants higher stake.
   - symbol: CRASH900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -389,16 +391,17 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 1.191
     max_open_contracts: 1
     blocked_hours_eat: []
 
   # BOOM1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
   # ht=15 gr=5% sm=12 ct=0.5: WR=57.1% BE=48.1% EV=+9.76%/trade, passes=3/4.
-  # win=$1.079 vs loss=$1.00 — 1 win covers 1 loss. Barrier 2.25e-6 at 5% growth.
+  # win=$1.079 vs loss=$1.00. Kelly enabled: half-K at WR=57.1% payout=107.9% -> ~9% of balance.
+  # max_stake=$5 raised 2026-08-24: solid EV warrants higher stake.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -415,16 +418,17 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 1.079
     max_open_contracts: 1
     blocked_hours_eat: []
 
   # BOOM900 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
   # ht=12 gr=5% sm=12 ct=0.5: WR=64.6% BE=55.7% EV=+7.08%/trade, passes=3/4.
-  # win=$0.796 vs loss=$1.00 (1.26x recovery). Barrier 2.51e-6 at 5% growth.
+  # win=$0.796 vs loss=$1.00. Kelly enabled: half-K at WR=64.6% payout=79.6% -> ~10% of balance.
+  # max_stake=$5 raised 2026-08-24: solid EV warrants higher stake.
   - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -441,9 +445,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.796
     max_open_contracts: 1
     blocked_hours_eat: []
