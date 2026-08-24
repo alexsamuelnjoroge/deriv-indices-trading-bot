@@ -327,128 +327,114 @@ symbols:
     max_open_contracts: 1
 
   # ══════════════════════════════════════════════════════════════════════
-  # CRASH/BOOM — Post-Spike Recoil via Accumulator (validated 2026-08-19)
-  # Strategy: detect spike tick (move > spike_mult x pre-spike ATR), buy
-  # an Accumulator (ACCU) which grows each tick price stays in barrier band.
-  # After hold_ticks, the bot auto-sells for accumulated profit.
-  # Accumulators are direction-agnostic: after a spike the recoil ticks are
-  # small enough to stay within the barrier, so ACCU grows tick by tick.
-  # growth_rate: check available rates on your account (1%-5% per tick).
-  # Synthetics are 24/7 — blocked_hours_eat: [] disables the time filter.
-  # Backtest verdict (4-window walk-forward, real barrier from Deriv API):
-  # confirm_threshold=1.0 (size-only gate, no direction check — ACCU is direction-agnostic)
-  #   BOOM1000:  ROBUST-candidate (avg WR 84.2%, 11pp above BE) — PRIMARY, stake scaled up
-  #   BOOM900:   ROBUST 4/4 — WR≈83.4% BE=73.1% EV=+3.783%/trade (ht=8 ct=0.5) — ENABLED
-  #   CRASH1000: ROBUST 4/4 — WR 78.1% BE 67.6% EV +5.08%/trade (ht=10 ct=0.5) — ENABLED
-  #   BOOM600:   MOSTLY OK (3/4, avg WR 73.5%, barely above BE) — disabled
-  #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
+  # CRASH/BOOM — Post-Spike Binary (sweep_crash_boom_advanced.py, 2026-08-24)
+  # Strategy: detect spike tick (move > spike_mult x pre-spike ATR), buy a
+  # binary CALL (CRASH) or PUT (BOOM) — price direction after spike, not ACCU.
+  #
+  # Why binary beats ACCU: after a CRASH spike, the Deriv generator enters a
+  # recovery phase where subsequent ticks drift back to the pre-spike level.
+  # Binary CALL just needs price > entry after 5 ticks — almost always true.
+  # ACCU required ALL ticks to stay inside a tight barrier (complex survival),
+  # losing 30-40% of trades to barrier breach during the same recovery ticks.
+  #
+  # sweep_crash_boom_advanced.py (4 x 15k ticks, 2026-08-24):
+  #   CRASH1000: WR=100% BE=53.5% EV=+40.5%/trade 4/4 (vs ACCU EV=+0.84%)
+  #   CRASH900:  WR=98.4% BE=53.5% EV=+39.1%/trade 4/4 (vs ACCU EV=+15.46%)
+  #   BOOM1000:  WR=100% BE=53.5% EV=+40.5%/trade 4/4 (vs ACCU EV=+9.76%)
+  #   BOOM900:   WR=100% BE=53.5% EV=+40.5%/trade 4/4 (vs ACCU EV=+7.08%)
+  # All hold durations (5/10/15/20 ticks) equivalent; use 5t for fastest exit.
+  # payout_pct: 0.87 = estimated; update from live trade results.
   # ══════════════════════════════════════════════════════════════════════
 
-  # CRASH1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
-  # ht=8 gr=5% sm=12 ct=0.5: WR=69.4% BE=67.7% EV=+0.84%/trade, passes=3/4.
-  # win=$0.477 vs loss=$1.00. Barrier 2.27e-6 from Deriv API at 5% growth.
-  # Kelly capped at $1 max_stake — thin edge, Kelly will auto-reduce stake if live WR underperforms.
+  # CRASH1000 — binary post-spike CALL (2026-08-24).
+  # spike_mult=12: after CRASH spike, buy 5-tick CALL. WR=100% 4/4 EV=+40.5%.
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
+    use_binary: true
     spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.05
-    hold_ticks: 8
-    barrier_pct: 0.00000227
-    confirm_threshold: 0.5
-    contract_duration: 0
+    barrier_pct: 0.0
+    contract_duration: 5
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.477
+    payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH900 — 4% growth sweep 2026-08-24 (sweep_boom1000.py --count 30000, 4 x 30k ticks).
-  # ht=20 gr=4% sm=12 ct=0.5: WR=58.6% BE=45.6% EV=+15.46%/trade, passes=3/4.
-  # win=$1.191 vs loss=$1.00. Kelly enabled: half-K at WR=58.6% payout=119.1% -> ~12% of balance.
-  # max_stake=$5 raised 2026-08-24: strong EV warrants higher stake.
+  # CRASH900 — binary post-spike CALL (2026-08-24).
+  # spike_mult=12: after CRASH spike, buy 5-tick CALL. WR=98.4% 4/4 EV=+39.1%.
   - symbol: CRASH900
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
+    use_binary: true
     spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 20
-    barrier_pct: 0.00000261
-    confirm_threshold: 0.5
-    contract_duration: 0
+    barrier_pct: 0.0
+    contract_duration: 5
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 1.191
+    payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
-  # ht=15 gr=5% sm=12 ct=0.5: WR=57.1% BE=48.1% EV=+9.76%/trade, passes=3/4.
-  # win=$1.079 vs loss=$1.00. Kelly enabled: half-K at WR=57.1% payout=107.9% -> ~9% of balance.
-  # max_stake=$5 raised 2026-08-24: solid EV warrants higher stake.
+  # BOOM1000 — binary post-spike PUT (2026-08-24).
+  # spike_mult=12: after BOOM spike, buy 5-tick PUT. WR=100% 4/4 EV=+40.5%.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
+    use_binary: true
     spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.05
-    hold_ticks: 15
-    barrier_pct: 0.00000225
-    confirm_threshold: 0.5
-    contract_duration: 0
+    barrier_pct: 0.0
+    contract_duration: 5
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 1.079
+    payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM900 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
-  # ht=12 gr=5% sm=12 ct=0.5: WR=64.6% BE=55.7% EV=+7.08%/trade, passes=3/4.
-  # win=$0.796 vs loss=$1.00. Kelly enabled: half-K at WR=64.6% payout=79.6% -> ~10% of balance.
-  # max_stake=$5 raised 2026-08-24: solid EV warrants higher stake.
+  # BOOM900 — binary post-spike PUT (2026-08-24).
+  # spike_mult=12: after BOOM spike, buy 5-tick PUT. WR=100% 4/4 EV=+40.5%.
   - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
+    use_binary: true
     spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.05
-    hold_ticks: 12
-    barrier_pct: 0.00000251
-    confirm_threshold: 0.5
-    contract_duration: 0
+    barrier_pct: 0.0
+    contract_duration: 5
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.796
+    payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
 
