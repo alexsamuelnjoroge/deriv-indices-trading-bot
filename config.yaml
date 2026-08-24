@@ -212,6 +212,7 @@ symbols:
 
   # ── Gold v5 Multiplier ───────────────────────────────────────────────
   # EMA100/1h RSI<35/5m ADX25 SESS_PEAK MACRO20 | EV+0.280R WR51.2% 1.2/day
+  # max_stake raised $1->$3 on 2026-08-24 (EV positive, SL confirmed live).
   - symbol: frxXAUUSD
     enabled: true
     strategy_type: mtf_v5
@@ -230,13 +231,14 @@ symbols:
     contract_duration: 0
     contract_duration_unit: m
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 3.0
     stake_percent: 1.0
     use_kelly: false
     max_open_contracts: 1
 
   # ── EUR/USD v5 Multiplier ────────────────────────────────────────────
   # EMA200/1h RSI<35/5m ADX25 MACRO50 | EV+0.388R WR46.3% 2.2/day
+  # max_stake raised $1->$3 on 2026-08-24.
   - symbol: frxEURUSD
     enabled: true
     strategy_type: mtf_v5
@@ -254,13 +256,14 @@ symbols:
     contract_duration: 0
     contract_duration_unit: m
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 3.0
     stake_percent: 1.0
     use_kelly: false
     max_open_contracts: 1
 
   # ── USD/JPY v5 Multiplier ────────────────────────────────────────────
   # EMA100/1h RSI<35/5m ADX20 ATR1.5 MACRO20 | EV+0.305R WR43.5% 2.8/day
+  # max_stake raised $1->$3 on 2026-08-24.
   - symbol: frxUSDJPY
     enabled: true
     strategy_type: mtf_v5
@@ -279,7 +282,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: m
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 3.0
     stake_percent: 1.0
     use_kelly: false
     max_open_contracts: 1
