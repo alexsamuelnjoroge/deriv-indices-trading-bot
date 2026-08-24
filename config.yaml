@@ -46,7 +46,7 @@ risk:
   # Kelly formula: f* = (p*b - q) / b  →  stake = balance * f* * kelly_fraction
   use_kelly: true
   kelly_fraction: 0.5       # half-Kelly for safety (full Kelly is too aggressive)
-  kelly_min_trades: 50      # trades before Kelly activates (~2-3 days of live data across 2 symbols)
+  kelly_min_trades: 20      # trades before Kelly activates (lowered: ~3-5 days per strategy)
   payout_pct: 0.9232        # verified 23 Jun 2026: R_25 10-tick Rise/Fall = $192.32 on $100
 
   # ── Circuit breakers ──────────────────────────────────────────
@@ -115,9 +115,9 @@ symbols:
     contract_duration_unit: m
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.80
     max_open_contracts: 1
 
@@ -136,9 +136,9 @@ symbols:
     contract_duration_unit: m
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.80
     max_open_contracts: 1
 
@@ -157,9 +157,9 @@ symbols:
     contract_duration_unit: m
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.90
     max_open_contracts: 1
 
@@ -178,9 +178,9 @@ symbols:
     contract_duration_unit: m
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.90
     max_open_contracts: 1
 
@@ -198,9 +198,9 @@ symbols:
     contract_duration_unit: m
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: false
+    use_kelly: true
     payout_pct: 0.85
     max_open_contracts: 1
 
