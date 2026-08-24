@@ -29,16 +29,18 @@ SYMBOLS = ["R_10", "R_25", "R_50", "R_75", "R_100",
 # Known pip sizes (decimal places) per symbol
 # Used to extract the correct last digit for digit contracts
 SYMBOL_PRECISION = {
-    "R_10":    3,
-    "R_25":    3,
-    "R_50":    3,
-    "R_75":    3,
-    "R_100":   3,
+    # Verified 2026-08-24 from live tick samples and 5dp zero-check:
+    # dp+1 gives 100% WR (all zeros) confirming dp is the true last digit.
+    "R_10":    4,   # prices e.g. 9382.4501 — 4dp
+    "R_25":    4,   # prices e.g. 1234.5678 — 4dp
+    "R_50":    4,   # prices e.g. 89.9166   — 4dp (was wrong: 3dp gave artifact chi2=380)
+    "R_75":    4,   # prices e.g. 38767.6761 — 4dp (was wrong: 3dp gave artifact chi2=470)
+    "R_100":   2,   # all-zero at 3dp confirms 2dp
     "1HZ10V":  2,
     "1HZ25V":  2,
     "1HZ100V": 2,
-    "JD10":    3,
-    "JD25":    3,
+    "JD10":    2,   # all-zero at 3dp confirms 2dp
+    "JD25":    2,
 }
 
 SEP  = "=" * 72

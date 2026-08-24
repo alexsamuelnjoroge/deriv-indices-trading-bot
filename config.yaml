@@ -459,9 +459,10 @@ symbols:
   #   R_75: WR=54.7%  edge=+3.42%/trade  4/4 ROBUST  (edge band: +2.78% to +4.16%)
   # ══════════════════════════════════════════════════════════════════════
 
-  # R_50 DIGITEVEN — tightest edge band, most consistent window-to-window
+  # R_50 DIGITEVEN — DISABLED: edge was artifact of wrong precision (3dp vs actual 4dp)
+  # At 4dp (correct), WR=50.21% chi2=7.9 — uniform, no edge. Live bot was losing.
   - symbol: R_50
-    enabled: true
+    enabled: false
     strategy_type: digit_even
     precision: 3
     loss_cooldown: 0
@@ -476,9 +477,9 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # R_75 DIGITEVEN — slightly wider edge variance, same structural bias
+  # R_75 DIGITEVEN — DISABLED: same precision artifact as R_50. No real edge.
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: digit_even
     precision: 3
     loss_cooldown: 0
