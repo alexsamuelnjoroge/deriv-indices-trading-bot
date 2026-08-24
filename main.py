@@ -30,6 +30,7 @@ from src.strategies.ema_cross import EMACrossStrategy
 from src.strategies.donchian import DonchianStrategy
 from src.strategies.rsi_multiplier import RSIMultiplierStrategy
 from src.strategies.rsi_binary import RSIBinaryStrategy
+from src.strategies.bb_binary import BBBinaryStrategy
 from src.strategies.mtf_v5 import MTFV5Strategy
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 from src.strategies.digit_even import DigitEvenStrategy
@@ -280,6 +281,17 @@ async def run(watch_only: bool = False):
         elif strategy_type == "rsi_binary":
             strategy     = RSIBinaryStrategy(sym_cfg)
             candle_count = sym_cfg.get("rsi_period", 14) + 20
+            logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
+            try:
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}/{strategy_type}] Seeded {len(closes)} closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
+
+        elif strategy_type == "bb_binary":
+            strategy     = BBBinaryStrategy(sym_cfg)
+            candle_count = sym_cfg.get("bb_period", 10) + 120
             logger.info(f"[{symbol}/{strategy_type}] Seeding {candle_count} candles...")
             try:
                 closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
