@@ -328,9 +328,9 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH900 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
-  # ht=15 gr=5% sm=12 ct=0.5: WR=52.0% BE=48.1% EV=+4.21%/trade, passes=3/4.
-  # win=$1.079 vs loss=$1.00 (0.93x recovery — 1 win covers 1 loss). Barrier 2.50e-6 at 5%.
+  # CRASH900 — 4% growth sweep 2026-08-24 (sweep_boom1000.py --count 30000, 4 x 30k ticks).
+  # ht=20 gr=4% sm=12 ct=0.5: WR=58.6% BE=45.6% EV=+15.46%/trade, passes=3/4.
+  # win=$1.191 vs loss=$1.00 (0.84x recovery). Barrier 2.61e-6 at 4% growth (Deriv API).
   - symbol: CRASH900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -339,9 +339,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.05
-    hold_ticks: 15
-    barrier_pct: 0.00000250
+    growth_rate: 0.04
+    hold_ticks: 20
+    barrier_pct: 0.00000261
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -350,7 +350,7 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 1.079
+    payout_pct: 1.191
     max_open_contracts: 1
     blocked_hours_eat: []
 
