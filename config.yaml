@@ -302,9 +302,9 @@ symbols:
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
-  # CRASH1000 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
-  # ht=8 sm=12 ct=0.5: WR=71.8% BE=73.1% EV=-0.47%/trade, passes=2/4 — best available.
-  # Prior ht=10 config was 0/4 at 30k. Keeping symbol per trading plan.
+  # CRASH1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
+  # ht=8 gr=5% sm=12 ct=0.5: WR=69.4% BE=67.7% EV=+0.84%/trade, passes=3/4.
+  # win=$0.477 vs loss=$1.00. Barrier 2.27e-6 from Deriv API at 5% growth.
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -313,9 +313,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.04
+    growth_rate: 0.05
     hold_ticks: 8
-    barrier_pct: 0.00000235
+    barrier_pct: 0.00000227
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -324,13 +324,39 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.369
+    payout_pct: 0.477
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM1000 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
-  # ht=20 sm=12 ct=0.5: WR=46.6% BE=45.6% EV=+1.09%/trade, passes=2/4.
-  # Payout=119.1% → win=$1.19 vs loss=$1.00 (0.84 wins recovers 1 loss). Only positive-EV combo.
+  # CRASH900 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
+  # ht=15 gr=5% sm=12 ct=0.5: WR=52.0% BE=48.1% EV=+4.21%/trade, passes=3/4.
+  # win=$1.079 vs loss=$1.00 (0.93x recovery — 1 win covers 1 loss). Barrier 2.50e-6 at 5%.
+  - symbol: CRASH900
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.05
+    hold_ticks: 15
+    barrier_pct: 0.00000250
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 1.079
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM1000 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
+  # ht=15 gr=5% sm=12 ct=0.5: WR=57.1% BE=48.1% EV=+9.76%/trade, passes=3/4.
+  # win=$1.079 vs loss=$1.00 — 1 win covers 1 loss. Barrier 2.25e-6 at 5% growth.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -339,9 +365,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 20
-    barrier_pct: 0.00000235
+    growth_rate: 0.05
+    hold_ticks: 15
+    barrier_pct: 0.00000225
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -350,24 +376,24 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 1.191
+    payout_pct: 1.079
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM900 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
-  # ht=10 sm=25 ct=0.5: WR=73.5% BE=67.6% EV=+2.84%/trade, passes=3/4.
-  # Payout=48% → win=$0.48 vs loss=$1.00 (2.08 wins recovers 1 loss, vs 2.70x at prior ht=8).
+  # BOOM900 — 5% growth, 2026-08-24 (test_5pct_growth.py, 4 x 20k ticks).
+  # ht=12 gr=5% sm=12 ct=0.5: WR=64.6% BE=55.7% EV=+7.08%/trade, passes=3/4.
+  # win=$0.796 vs loss=$1.00 (1.26x recovery). Barrier 2.51e-6 at 5% growth.
   - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
-    spike_mult: 25.0
+    spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 10
-    barrier_pct: 0.00000262
+    growth_rate: 0.05
+    hold_ticks: 12
+    barrier_pct: 0.00000251
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -376,7 +402,7 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.48
+    payout_pct: 0.796
     max_open_contracts: 1
     blocked_hours_eat: []
 
