@@ -100,11 +100,11 @@ symbols:
   # No multipliers. No synthetics. Real forex + metals only.
   # ══════════════════════════════════════════════════════════════════════
 
-  # ── Gold 5-min Binary (primary) ──────────────────────────────────────
-  # RSI(10)+EMA(20) slope filter, RSI entry<45 → 5-min CALL/PUT
-  # 3/3 STRONG | WRs: 68.8/68.4/59.3% | MeanEV +0.1786 | ~4.8/day | payout=80%
+  # ── Gold 5-min Binary — DISABLED 2026-08-24 ──────────────────────────
+  # sweep_binary_filters.py (67k candles, 3yr): WR=50.3% vs BE=55.6%. No edge.
+  # Original 3/3 validation overfitted to 5000-bar window (1 month of data).
   - symbol: frxXAUUSD
-    enabled: true
+    enabled: false
     strategy_type: gold_trend
     ema_period: 20
     slope_bars: 3
@@ -121,11 +121,10 @@ symbols:
     payout_pct: 0.80
     max_open_contracts: 1
 
-  # ── Gold 5-min Binary (backup) ───────────────────────────────────────
-  # RSI(7)+EMA(20) slope filter, RSI entry<40 → 5-min CALL/PUT
-  # 3/3 STRONG | WRs: 66.7/58.8/68.0% | MeanEV +0.1609 | ~4.2/day | payout=80%
+  # ── Gold 5-min Binary (backup) — DISABLED 2026-08-24 ─────────────────
+  # sweep_binary_filters.py: WR=49.3% baseline, best=54.0% still below BE=55.6%.
   - symbol: frxXAUUSD
-    enabled: true
+    enabled: false
     strategy_type: gold_trend
     ema_period: 20
     slope_bars: 3
@@ -144,7 +143,8 @@ symbols:
 
   # ── USD/JPY 15-min Binary (primary) ──────────────────────────────────
   # RSI(10)+EMA(20) slope filter, RSI entry<45 → 15-min CALL/PUT
-  # 3/3 STRONG | WRs: 68.2/63.6/56.2% | MeanEV +0.1911 | ~4.5/day | payout=90%
+  # sweep_binary_filters.py: WR=52.7% (barely at BE=52.6%). No filter improves it.
+  # Keeping as-is: minimal edge, Kelly stake, no ATR/session restriction.
   - symbol: frxUSDJPY
     enabled: true
     strategy_type: gold_trend
@@ -165,7 +165,8 @@ symbols:
 
   # ── USD/JPY 15-min Binary (high-frequency) ────────────────────────────
   # RSI(10)+EMA(50) slope filter, RSI entry<40 → 15-min CALL/PUT
-  # 3/3 STRONG | WRs: 60.0/57.6/60.6% | MeanEV +0.1285 | ~7.2/day | payout=90%
+  # sweep_binary_filters.py (67k candles): NY-overlap+ATR1.25 -> WR=61.0% 3/4
+  # Session: 15-20 EAT (12-17 UTC = London/NY overlap). ATR gate: 1.25x mean.
   - symbol: frxUSDJPY
     enabled: true
     strategy_type: gold_trend
@@ -182,11 +183,16 @@ symbols:
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 0.90
+    atr_period: 14
+    atr_min_mult: 1.25
     max_open_contracts: 1
+    # 15-20 EAT only (12-17 UTC) — keep inside NY-overlap window, override global list
+    blocked_hours_eat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23]
 
   # ── AUD/USD 15-min Binary ─────────────────────────────────────────────
   # RSI(10) exits OS=25/OB=75 zone → 15-min CALL/PUT
-  # 3/3 STRONG | WRs: 57.7/58.3/75.9% | MeanEV +0.1833 | ~6.0/day | payout=85%
+  # sweep_binary_filters.py (38k candles): London+ATR1.0 -> WR=56.3% 2/4, EV=+1.93%
+  # Session: 10-15 EAT (07-12 UTC = London session). ATR gate: 1.0x mean.
   - symbol: frxAUDUSD
     enabled: true
     strategy_type: rsi_binary
@@ -202,7 +208,11 @@ symbols:
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 0.85
+    atr_period: 14
+    atr_min_mult: 1.0
     max_open_contracts: 1
+    # 10-15 EAT only (07-12 UTC) — London session only, override global list
+    blocked_hours_eat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23]
 
   # ══════════════════════════════════════════════════════════════════════
   # v5 MTF MULTIPLIER STRATEGIES — backtested 2026-08-03

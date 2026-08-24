@@ -19,13 +19,17 @@ class GoldTrendStrategy(BaseStrategy):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.ema_period  = config.get("ema_period",  200)
-        self.slope_bars  = config.get("slope_bars",    5)
-        self.rsi_period  = config.get("rsi_period",    7)
-        self.rsi_entry   = config.get("rsi_entry",   45.0)
-        self.sl_pct      = config.get("sl_pct",     0.003)
-        self.tp_pct      = config.get("tp_pct",    0.0075)
-        self.bar_seconds = config.get("bar_seconds", 3600)
+        self.ema_period   = config.get("ema_period",   200)
+        self.slope_bars   = config.get("slope_bars",     5)
+        self.rsi_period   = config.get("rsi_period",     7)
+        self.rsi_entry    = config.get("rsi_entry",    45.0)
+        self.sl_pct       = config.get("sl_pct",      0.003)
+        self.tp_pct       = config.get("tp_pct",     0.0075)
+        self.bar_seconds  = config.get("bar_seconds",  3600)
+        # ATR gate: only fire when close-ATR >= atr_min_mult * 100-bar mean ATR.
+        # 0.0 disables the filter (default = backward compatible).
+        self.atr_period   = config.get("atr_period",    14)
+        self.atr_min_mult = config.get("atr_min_mult",  0.0)
 
         self._bar_closes: list[float] = []
         self._bar_start: Optional[int] = None
@@ -102,6 +106,15 @@ class GoldTrendStrategy(BaseStrategy):
                 rsi=rsi,
             )
 
+        if self.atr_min_mult > 0:
+            atr, atr_mean = _close_atr(closes, self.atr_period)
+            if atr is None or atr_mean is None or atr < self.atr_min_mult * atr_mean:
+                return Signal(
+                    action="HOLD",
+                    reason=f"ATR gate: {atr:.5f if atr else 'n/a'} < {self.atr_min_mult}x mean",
+                    rsi=rsi,
+                )
+
         return Signal(
             action=action,
             reason=reason,
@@ -115,6 +128,27 @@ class GoldTrendStrategy(BaseStrategy):
 
 
 # ── Indicator helpers ────────────────────────────────────────────────────
+
+_ATR_MEAN_WINDOW = 100   # bars for reference ATR level
+
+
+def _close_atr(closes: list[float], period: int) -> tuple:
+    """
+    Close-to-close ATR proxy.  Returns (current_atr, mean_atr) using the last
+    period + ATR_MEAN_WINDOW + 1 closes, or (None, None) if not enough data.
+    """
+    needed = period + _ATR_MEAN_WINDOW + 1
+    if len(closes) < needed:
+        return None, None
+    tail   = closes[-(period + _ATR_MEAN_WINDOW + 1):]
+    deltas = [abs(tail[i] - tail[i - 1]) for i in range(1, len(tail))]
+    atr    = sum(deltas[-period:]) / period
+    atr_vals = [
+        sum(deltas[i - period: i]) / period
+        for i in range(period, len(deltas))
+    ]
+    atr_mean = sum(atr_vals) / len(atr_vals) if atr_vals else None
+    return atr, atr_mean
 
 
 def _ema(closes: list[float], period: int) -> float:

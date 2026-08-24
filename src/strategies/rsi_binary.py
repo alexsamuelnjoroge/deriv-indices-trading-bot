@@ -18,10 +18,12 @@ class RSIBinaryStrategy(BaseStrategy):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.rsi_period  = config.get("rsi_period",  14)
-        self.rsi_os      = config.get("rsi_os",      30.0)
-        self.rsi_ob      = config.get("rsi_ob",      70.0)
-        self.bar_seconds = config.get("bar_seconds",  300)
+        self.rsi_period   = config.get("rsi_period",   14)
+        self.rsi_os       = config.get("rsi_os",       30.0)
+        self.rsi_ob       = config.get("rsi_ob",       70.0)
+        self.bar_seconds  = config.get("bar_seconds",   300)
+        self.atr_period   = config.get("atr_period",    14)
+        self.atr_min_mult = config.get("atr_min_mult",  0.0)
 
         self._bar_closes: list[float] = []
         self._bar_start:  Optional[int] = None
@@ -64,22 +66,43 @@ class RSIBinaryStrategy(BaseStrategy):
             return Signal(action="HOLD", reason=f"RSI {rsi_now:.1f} (warming)")
 
         if prev_rsi < self.rsi_os <= rsi_now:
-            return Signal(
-                action="BUY_RISE",
-                reason=f"RSI exited oversold {prev_rsi:.1f}→{rsi_now:.1f} CALL",
-                rsi=rsi_now,
-            )
-        if prev_rsi > self.rsi_ob >= rsi_now:
-            return Signal(
-                action="BUY_FALL",
-                reason=f"RSI exited overbought {prev_rsi:.1f}→{rsi_now:.1f} PUT",
-                rsi=rsi_now,
-            )
+            action, reason = "BUY_RISE", f"RSI exited oversold {prev_rsi:.1f}->{rsi_now:.1f} CALL"
+        elif prev_rsi > self.rsi_ob >= rsi_now:
+            action, reason = "BUY_FALL", f"RSI exited overbought {prev_rsi:.1f}->{rsi_now:.1f} PUT"
+        else:
+            return Signal(action="HOLD", reason=f"RSI {rsi_now:.1f}")
 
-        return Signal(action="HOLD", reason=f"RSI {rsi_now:.1f}")
+        if self.atr_min_mult > 0:
+            atr, atr_mean = _close_atr(self._bar_closes, self.atr_period)
+            if atr is None or atr_mean is None or atr < self.atr_min_mult * atr_mean:
+                return Signal(
+                    action="HOLD",
+                    reason=f"ATR gate: {atr:.5f if atr else 'n/a'} < {self.atr_min_mult}x mean",
+                    rsi=rsi_now,
+                )
+
+        return Signal(action=action, reason=reason, rsi=rsi_now)
 
     def on_result(self, won: bool) -> None:
         pass
+
+
+_ATR_MEAN_WINDOW = 100
+
+
+def _close_atr(closes: list[float], period: int) -> tuple:
+    needed = period + _ATR_MEAN_WINDOW + 1
+    if len(closes) < needed:
+        return None, None
+    tail   = closes[-(period + _ATR_MEAN_WINDOW + 1):]
+    deltas = [abs(tail[i] - tail[i - 1]) for i in range(1, len(tail))]
+    atr    = sum(deltas[-period:]) / period
+    atr_vals = [
+        sum(deltas[i - period: i]) / period
+        for i in range(period, len(deltas))
+    ]
+    atr_mean = sum(atr_vals) / len(atr_vals) if atr_vals else None
+    return atr, atr_mean
 
 
 def _rsi(closes: list[float], period: int) -> float:
