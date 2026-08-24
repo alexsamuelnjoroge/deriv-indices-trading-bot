@@ -100,20 +100,23 @@ symbols:
   # No multipliers. No synthetics. Real forex + metals only.
   # ══════════════════════════════════════════════════════════════════════
 
-  # ── Gold 5-min Binary — DISABLED 2026-08-24 ──────────────────────────
-  # sweep_binary_filters.py (67k candles, 3yr): WR=50.3% vs BE=55.6%. No edge.
-  # Original 3/3 validation overfitted to 5000-bar window (1 month of data).
+  # ── Gold BB Re-enter Binary (primary) ────────────────────────────────
+  # sweep_xau_binary.py (67k candles, 4/4 walk-forward):
+  # BB(10, 2.5σ) re-enter + 10-min hold + ATR 1.25x gate → WR=65.3% EV=+7.83%
+  # Signal: close was outside 2.5σ BB last bar, re-enters inside this bar.
+  # Low frequency (~0.4 trades/day) — high conviction only.
   - symbol: frxXAUUSD
-    enabled: false
-    strategy_type: gold_trend
-    ema_period: 20
-    slope_bars: 3
-    rsi_period: 10
-    rsi_entry: 45.0
+    enabled: true
+    strategy_type: bb_binary
+    bb_period: 10
+    bb_std: 2.5
+    bb_mode: reenter
     bar_seconds: 300
-    contract_duration: 5
+    contract_duration: 10
     contract_duration_unit: m
     multiplier: 0
+    atr_period: 14
+    atr_min_mult: 1.25
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
@@ -121,19 +124,45 @@ symbols:
     payout_pct: 0.80
     max_open_contracts: 1
 
-  # ── Gold 5-min Binary (backup) — DISABLED 2026-08-24 ─────────────────
-  # sweep_binary_filters.py: WR=49.3% baseline, best=54.0% still below BE=55.6%.
+  # ── Gold BB Touch Binary (secondary — London session) ────────────────
+  # sweep_xau_binary.py: BB(10, 2.0σ) touch + 5-min hold + London + ATR 1.25x
+  # WR=60.4% EV=+3.88% 4/4. More signals than reenter (~0.9/day in London session).
   - symbol: frxXAUUSD
-    enabled: false
-    strategy_type: gold_trend
-    ema_period: 20
-    slope_bars: 3
-    rsi_period: 7
-    rsi_entry: 40.0
+    enabled: true
+    strategy_type: bb_binary
+    bb_period: 10
+    bb_std: 2.0
+    bb_mode: touch
     bar_seconds: 300
     contract_duration: 5
     contract_duration_unit: m
     multiplier: 0
+    atr_period: 14
+    atr_min_mult: 1.25
+    min_stake: 1.0
+    max_stake: 10.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.80
+    max_open_contracts: 1
+    # London session only (10-15 EAT = 07-12 UTC) — override global list
+    blocked_hours_eat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23]
+
+  # ── Gold RSI Extreme Binary ───────────────────────────────────────────
+  # sweep_xau_binary.py: RSI(14) OS=20 + 15-min hold + ATR 1.25x → WR=60.4% EV=+3.86% 4/4
+  # Very extreme RSI — only fires at deep oversold/overbought (< 20 / > 80).
+  - symbol: frxXAUUSD
+    enabled: true
+    strategy_type: rsi_binary
+    rsi_period: 14
+    rsi_os: 20.0
+    rsi_ob: 80.0
+    bar_seconds: 300
+    contract_duration: 15
+    contract_duration_unit: m
+    multiplier: 0
+    atr_period: 14
+    atr_min_mult: 1.25
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
