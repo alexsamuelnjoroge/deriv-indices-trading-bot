@@ -302,19 +302,19 @@ symbols:
   #   CRASH500:  NO EDGE          BOOM500: NO EDGE  (disabled)
   # ══════════════════════════════════════════════════════════════════════
 
-  # CRASH1000 — Optimized 2026-08-21 via sweep_boom1000.py --symbol CRASH1000 (144 combos, 4 x 15k ticks).
-  # ht=10 ct=0.5: WR=78.1% BE=67.6% EV=+5.08%/trade (was ht=8 ct=1.0: WR=70% BELOW BE=73.1% → disabled).
-  # spike_mult irrelevant (crash spikes always >>12x ATR). Passes 4/4 walk-forward windows.
+  # CRASH1000 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
+  # ht=8 sm=12 ct=0.5: WR=71.8% BE=73.1% EV=-0.47%/trade, passes=2/4 — best available.
+  # Prior ht=10 config was 0/4 at 30k. Keeping symbol per trading plan.
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
-    spike_mult: 15.0
+    spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 10
+    hold_ticks: 8
     barrier_pct: 0.00000235
     confirm_threshold: 0.5
     contract_duration: 0
@@ -324,41 +324,14 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
+    payout_pct: 0.369
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM1000 — Optimized 2026-08-21 via sweep_boom1000.py (144 combos, 4 x 15k ticks).
-  # ht=10 ct=0.5: WR=78.6% BE=67.6% EV=+5.29%/trade (2.7x vs prior ht=8 config).
-  # 11% margin above BE — widest of all tested combos. Passes 3/4 walk-forward windows.
-  # spike_mult irrelevant for BOOM1000 (algorithmic crashes always >>12x ATR; any value works).
-  # Next step: validate ht=15 ct=1.0 (EV=+7.44%/trade) with --count 30000 before enabling.
+  # BOOM1000 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
+  # ht=20 sm=12 ct=0.5: WR=46.6% BE=45.6% EV=+1.09%/trade, passes=2/4.
+  # Payout=119.1% → win=$1.19 vs loss=$1.00 (0.84 wins recovers 1 loss). Only positive-EV combo.
   - symbol: BOOM1000
-    enabled: true
-    strategy_type: crash_boom_recoil
-    symbol_type: boom
-    spike_mult: 15.0
-    atr_period: 50
-    cooldown_ticks: 5
-    loss_cooldown: 2
-    growth_rate: 0.04
-    hold_ticks: 10
-    barrier_pct: 0.00000235
-    confirm_threshold: 0.5
-    contract_duration: 0
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 1.0
-    stake_percent: 1.0
-    use_kelly: false
-    payout_pct: 0.87
-    max_open_contracts: 1
-    blocked_hours_eat: []
-
-  # BOOM900 — Optimized 2026-08-21 via sweep_boom1000.py --symbol ALL (144 combos, 4 x 15k ticks).
-  # ht=8 ct=0.5 sm=12: WR≈83.4% BE=73.1% EV=+3.783%/trade. Passes 4/4 walk-forward windows.
-  - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
@@ -367,7 +340,33 @@ symbols:
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
+    hold_ticks: 20
+    barrier_pct: 0.00000235
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 1.191
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM900 — Re-optimized 2026-08-24 via sweep_boom1000.py --count 30000 (4 x 30k ticks).
+  # ht=10 sm=25 ct=0.5: WR=73.5% BE=67.6% EV=+2.84%/trade, passes=3/4.
+  # Payout=48% → win=$0.48 vs loss=$1.00 (2.08 wins recovers 1 loss, vs 2.70x at prior ht=8).
+  - symbol: BOOM900
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    spike_mult: 25.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 10
     barrier_pct: 0.00000262
     confirm_threshold: 0.5
     contract_duration: 0
@@ -377,7 +376,7 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
+    payout_pct: 0.48
     max_open_contracts: 1
     blocked_hours_eat: []
 
