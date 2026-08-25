@@ -33,6 +33,7 @@ from src.strategies.rsi_binary import RSIBinaryStrategy
 from src.strategies.bb_binary import BBBinaryStrategy
 from src.strategies.mtf_v5 import MTFV5Strategy
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
+from src.strategies.bb_multiplier import BBMultiplierStrategy
 from src.strategies.digit_even import DigitEvenStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
@@ -267,6 +268,17 @@ async def run(watch_only: bool = False):
             except Exception as e:
                 logger.warning(f"[{symbol}/{strategy_type}] Seed failed: {e} — warming up live")
 
+        elif strategy_type == "bb_multiplier":
+            strategy     = BBMultiplierStrategy(sym_cfg)
+            candle_count = sym_cfg.get("bb_period", 10) + 120
+            logger.info(f"[{symbol}/bb_multiplier] Seeding {candle_count} candles...")
+            try:
+                closes = await fetch_candles_async(symbol, count=candle_count, granularity=granularity)
+                strategy.seed_candles(closes)
+                logger.info(f"[{symbol}/bb_multiplier] Seeded {len(closes)} closes")
+            except Exception as e:
+                logger.warning(f"[{symbol}/bb_multiplier] Seed failed: {e} — warming up live")
+
         elif strategy_type == "rsi_multiplier":
             strategy     = RSIMultiplierStrategy(sym_cfg)
             candle_count = sym_cfg.get("rsi_period", 14) + 20
@@ -335,7 +347,8 @@ async def run(watch_only: bool = False):
             strategy = RSIReversalStrategy(sym_cfg)
 
         _is_multi = strategy_type in ("gold_trend", "macd_trend", "bb_squeeze",
-                                       "ema_cross", "donchian", "rsi_multiplier", "mtf_v5")
+                                       "ema_cross", "donchian", "rsi_multiplier",
+                                       "bb_multiplier", "mtf_v5")
 
         risk = RiskManager(sym_risk, starting_balance=balance_per, symbol=symbol)
 
