@@ -530,17 +530,6 @@ symbols:
     payout_pct: 0.796
     max_open_contracts: 1
     blocked_hours_eat: []
-    barrier_pct: 0.0
-    contract_duration: 5
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 5.0
-    stake_percent: 1.0
-    use_kelly: true
-    payout_pct: 0.87
-    max_open_contracts: 1
-    blocked_hours_eat: []
 
   # MOSTLY OK (3/4) avg WR 73.5% — only 0.4pp above breakeven (73.1%). Disabled: net breakeven,
   # drags down profitability in volatile periods. Re-enable if account grows and variance is acceptable.
