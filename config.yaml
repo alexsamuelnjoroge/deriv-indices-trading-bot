@@ -655,6 +655,111 @@ symbols:
     blocked_hours_eat: []
 
   # ══════════════════════════════════════════════════════════════════════
+  # PHASE 1 — FOREX MULTIPLIERS (BB-Touch, 5-min bars, sweep 67k candles 4-fold WF)
+  # ══════════════════════════════════════════════════════════════════════
+
+  # ── XAUUSD BB-MULT 300x — Gold Bollinger Band multiplier (conservative) ──────
+  # Sweep: BB(10,2.0σ) touch | 300x mult | TP=2% | WR=17.3% | Exp=+0.199R | 4/4 ***
+  # Stop-out at -0.33% adverse move (1/300 of entry price).
+  # Session: London 10-15 EAT. Blocks all other hours via blocked_hours_eat.
+  - symbol: frxXAUUSD
+    enabled: true
+    strategy_type: bb_multiplier
+    bb_period: 10
+    bb_std: 2.0
+    bb_mode: touch
+    bar_seconds: 300
+    multiplier: 300
+    tp_pct: 0.02
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: [0,1,2,3,4,5,6,7,8,9,15,16,17,18,19,20,21,22,23]
+
+  # ── XAUUSD BB-MULT 100x — Gold Bollinger Band multiplier (safer R:R) ──────────
+  # Sweep: BB(10,2.0σ) touch | 100x mult | TP=2% | WR=35.7% | Exp=+0.059R | 4/4 ***
+  # Stop-out at -1% adverse move. More wins, smaller reward per win.
+  # Session: London 10-15 EAT.
+  - symbol: frxXAUUSD
+    enabled: false
+    strategy_type: bb_multiplier
+    bb_period: 10
+    bb_std: 2.0
+    bb_mode: touch
+    bar_seconds: 300
+    multiplier: 100
+    tp_pct: 0.02
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: [0,1,2,3,4,5,6,7,8,9,15,16,17,18,19,20,21,22,23]
+
+  # ══════════════════════════════════════════════════════════════════════
+  # PHASE 2 — VOLATILITY INDEX MULTIPLIERS (RSI/BB 5-min, 4-fold WF)
+  # ══════════════════════════════════════════════════════════════════════
+
+  # ── R_50 RSI MULT 300x — Volatility 50 mean-reversion ────────────────────────
+  # Sweep: RSI(10) reversal | 300x mult | TP=1% | WR=32.2% | Exp=+0.259R | 4/4 ***
+  # Stop-out at -0.33% adverse move. 24/7 synthetic (no session filter).
+  - symbol: R_50
+    enabled: true
+    strategy_type: rsi_multiplier
+    rsi_period: 10
+    rsi_os: 20.0
+    rsi_ob: 80.0
+    bar_seconds: 300
+    multiplier: 300
+    tp_pct: 0.01
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ── R_75 BB-MULT 200x — Volatility 75 Bollinger Band mean-reversion ──────────
+  # Sweep: BB(20,2.0σ) touch | 200x mult | TP=3% | WR=17.2% | Exp=+0.197R | 4/4 ***
+  # Stop-out at -0.5% adverse move. 24/7 synthetic (no session filter).
+  - symbol: R_75
+    enabled: true
+    strategy_type: bb_multiplier
+    bb_period: 20
+    bb_std: 2.0
+    bb_mode: touch
+    bar_seconds: 300
+    multiplier: 200
+    tp_pct: 0.03
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ── R_100 RSI MULT 500x — Volatility 100 (aggressive, high R:R) ──────────────
+  # Sweep: RSI(10) reversal | 500x mult | TP=2% | WR=14.8% | Exp=+0.607R | 4/4 ***
+  # Stop-out at -0.2% adverse move. 24/7 synthetic. Start disabled — needs more WF data.
+  - symbol: R_100
+    enabled: false
+    strategy_type: rsi_multiplier
+    rsi_period: 10
+    rsi_os: 20.0
+    rsi_ob: 80.0
+    bar_seconds: 300
+    multiplier: 500
+    tp_pct: 0.02
+    min_stake: 1.0
+    max_stake: 3.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
   # DIGIT-EVEN — Structural even/odd digit bias in R_50 and R_75 (2026-08-21)
   # Deriv's synthetic price generator produces even last digits ~55% of the time.
   # DIGITEVEN pays 95% profit (BE=51.28%). Edge holds across all 4 walk-forward windows.
