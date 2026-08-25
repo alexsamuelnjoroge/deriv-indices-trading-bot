@@ -415,7 +415,7 @@ symbols:
   # ── CRASH900 ACCU — post-spike Accumulator ───────────────────────────
   # WR=58.6% BE=45.6% EV=+15.46%/trade 3/4
   # min_rolling_wr=50 (above 45.6% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in profit at tick 7 (31.6%) rather than risk ticks 8-20
+  # No early sell: full 20-tick hold needed for 119% payout; early sell cuts E[NR] by 69%.
   - symbol: CRASH900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -427,7 +427,6 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 20
-    early_sell_pct: 0.25
     barrier_pct: 0.00000261
     confirm_threshold: 0.5
     contract_duration: 0
@@ -469,7 +468,7 @@ symbols:
   # ── BOOM1000 ACCU — post-spike Accumulator ───────────────────────────
   # WR=57.1% BE=48.1% EV=+9.76%/trade 3/4
   # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in profit at tick 5 (27.6%) rather than risk ticks 6-15
+  # No early sell: full 15-tick hold needed for 108% payout; early sell cuts E[NR] by 71%.
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -481,7 +480,6 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 15
-    early_sell_pct: 0.25
     barrier_pct: 0.00000225
     confirm_threshold: 0.5
     contract_duration: 0
@@ -523,7 +521,7 @@ symbols:
   # ── BOOM900 ACCU — post-spike Accumulator ────────────────────────────
   # WR=64.6% BE=55.7% EV=+7.08%/trade 3/4
   # min_rolling_wr=58 (above 55.7% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in profit at tick 5 (27.6%) rather than risk ticks 6-12
+  # No early sell: full 12-tick hold needed for 79.6% payout; early sell cuts E[NR] by 65%.
   - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -535,7 +533,6 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 12
-    early_sell_pct: 0.25
     barrier_pct: 0.00000251
     confirm_threshold: 0.5
     contract_duration: 0
