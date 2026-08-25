@@ -335,10 +335,10 @@ symbols:
   # Binary max_stake=$5  |  ACCU max_stake=$1 (smaller for fair A/B risk parity)
   # ══════════════════════════════════════════════════════════════════════
 
-  # ── CRASH1000 BINARY — post-spike CALL ──────────────────────────────
+  # ── CRASH1000 BINARY — disabled: CALL/PUT not supported on CRASH/BOOM (only ACCU+Multiplier)
   # WR=100% BE=53.5% EV=+40.5%/trade 4/4 (sweep_crash_boom_advanced.py)
   - symbol: CRASH1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: true
@@ -358,8 +358,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH1000 ACCU — post-spike Accumulator (A/B comparison) ────────
-  # WR=69.4% BE=67.7% EV=+0.84%/trade 3/4. max_stake=$1 for comparison.
+  # ── CRASH1000 ACCU — post-spike Accumulator ─────────────────────────
+  # WR=69.4% BE=67.7% EV=+0.84%/trade 3/4
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -377,17 +377,17 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 0.477
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH900 BINARY — post-spike CALL ───────────────────────────────
+  # ── CRASH900 BINARY — disabled: CALL/PUT not supported on CRASH/BOOM
   # WR=98.4% BE=53.5% EV=+39.1%/trade 4/4
   - symbol: CRASH900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: true
@@ -407,8 +407,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH900 ACCU — post-spike Accumulator (A/B comparison) ─────────
-  # WR=58.6% BE=45.6% EV=+15.46%/trade 3/4. max_stake=$1 for comparison.
+  # ── CRASH900 ACCU — post-spike Accumulator ───────────────────────────
+  # WR=58.6% BE=45.6% EV=+15.46%/trade 3/4
   - symbol: CRASH900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -426,17 +426,17 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 1.191
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM1000 BINARY — post-spike PUT ────────────────────────────────
+  # ── BOOM1000 BINARY — disabled: CALL/PUT not supported on CRASH/BOOM
   # WR=100% BE=53.5% EV=+40.5%/trade 4/4
   - symbol: BOOM1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: true
@@ -456,8 +456,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM1000 ACCU — post-spike Accumulator (A/B comparison) ─────────
-  # WR=57.1% BE=48.1% EV=+9.76%/trade 3/4. max_stake=$1 for comparison.
+  # ── BOOM1000 ACCU — post-spike Accumulator ───────────────────────────
+  # WR=57.1% BE=48.1% EV=+9.76%/trade 3/4
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -475,17 +475,17 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 1.079
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 BINARY — post-spike PUT ─────────────────────────────────
+  # ── BOOM900 BINARY — disabled: CALL/PUT not supported on CRASH/BOOM
   # WR=100% BE=53.5% EV=+40.5%/trade 4/4
   - symbol: BOOM900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: true
@@ -505,8 +505,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — post-spike Accumulator (A/B comparison) ──────────
-  # WR=64.6% BE=55.7% EV=+7.08%/trade 3/4. max_stake=$1 for comparison.
+  # ── BOOM900 ACCU — post-spike Accumulator ────────────────────────────
+  # WR=64.6% BE=55.7% EV=+7.08%/trade 3/4
   - symbol: BOOM900
     enabled: true
     strategy_type: crash_boom_recoil
@@ -524,7 +524,7 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 1.0
+    max_stake: 5.0
     stake_percent: 1.0
     use_kelly: true
     payout_pct: 0.796
