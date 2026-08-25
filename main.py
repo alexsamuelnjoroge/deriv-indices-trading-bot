@@ -359,6 +359,7 @@ async def run(watch_only: bool = False):
             multiplier=sym_cfg.get("multiplier", 0),
             growth_rate=sym_cfg.get("growth_rate", 0.03),
             hold_ticks=sym_cfg.get("hold_ticks", 5),
+            early_sell_pct=sym_cfg.get("early_sell_pct", 0.0),
             strategy=strategy,
             alerter=alerter,
         )

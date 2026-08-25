@@ -41,17 +41,19 @@ class Trader:
         multiplier: int = 0,
         growth_rate: float = 0.03,
         hold_ticks: int = 5,
+        early_sell_pct: float = 0.0,
         strategy=None,
         alerter=None,
     ):
-        self.client        = client
-        self.risk          = risk
-        self.symbol        = symbol
-        self.duration      = duration
-        self.duration_unit = duration_unit
-        self.multiplier    = multiplier   # 0 = binary options mode
-        self.growth_rate   = growth_rate  # ACCU: fraction growth per tick (e.g. 0.03)
-        self.hold_ticks    = hold_ticks   # ACCU: ticks to hold before auto-sell
+        self.client          = client
+        self.risk            = risk
+        self.symbol          = symbol
+        self.duration        = duration
+        self.duration_unit   = duration_unit
+        self.multiplier      = multiplier    # 0 = binary options mode
+        self.growth_rate     = growth_rate   # ACCU: fraction growth per tick (e.g. 0.03)
+        self.hold_ticks      = hold_ticks    # ACCU: ticks to hold before auto-sell
+        self.early_sell_pct  = early_sell_pct  # ACCU: sell early when profit fraction >= this (0 = disabled)
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
         self._strategy = strategy
@@ -60,12 +62,27 @@ class Trader:
         self.client.on_contract_update(self._on_contract_update)
 
     async def _tick_open_accus(self) -> None:
-        """Decrement tick counters for open Accumulator contracts; sell when expired."""
+        """Decrement tick counters for open Accumulator contracts; sell when expired or profit target hit."""
         if not self._open_accu:
             return
         for cid in list(self._open_accu):
             self._open_accu[cid] -= 1
-            if self._open_accu[cid] <= 0:
+            ticks_left = self._open_accu[cid]
+
+            sell = ticks_left <= 0
+
+            if not sell and self.early_sell_pct > 0 and cid in self._open:
+                elapsed = self.hold_ticks - ticks_left
+                profit_pct = (1 + self.growth_rate) ** elapsed - 1
+                if profit_pct >= self.early_sell_pct:
+                    sell = True
+                    logger.warning(
+                        f"[{self.symbol}] ACCU {cid} early-sell at tick "
+                        f"{elapsed}/{self.hold_ticks}: "
+                        f"profit={profit_pct:.1%} >= threshold={self.early_sell_pct:.1%}"
+                    )
+
+            if sell:
                 del self._open_accu[cid]
                 if cid in self._open:   # still open (not knocked out by barrier)
                     try:
