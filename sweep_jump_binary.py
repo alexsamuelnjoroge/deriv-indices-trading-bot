@@ -33,7 +33,11 @@ from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 logger.remove()
 logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
 
-SYMBOLS = ["JD10", "JD25", "JD50", "JD75", "JD100"]
+SYMBOLS_JUMP = ["JD10", "JD25", "JD50", "JD75", "JD100"]
+SYMBOLS_VOL  = ["R_10", "R_25", "R_50", "R_75", "R_100"]
+
+# default: all families; override with --family jump|vol
+SYMBOLS = SYMBOLS_JUMP + SYMBOLS_VOL
 
 SPIKE_MULTS = [5.0, 8.0, 10.0, 12.0, 15.0, 20.0]
 DURATIONS   = [5, 10, 15, 20]  # ticks
@@ -106,10 +110,19 @@ def run_combo(ticks, spike_mult, duration):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--symbol", default="ALL", help="Symbol or ALL")
+    parser.add_argument("--family", default="all", choices=["all", "jump", "vol"],
+                        help="Symbol family: jump (JD*), vol (R_*), or all")
     parser.add_argument("--fresh",  action="store_true", help="Re-download tick data")
     args = parser.parse_args()
 
-    symbols = SYMBOLS if args.symbol.upper() == "ALL" else [args.symbol.upper()]
+    if args.symbol.upper() != "ALL":
+        symbols = [args.symbol.upper()]
+    elif args.family == "jump":
+        symbols = SYMBOLS_JUMP
+    elif args.family == "vol":
+        symbols = SYMBOLS_VOL
+    else:
+        symbols = SYMBOLS
     total_ticks = WINDOWS * WINDOW_SIZE
 
     for symbol in symbols:
