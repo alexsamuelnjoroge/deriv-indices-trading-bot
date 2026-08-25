@@ -52,11 +52,15 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         # Binary mode: enter CALL/PUT after spike instead of ACCU.
         # CRASH spike → BUY_RISE (recoil up). BOOM spike → BUY_FALL (recoil down).
         self.use_binary               = bool(config.get("use_binary", False))
+        # settle_ticks: additional ticks to wait after the confirm gate passes
+        # before opening the ACCU. Lets post-spike volatility dissipate.
+        self.settle_ticks             = int(config.get("settle_ticks", 0))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
         self._extra_cooldown       = 0
         self._waiting_confirmation = False
+        self._settle_remaining     = 0    # ticks left in post-confirm settle delay
         self._pending_reason       = ""
         self._pending_atr          = None
         self._pending_action       = ""   # stores the buy action through the confirm-tick delay
@@ -103,6 +107,13 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         if pre_atr is None or pre_atr <= 0:
             return Signal(action="HOLD", reason="Pre-spike ATR not ready")
 
+        # ── Settle delay: ticks after confirm gate, before opening ACCU ───
+        if self._settle_remaining > 0:
+            self._settle_remaining -= 1
+            if self._settle_remaining == 0:
+                return Signal(action=self._pending_action, reason=self._pending_reason, atr=self._pending_atr)
+            return Signal(action="HOLD", reason=f"Settle delay ({self._settle_remaining} ticks left)", atr=self._pending_atr)
+
         # ── Gate 2: Confirmation tick (fires on tick AFTER spike) ─────────
         # ACCU only — checks SIZE of first post-spike tick; skips if still volatile.
         # Binary mode skips this gate (direction, not size, determines the win).
@@ -125,6 +136,11 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                         ),
                         atr=self._pending_atr,
                     )
+
+            # Confirm gate passed — wait settle_ticks more before opening
+            if self.settle_ticks > 0:
+                self._settle_remaining = self.settle_ticks
+                return Signal(action="HOLD", reason=f"Settle delay: {self.settle_ticks} ticks", atr=self._pending_atr)
 
             return Signal(action=self._pending_action, reason=self._pending_reason, atr=self._pending_atr)
 
