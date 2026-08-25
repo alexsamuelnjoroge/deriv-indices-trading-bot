@@ -13,6 +13,7 @@ class Signal:
     contract_duration: Optional[int] = None  # override symbol default when RSI is extreme
     sl_pct: Optional[float] = None   # SL as fraction of price (multiplier contracts)
     tp_pct: Optional[float] = None   # TP as fraction of price (multiplier contracts)
+    close_open_accus: bool = False   # spike detected — sell any open ACCU before it KOs
 
 
 class BaseStrategy(ABC):

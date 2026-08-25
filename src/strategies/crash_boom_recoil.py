@@ -206,7 +206,8 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
                 self._pending_action       = buy_action
-                return Signal(action="HOLD", reason="CRASH spike: awaiting confirm tick", atr=pre_atr)
+                return Signal(action="HOLD", reason="CRASH spike: awaiting confirm tick",
+                              atr=pre_atr, close_open_accus=not self.use_binary)
             return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
 
         if self.symbol_type == "boom" and last_move > 0 and abs_move >= threshold:
@@ -219,7 +220,8 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                 self._pending_reason       = reason
                 self._pending_atr          = pre_atr
                 self._pending_action       = buy_action
-                return Signal(action="HOLD", reason="BOOM spike: awaiting confirm tick", atr=pre_atr)
+                return Signal(action="HOLD", reason="BOOM spike: awaiting confirm tick",
+                              atr=pre_atr, close_open_accus=not self.use_binary)
             return Signal(action="BUY_ACCU", reason=reason, atr=pre_atr)
 
         # Volatility indices: ACCU is direction-agnostic — fire on any large tick.
