@@ -556,47 +556,84 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # NO EDGE — disabled 2026-08-19 after backtest
-  - symbol: CRASH500
-    enabled: false
+  # ── CRASH300N ACCU — post-spike Accumulator (NEW 2026-08-25) ────────────
+  # Live sweep: gr=4% max_ticks=65 P(survive)=9% payout=11.80x E[NR]=+0.152
+  # Min-stake data collection — re-evaluate after 200 trades
+  - symbol: CRASH300N
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
+    use_binary: false
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
+    hold_ticks: 65
+    barrier_pct: 0.0
+    confirm_threshold: 0.0
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
+    max_stake: 1.0
+    stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
+    payout_pct: 11.80
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # NO EDGE — disabled 2026-08-19 after backtest
+  # ── CRASH500 ACCU — re-enabled 2026-08-25 with correct growth rate ───────
+  # Previous "NO EDGE" used gr=4% hold=8. Live sweep: gr=2% max_ticks=135
+  # P(survive)=11% payout=13.49x E[NR]=+0.594 — best accumulator result
+  - symbol: CRASH500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 15.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.02
+    hold_ticks: 135
+    barrier_pct: 0.0
+    confirm_threshold: 0.0
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 13.49
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ── BOOM500 ACCU — re-enabled 2026-08-25 with correct hold duration ──────
+  # Previous "NO EDGE" used gr=4% hold=8. Live sweep: gr=4% max_ticks=65
+  # P(survive)=10% payout=11.80x E[NR]=+0.280
   - symbol: BOOM500
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
+    use_binary: false
     spike_mult: 15.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
+    hold_ticks: 65
+    barrier_pct: 0.0
+    confirm_threshold: 0.0
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
+    max_stake: 1.0
+    stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
+    payout_pct: 11.80
     max_open_contracts: 1
     blocked_hours_eat: []
 
