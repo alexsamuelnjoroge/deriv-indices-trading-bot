@@ -374,6 +374,7 @@ symbols:
     growth_rate: 0.05
     hold_ticks: 8
     early_sell_pct: 0.25
+    settle_ticks: 3
     barrier_pct: 0.00000227
     confirm_threshold: 0.5
     contract_duration: 0
@@ -427,6 +428,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 20
+    settle_ticks: 3
     barrier_pct: 0.00000261
     confirm_threshold: 0.5
     contract_duration: 0
@@ -480,6 +482,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 15
+    settle_ticks: 3
     barrier_pct: 0.00000225
     confirm_threshold: 0.5
     contract_duration: 0
@@ -533,6 +536,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 12
+    settle_ticks: 3
     barrier_pct: 0.00000251
     confirm_threshold: 0.5
     contract_duration: 0
