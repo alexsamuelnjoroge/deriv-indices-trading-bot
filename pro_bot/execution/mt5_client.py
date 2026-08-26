@@ -221,10 +221,15 @@ class MT5Client:
             logger.warning(f"modify_sl: ticket {ticket} not found")
             return False
         p = pos[0]
+        digits       = mt5.symbol_info(p.symbol).digits
+        new_sl_round = round(new_sl, digits)
+        # MT5 already has the target SL — treat as success so callers sync their state
+        if round(p.sl, digits) == new_sl_round:
+            return True
         request = {
             "action":   mt5.TRADE_ACTION_SLTP,
             "symbol":   p.symbol,
-            "sl":       round(new_sl, mt5.symbol_info(p.symbol).digits),
+            "sl":       new_sl_round,
             "tp":       p.tp,
             "position": ticket,
         }
