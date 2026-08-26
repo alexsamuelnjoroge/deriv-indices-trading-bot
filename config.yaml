@@ -581,11 +581,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH300N ACCU — post-spike Accumulator (NEW 2026-08-25) ────────────
+  # ── CRASH300N ACCU — disabled: 91% KO rate incompatible with early-sell approach
+  # Long-hold requires accepting 9 losses per win; early sell destroys the 11.80x payout.
   # Live sweep: gr=4% max_ticks=65 P(survive)=9% payout=11.80x E[NR]=+0.152
-  # Long-hold: ~91% KO rate expected — rolling WR window wide to avoid false halts
   - symbol: CRASH300N
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -610,11 +610,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH500 ACCU — re-enabled 2026-08-25 with correct growth rate ───────
+  # ── CRASH500 ACCU — disabled: 89% KO rate incompatible with early-sell approach
+  # Long-hold requires accepting 9 losses per win; early sell destroys the 13.49x payout.
   # Live sweep: gr=2% max_ticks=135 P(survive)=11% payout=13.49x E[NR]=+0.594
-  # Long-hold: ~89% KO rate expected — rolling WR window wide to avoid false halts
   - symbol: CRASH500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -639,11 +639,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM500 ACCU — re-enabled 2026-08-25 with correct hold duration ──────
+  # ── BOOM500 ACCU — disabled: 90% KO rate incompatible with early-sell approach
+  # Long-hold requires accepting 9 losses per win; early sell destroys the 11.80x payout.
   # Live sweep: gr=4% max_ticks=65 P(survive)=10% payout=11.80x E[NR]=+0.280
-  # Long-hold: ~90% KO rate expected — rolling WR window wide to avoid false halts
   - symbol: BOOM500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
