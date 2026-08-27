@@ -610,6 +610,63 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
+  # Deep sweep (60k ticks): st=15 gr=4% ht=8 → WR=79.0% BE=73.1% EV=+2.198% 2/2 ROBUST
+  # Extended settle_ticks=15 waits out post-spike burst; 12 configs pass 2/2 at st=12-15
+  - symbol: CRASH600
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 8
+    settle_ticks: 15
+    barrier_pct: 0.00000392
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 0.35
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.369
+    min_rolling_wr: 74.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # Calm-period sweep (60k ticks): sc=100 ratio=0.7 ht=15 gr=5% → WR=53.3% BE=48.1% EV=+5.566% 2/2
+  # Tight calm filter (ratio=0.7) essential; spike_cooldown=100 avoids post-spike volatility
+  - symbol: BOOM150N
+    enabled: true
+    strategy_type: calm_accu
+    symbol_type: boom
+    long_atr_period: 50
+    short_atr_period: 10
+    spike_mult: 15.0
+    spike_cooldown: 100
+    calm_atr_ratio: 0.7
+    entry_cooldown: 15
+    loss_cooldown: 2
+    growth_rate: 0.05
+    hold_ticks: 15
+    barrier_pct: 0.00000154
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 0.35
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.079
+    min_rolling_wr: 49.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
   # ── CRASH300N ACCU — disabled: 91% KO rate incompatible with early-sell approach
   # Long-hold requires accepting 9 losses per win; early sell destroys the 11.80x payout.
   # Live sweep: gr=4% max_ticks=65 P(survive)=9% payout=11.80x E[NR]=+0.152
@@ -639,32 +696,32 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH500 ACCU — disabled: 89% KO rate incompatible with early-sell approach
-  # Long-hold requires accepting 9 losses per win; early sell destroys the 13.49x payout.
-  # Live sweep: gr=2% max_ticks=135 P(survive)=11% payout=13.49x E[NR]=+0.594
+  # Calm-period sweep (60k ticks): sc=200 ratio=1.5 ht=20 gr=4% → WR=52.7% BE=45.6% EV=+8.467% 2/2
+  # Wide barrier (4.72e-6) is an asset in calm — normal ticks rarely reach it; 23 configs pass 2/2
   - symbol: CRASH500
-    enabled: false
-    strategy_type: crash_boom_recoil
+    enabled: true
+    strategy_type: calm_accu
     symbol_type: crash
-    use_binary: false
+    long_atr_period: 50
+    short_atr_period: 10
     spike_mult: 15.0
-    atr_period: 50
-    cooldown_ticks: 5
+    spike_cooldown: 200
+    calm_atr_ratio: 1.5
+    entry_cooldown: 20
     loss_cooldown: 2
-    growth_rate: 0.02
-    hold_ticks: 135
-    barrier_pct: 0.0
-    confirm_threshold: 0.0
+    growth_rate: 0.04
+    hold_ticks: 20
+    barrier_pct: 0.00000472
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 1.0
-    max_stake: 1.0
+    min_stake: 0.35
+    max_stake: 2.0
     stake_percent: 1.0
-    use_kelly: false
-    payout_pct: 13.49
-    min_rolling_wr: 5.0
-    rolling_window: 100
+    use_kelly: true
+    payout_pct: 1.191
+    min_rolling_wr: 46.0
+    rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
