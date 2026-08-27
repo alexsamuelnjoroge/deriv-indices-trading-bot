@@ -413,11 +413,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH900 ACCU — DISABLED 2026-08-26: no exploitable edge ────────
+  # ── CRASH900 ACCU — observing live 2026-08-27 (user request) ────────
   # Deep sweep (86k ticks): best WR=36.8% vs BE=45.6% — ALL configs negative EV
   # Earlier +15.46% EV was overfit to 60k tick window, does not generalise
   - symbol: CRASH900
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -523,11 +523,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — DISABLED 2026-08-26: no exploitable edge ─────────
+  # ── BOOM900 ACCU — observing live 2026-08-27 (user request) ─────────
   # Deep sweep (86k ticks): best WR=53.1% vs BE=55.7% — ALL configs negative EV
   # Earlier +7.08% EV was overfit to 60k tick window, does not generalise
   - symbol: BOOM900
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
