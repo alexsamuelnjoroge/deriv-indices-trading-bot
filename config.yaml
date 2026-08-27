@@ -359,9 +359,9 @@ symbols:
     blocked_hours_eat: []
 
   # ── CRASH1000 ACCU — post-spike Accumulator ─────────────────────────
-  # WR=69.4% BE=67.7% EV=+0.84%/trade 3/4
-  # min_rolling_wr=70 (above 67.7% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in profit at tick 5 (27.6%) rather than risk ticks 6-8
+  # Deep sweep 2026-08-26 (86k ticks, 4x21.5k): settle_ticks=0 → WR=78.9% BE=67.7% EV=+5.4% 2/4
+  # settle_ticks=3 (old live) → WR=63.2% EV=-2.2% NEGATIVE — that was the source of live losses
+  # spike_mult has zero effect: all CRASH spikes far exceed any ATR threshold tested (10x–30x)
   - symbol: CRASH1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -374,7 +374,7 @@ symbols:
     growth_rate: 0.05
     hold_ticks: 8
     early_sell_pct: 0.25
-    settle_ticks: 3
+    settle_ticks: 0
     barrier_pct: 0.00000227
     confirm_threshold: 0.5
     contract_duration: 0
@@ -413,13 +413,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH900 ACCU — post-spike Accumulator ───────────────────────────
-  # WR=58.6% BE=45.6% EV=+15.46%/trade 3/4
-  # min_rolling_wr=50 (above 45.6% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in 31.6% profit at tick 7 rather than riding to tick 20.
-  # More robust to uncertainty about true live survival rate.
+  # ── CRASH900 ACCU — DISABLED 2026-08-26: no exploitable edge ────────
+  # Deep sweep (86k ticks): best WR=36.8% vs BE=45.6% — ALL configs negative EV
+  # Earlier +15.46% EV was overfit to 60k tick window, does not generalise
   - symbol: CRASH900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -470,7 +468,8 @@ symbols:
     blocked_hours_eat: []
 
   # ── BOOM1000 ACCU — post-spike Accumulator ───────────────────────────
-  # WR=57.1% BE=48.1% EV=+9.76%/trade 3/4
+  # Deep sweep 2026-08-26 (86k ticks): WR=63.0% BE=48.1% EV=+16.0% 3/4 ROBUST
+  # settle_ticks=3 is optimal (slightly better than 0-2); spike_mult has no effect
   # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
   # early_sell_pct=0.25: lock in 27.6% profit at tick 5 rather than riding to tick 15.
   - symbol: BOOM1000
@@ -524,12 +523,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — post-spike Accumulator ────────────────────────────
-  # WR=64.6% BE=55.7% EV=+7.08%/trade 3/4
-  # min_rolling_wr=58 (above 55.7% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in 27.6% profit at tick 5 rather than riding to tick 12.
+  # ── BOOM900 ACCU — DISABLED 2026-08-26: no exploitable edge ─────────
+  # Deep sweep (86k ticks): best WR=53.1% vs BE=55.7% — ALL configs negative EV
+  # Earlier +7.08% EV was overfit to 60k tick window, does not generalise
   - symbol: BOOM900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -556,28 +554,59 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # MOSTLY OK (3/4) avg WR 73.5% — only 0.4pp above breakeven (73.1%). Disabled: net breakeven,
-  # drags down profitability in volatile periods. Re-enable if account grows and variance is acceptable.
+  # Deep sweep (60k ticks): gr=4% ht=15 st=0 → WR=60.3% BE=55.5% EV=+3.859% 2/2 ROBUST
+  # 5 hold_ticks configs pass 2/2 at gr=4% st=0; settle_ticks=0 is critical (st=3 kills edge)
   - symbol: BOOM600
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
-    spike_mult: 20.0
+    spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     growth_rate: 0.04
-    hold_ticks: 8
-    barrier_pct: 0.00000395
-    confirm_threshold: 1.0
+    hold_ticks: 15
+    settle_ticks: 0
+    barrier_pct: 0.00000394
+    confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 1.0
-    max_stake: 3.0
-    stake_percent: 2.0
-    use_kelly: false
-    payout_pct: 0.87
+    min_stake: 0.35
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.801
+    min_rolling_wr: 56.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # Deep sweep (60k ticks): gr=4% ht=10 st=0 → WR=69.4% BE=67.6% EV=+0.900% 2/2 ROBUST
+  # Narrowest barrier (1.61e-6); ~7x more entries than CRASH1000; settle_ticks=0 is critical
+  - symbol: CRASH150N
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    growth_rate: 0.04
+    hold_ticks: 10
+    settle_ticks: 0
+    barrier_pct: 0.00000161
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 0.35
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.480
+    min_rolling_wr: 68.0
+    rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
@@ -669,16 +698,17 @@ symbols:
     blocked_hours_eat: []
 
   # ── JD50 BINARY — post-spike CALL/PUT (Jump 50) ──────────────────────────────
-  # Sweep: spike=15x dur=5t  WR=57.8% BE=53.5% EV=+3.72% 4/4 ROBUST (45t / 60k)
-  #        spike=20x dur=5t  WR=61.9% BE=53.5% EV=+7.31% 4/4 ROBUST (42t / 60k)
-  # Edge: JD50 spikes recoil within 5 ticks. Longer holds (10t/15t/20t) all lose.
+  # Sweep: spike=20x dur=5t  WR=61.9% BE=53.5% EV=+7.31% 4/4 ROBUST (42t / 60k)
+  #        spike=15x dur=5t  WR=57.8% BE=53.5% EV=+3.72% 4/4 ROBUST (45t / 60k)
+  # Raised spike_mult 15->20 on 2026-08-26: stronger spikes recoil more reliably.
+  # Edge: JD50 recoil completes within 5 ticks. 10t/15t/20t all fail walk-forward.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD50
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
-    spike_mult: 15.0
+    spike_mult: 20.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
@@ -696,16 +726,17 @@ symbols:
     blocked_hours_eat: []
 
   # ── JD75 BINARY — post-spike CALL/PUT (Jump 75) ──────────────────────────────
-  # Sweep: spike=12x dur=20t WR=61.5% BE=53.5% EV=+6.99% 4/4 ROBUST (52t / 60k)
-  #        spike=20x dur=20t WR=63.9% BE=53.5% EV=+9.04% 4/4 ROBUST (36t / 60k)
-  # Edge: JD75 recoil is slower — needs 20 ticks. Shorter holds (5t/10t) both lose.
+  # Sweep: spike=20x dur=20t WR=63.9% BE=53.5% EV=+9.04% 4/4 ROBUST (36t / 60k)
+  #        spike=12x dur=20t WR=61.5% BE=53.5% EV=+6.99% 4/4 ROBUST (52t / 60k)
+  # Raised spike_mult 12->20 on 2026-08-26: stronger spikes recoil more reliably.
+  # Edge: JD75 recoil is slower — needs 20 ticks. 10t is consistently below BE.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD75
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
-    spike_mult: 12.0
+    spike_mult: 20.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
