@@ -74,7 +74,8 @@ class CalmAccuStrategy(BaseStrategy):
 
         # Always detect spikes so we can maintain the cooldown counter
         last_move = abs(prices[-1] - prices[-2])
-        if last_move > self.spike_mult * long_atr:
+        spike_now = last_move > self.spike_mult * long_atr
+        if spike_now:
             self._ticks_since_spike = 0
         else:
             self._ticks_since_spike = min(self._ticks_since_spike + 1, 9999)
@@ -90,6 +91,7 @@ class CalmAccuStrategy(BaseStrategy):
                 action="HOLD",
                 reason=f"Spike cooldown ({self.spike_cooldown - self._ticks_since_spike} left)",
                 atr=long_atr,
+                close_open_accus=spike_now,  # sell any open ACCU on the spike tick itself
             )
 
         if self._ticks_since_entry < self.entry_cooldown:
