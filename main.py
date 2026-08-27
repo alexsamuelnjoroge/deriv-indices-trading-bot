@@ -33,6 +33,7 @@ from src.strategies.rsi_binary import RSIBinaryStrategy
 from src.strategies.bb_binary import BBBinaryStrategy
 from src.strategies.mtf_v5 import MTFV5Strategy
 from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
+from src.strategies.calm_accu import CalmAccuStrategy
 from src.strategies.bb_multiplier import BBMultiplierStrategy
 from src.strategies.digit_even import DigitEvenStrategy
 from src.risk.manager import RiskManager
@@ -317,6 +318,12 @@ async def run(watch_only: bool = False):
             strategy = CrashBoomRecoilStrategy(sym_cfg)
             logger.info(f"[{symbol}/crash_boom_recoil] Ready — warms up from first "
                         f"{sym_cfg.get('atr_period', 50) + 2} live ticks")
+
+        elif strategy_type == "calm_accu":
+            # Inter-spike calm-period ACCU: no candle seeding needed — warms up from live ticks.
+            strategy = CalmAccuStrategy(sym_cfg)
+            logger.info(f"[{symbol}/calm_accu] Ready — warms up from first "
+                        f"{sym_cfg.get('long_atr_period', 50) + 2} live ticks")
 
         elif strategy_type == "digit_even":
             # Structural even/odd digit bias in R_50/R_75 — no warm-up needed.
