@@ -608,7 +608,7 @@ symbols:
     min_rolling_wr: 68.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    blocked_hours_eat: [8, 11]  # 60k-tick analysis: hr8=26.7% hr11=44.4% (BE=67.6%)
 
   # Deep sweep (60k ticks): st=15 gr=4% ht=8 → WR=79.0% BE=73.1% EV=+2.198% 2/2 ROBUST
   # Extended settle_ticks=15 waits out post-spike burst; 12 configs pass 2/2 at st=12-15
@@ -638,8 +638,8 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # Calm-period sweep (60k ticks): sc=100 ratio=0.7 ht=15 gr=5% → WR=53.3% BE=48.1% EV=+5.566% 2/2
-  # Tight calm filter (ratio=0.7) essential; spike_cooldown=100 avoids post-spike volatility
+  # Calm-period sweep (60k ticks): sc=100 ratio=0.7 ht=10 gr=4% → WR=68.9% BE=67.6% EV=+0.648% 2/2
+  # Reduced hold 15→10 ticks: P(spike during hold) drops 9.5%→6.4%; gr=4% confirmed 2/2 at ht=10
   - symbol: BOOM150N
     enabled: true
     strategy_type: calm_accu
@@ -649,11 +649,11 @@ symbols:
     spike_mult: 15.0
     spike_cooldown: 100
     calm_atr_ratio: 0.7
-    entry_cooldown: 15
+    entry_cooldown: 10
     loss_cooldown: 2
-    growth_rate: 0.05
-    hold_ticks: 15
-    barrier_pct: 0.00000154
+    growth_rate: 0.04
+    hold_ticks: 10
+    barrier_pct: 0.00000161
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -661,11 +661,11 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 1.079
-    min_rolling_wr: 49.0
+    payout_pct: 0.480
+    min_rolling_wr: 69.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    blocked_hours_eat: [2, 6, 23]  # 60k-tick analysis: hr2=51.9% hr6=57.6% hr23=58.1% (BE=67.6%)
 
   # ── CRASH300N ACCU — disabled: 91% KO rate incompatible with early-sell approach
   # Long-hold requires accepting 9 losses per win; early sell destroys the 11.80x payout.
@@ -723,7 +723,7 @@ symbols:
     min_rolling_wr: 46.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    blocked_hours_eat: [0, 1, 2, 3, 20, 21]  # 60k-tick analysis: midnight-3am+8-9pm EAT ~40% WR (BE=45.6%)
 
   # ── BOOM500 ACCU — disabled: 90% KO rate incompatible with early-sell approach
   # Long-hold requires accepting 9 losses per win; early sell destroys the 11.80x payout.
