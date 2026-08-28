@@ -982,7 +982,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -998,7 +998,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1014,7 +1014,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1030,7 +1030,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1046,7 +1046,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1068,7 +1068,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1084,7 +1084,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1100,7 +1100,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
@@ -1116,7 +1116,7 @@ symbols:
     contract_duration_unit: t
     stake_percent: 1.0
     max_stake: 5.0
-    min_stake: 0.35
+    min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
