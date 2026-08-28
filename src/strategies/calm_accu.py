@@ -20,6 +20,8 @@ Config keys:
   calm_atr_ratio         short_atr must be < ratio x long_atr  (default: 1.0)
   entry_cooldown         Min ticks between entry signals (default: 5)
   loss_cooldown          Losses before 15-tick pause    (default: 0)
+  vol_rising_mult        Block if fast_atr > mult x short_atr; 0=off (default: 0.0)
+  fast_atr_period        ATR window for vol_rising check (default: 5)
 """
 
 from .base import BaseStrategy, Signal
@@ -37,6 +39,8 @@ class CalmAccuStrategy(BaseStrategy):
         self.calm_atr_ratio          = float(config.get("calm_atr_ratio", 1.0))
         self.entry_cooldown   = int(config.get("entry_cooldown", 5))
         self.loss_cooldown    = int(config.get("loss_cooldown", 0))
+        self.vol_rising_mult  = float(config.get("vol_rising_mult", 0.0))
+        self.fast_atr_period  = int(config.get("fast_atr_period", 5))
 
         self._ticks_since_spike = self.spike_cooldown  # start ready
         self._ticks_since_entry = self.entry_cooldown
@@ -102,6 +106,15 @@ class CalmAccuStrategy(BaseStrategy):
                 reason=f"Spike overdue ({self._ticks_since_spike}t > max {self.max_ticks_since_spike}t)",
                 atr=long_atr,
             )
+
+        if self.vol_rising_mult > 0:
+            fast_atr = self._atr(prices, self.fast_atr_period)
+            if fast_atr is not None and fast_atr > self.vol_rising_mult * short_atr:
+                return Signal(
+                    action="HOLD",
+                    reason=f"Volatility rising: fast_atr/short_atr={fast_atr/short_atr:.1%}",
+                    atr=long_atr,
+                )
 
         if self._ticks_since_entry < self.entry_cooldown:
             return Signal(

@@ -30,6 +30,10 @@ Config keys (all optional):
   volatility_filter_window 1m tick range window; 0=off  (default: 0)
   volatility_filter_mult   Max range in ATR multiples   (default: 3.0)
   trend_filter_window      Pre-spike trend window; 0=off (default: 0)
+  min_spike_ratio          Min spike size in ATR multiples; 0=off (default: 0.0)
+                           Filters weak spikes near the spike_mult threshold.
+  cluster_window           Tick window for cluster detection; 0=off (default: 0)
+  max_cluster_spikes       Spikes in cluster_window that trigger block (default: 3)
 """
 
 from .base import BaseStrategy, Signal
@@ -52,18 +56,21 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         # Binary mode: enter CALL/PUT after spike instead of ACCU.
         # CRASH spike → BUY_RISE (recoil up). BOOM spike → BUY_FALL (recoil down).
         self.use_binary               = bool(config.get("use_binary", False))
-        # settle_ticks: additional ticks to wait after the confirm gate passes
-        # before opening the ACCU. Lets post-spike volatility dissipate.
         self.settle_ticks             = int(config.get("settle_ticks", 0))
+        self.min_spike_ratio          = float(config.get("min_spike_ratio", 0.0))
+        self.cluster_window           = int(config.get("cluster_window", 0))
+        self.max_cluster_spikes       = int(config.get("max_cluster_spikes", 3))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
         self._extra_cooldown       = 0
         self._waiting_confirmation = False
-        self._settle_remaining     = 0    # ticks left in post-confirm settle delay
+        self._settle_remaining     = 0
         self._pending_reason       = ""
         self._pending_atr          = None
-        self._pending_action       = ""   # stores the buy action through the confirm-tick delay
+        self._pending_action       = ""
+        self._tick_idx             = 0
+        self._spike_ticks: list[int] = []
 
     # ------------------------------------------------------------------ #
     #  Pre-spike ATR (computed excluding the current tick)
@@ -97,6 +104,7 @@ class CrashBoomRecoilStrategy(BaseStrategy):
     # ------------------------------------------------------------------ #
 
     def evaluate(self, tick_store) -> Signal:
+        self._tick_idx += 1
         prices = tick_store.prices
         n      = len(prices)
 
@@ -195,6 +203,25 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                     reason=f"Volatility filter: range {tick_range:.4f} > {self.volatility_filter_mult}x ATR",
                     atr=pre_atr,
                 )
+
+        # Gate: spike quality + cluster — shared across all symbol types
+        if abs_move >= threshold:
+            if self.min_spike_ratio > 0 and mult < self.min_spike_ratio:
+                return Signal(
+                    action="HOLD",
+                    reason=f"Spike weak: {mult:.1f}x < min {self.min_spike_ratio:.0f}x ATR — skipping",
+                    atr=pre_atr,
+                )
+            if self.cluster_window > 0:
+                self._spike_ticks.append(self._tick_idx)
+                cutoff = self._tick_idx - self.cluster_window
+                self._spike_ticks = [t for t in self._spike_ticks if t > cutoff]
+                if len(self._spike_ticks) >= self.max_cluster_spikes:
+                    return Signal(
+                        action="HOLD",
+                        reason=f"Spike cluster: {len(self._spike_ticks)} in {self.cluster_window}t — regime too noisy",
+                        atr=pre_atr,
+                    )
 
         if self.symbol_type == "crash" and last_move < 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
