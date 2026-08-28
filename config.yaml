@@ -587,7 +587,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 0.35
+    min_stake: 1.00
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
@@ -618,7 +618,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 0.35
+    min_stake: 1.00
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
@@ -649,7 +649,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 0.35
+    min_stake: 1.00
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
@@ -681,7 +681,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 0.35
+    min_stake: 1.00
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
@@ -742,7 +742,7 @@ symbols:
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
-    min_stake: 0.35
+    min_stake: 1.00
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
