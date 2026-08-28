@@ -36,6 +36,7 @@ from src.strategies.crash_boom_recoil import CrashBoomRecoilStrategy
 from src.strategies.calm_accu import CalmAccuStrategy
 from src.strategies.bb_multiplier import BBMultiplierStrategy
 from src.strategies.digit_even import DigitEvenStrategy
+from src.strategies.digit_over import DigitOverStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -330,6 +331,11 @@ async def run(watch_only: bool = False):
             strategy = DigitEvenStrategy(sym_cfg)
             logger.info(f"[{symbol}/digit_even] Ready — fires on every tick")
 
+        elif strategy_type == "digit_over":
+            # Structural digit-0 scarcity on all R_ indices boosts DIGITOVER(4) to ~55% WR.
+            strategy = DigitOverStrategy(sym_cfg)
+            logger.info(f"[{symbol}/digit_over] Ready — DIGITOVER({sym_cfg.get('barrier', 4)})")
+
         elif strategy_type == "mtf_v5":
             strategy     = MTFV5Strategy(sym_cfg)
             htf_count    = sym_cfg.get("ema_period", 100) + sym_cfg.get("slope_bars", 3) + 20
@@ -367,6 +373,7 @@ async def run(watch_only: bool = False):
             growth_rate=sym_cfg.get("growth_rate", 0.03),
             hold_ticks=sym_cfg.get("hold_ticks", 5),
             early_sell_pct=sym_cfg.get("early_sell_pct", 0.0),
+            digit_barrier=sym_cfg.get("barrier", 4),
             strategy=strategy,
             alerter=alerter,
         )

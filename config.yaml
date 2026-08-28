@@ -648,6 +648,7 @@ symbols:
     short_atr_period: 10
     spike_mult: 15.0
     spike_cooldown: 100
+    max_ticks_since_spike: 242
     calm_atr_ratio: 0.7
     entry_cooldown: 10
     loss_cooldown: 2
@@ -706,6 +707,7 @@ symbols:
     short_atr_period: 10
     spike_mult: 15.0
     spike_cooldown: 200
+    max_ticks_since_spike: 693
     calm_atr_ratio: 1.5
     entry_cooldown: 20
     loss_cooldown: 2
@@ -954,6 +956,98 @@ symbols:
     min_stake: 1.0
     max_stake: 1.0
     stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
+  # DIGIT-OVER — Structural digit-0 scarcity on all R_ volatility indices
+  # Digit 0 is near-absent, boosting DIGITOVER(4) to ~55-56% WR.
+  # DIGITOVER(4) pays 95% profit (BE=51.28%). Edge validated 2/2 walk-forward on all 5 symbols.
+  #   R_10:  WR=55.71%  EV=+4.21%  2/2
+  #   R_25:  WR=55.36%  EV=+3.88%  2/2
+  #   R_50:  WR=55.58%  EV=+4.08%  2/2
+  #   R_75:  WR=55.85%  EV=+4.34%  2/2
+  #   R_100: WR=55.19%  EV=+3.72%  2/2
+  # No warm-up. Fires every tick. 24/7 synthetics.
+  # ══════════════════════════════════════════════════════════════════════
+
+  - symbol: R_10
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: R_25
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: R_50
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: R_75
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: R_100
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
     use_kelly: false
     payout_pct: 0.95
     max_open_contracts: 1
