@@ -90,7 +90,10 @@ class Trader:
                     try:
                         await self.client.sell_contract(cid)
                     except Exception as e:
-                        logger.error(f"[{self.symbol}] Failed to close ACCU {cid}: {e}")
+                        if "BetExpired" in str(e):
+                            logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv before sell — normal race condition")
+                        else:
+                            logger.error(f"[{self.symbol}] Failed to close ACCU {cid}: {e}")
 
     async def _close_all_accus(self, reason: str) -> None:
         """Sell all open ACCU contracts immediately (spike guard or forced exit)."""
@@ -101,7 +104,10 @@ class Trader:
                     await self.client.sell_contract(cid)
                     logger.warning(f"[{self.symbol}] ACCU {cid} sold ({reason})")
                 except Exception as e:
-                    logger.error(f"[{self.symbol}] Failed to sell ACCU {cid} ({reason}): {e}")
+                    if "BetExpired" in str(e):
+                        logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv ({reason}) — normal race condition")
+                    else:
+                        logger.error(f"[{self.symbol}] Failed to sell ACCU {cid} ({reason}): {e}")
 
     async def execute(self, signal: Signal):
         # Always tick ACCU counters so hold-period closes happen on time
