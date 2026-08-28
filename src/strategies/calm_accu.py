@@ -11,14 +11,15 @@ Entry conditions (all must pass):
   3. entry_cooldown ticks elapsed since last entry signal
 
 Config keys:
-  symbol_type       "crash" or "boom"              (default: crash)
-  long_atr_period   Baseline ATR window            (default: 50)
-  short_atr_period  Recent ATR window              (default: 10)
-  spike_mult        ATR multiple that marks a spike (default: 15.0)
-  spike_cooldown    Ticks to avoid after spike     (default: 50)
-  calm_atr_ratio    short_atr must be < ratio x long_atr  (default: 1.0)
-  entry_cooldown    Min ticks between entry signals (default: 5)
-  loss_cooldown     Losses before 15-tick pause    (default: 0)
+  symbol_type            "crash" or "boom"              (default: crash)
+  long_atr_period        Baseline ATR window            (default: 50)
+  short_atr_period       Recent ATR window              (default: 10)
+  spike_mult             ATR multiple that marks a spike (default: 15.0)
+  spike_cooldown         Ticks to avoid after spike     (default: 50)
+  max_ticks_since_spike  Block entry when overdue (0=disabled) (default: 0)
+  calm_atr_ratio         short_atr must be < ratio x long_atr  (default: 1.0)
+  entry_cooldown         Min ticks between entry signals (default: 5)
+  loss_cooldown          Losses before 15-tick pause    (default: 0)
 """
 
 from .base import BaseStrategy, Signal
@@ -31,8 +32,9 @@ class CalmAccuStrategy(BaseStrategy):
         self.long_atr_period  = int(config.get("long_atr_period", 50))
         self.short_atr_period = int(config.get("short_atr_period", 10))
         self.spike_mult       = float(config.get("spike_mult", 15.0))
-        self.spike_cooldown   = int(config.get("spike_cooldown", 50))
-        self.calm_atr_ratio   = float(config.get("calm_atr_ratio", 1.0))
+        self.spike_cooldown          = int(config.get("spike_cooldown", 50))
+        self.max_ticks_since_spike   = int(config.get("max_ticks_since_spike", 0))
+        self.calm_atr_ratio          = float(config.get("calm_atr_ratio", 1.0))
         self.entry_cooldown   = int(config.get("entry_cooldown", 5))
         self.loss_cooldown    = int(config.get("loss_cooldown", 0))
 
@@ -92,6 +94,13 @@ class CalmAccuStrategy(BaseStrategy):
                 reason=f"Spike cooldown ({self.spike_cooldown - self._ticks_since_spike} left)",
                 atr=long_atr,
                 close_open_accus=spike_now,  # sell any open ACCU on the spike tick itself
+            )
+
+        if self.max_ticks_since_spike > 0 and self._ticks_since_spike > self.max_ticks_since_spike:
+            return Signal(
+                action="HOLD",
+                reason=f"Spike overdue ({self._ticks_since_spike}t > max {self.max_ticks_since_spike}t)",
+                atr=long_atr,
             )
 
         if self._ticks_since_entry < self.entry_cooldown:

@@ -42,6 +42,7 @@ class Trader:
         growth_rate: float = 0.03,
         hold_ticks: int = 5,
         early_sell_pct: float = 0.0,
+        digit_barrier: int = 4,
         strategy=None,
         alerter=None,
     ):
@@ -54,6 +55,7 @@ class Trader:
         self.growth_rate     = growth_rate   # ACCU: fraction growth per tick (e.g. 0.03)
         self.hold_ticks      = hold_ticks    # ACCU: ticks to hold before auto-sell
         self.early_sell_pct  = early_sell_pct  # ACCU: sell early when profit fraction >= this (0 = disabled)
+        self.digit_barrier   = digit_barrier   # DIGITOVER: win if last digit > this value
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
         self._strategy = strategy
@@ -195,6 +197,28 @@ class Trader:
                 self.risk.on_contract_opened()
                 logger.info(
                     f"[{self.symbol}] DIGITEVEN | ID: {contract_id} | stake={stake:.2f}"
+                )
+
+            elif signal.action == "BUY_DIGITOVER":
+                result = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type="DIGITOVER",
+                    duration=1,
+                    duration_unit="t",
+                    stake=stake,
+                    barrier=str(self.digit_barrier),
+                )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": "BUY_DIGITOVER",
+                    "contract_type": "DIGITOVER",
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"[{self.symbol}] DIGITOVER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
                 )
 
             else:

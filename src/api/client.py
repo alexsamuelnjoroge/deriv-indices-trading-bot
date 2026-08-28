@@ -366,13 +366,14 @@ class DerivClient:
     async def buy_contract(
         self,
         symbol: str,
-        contract_type: str,   # "CALL" = Rise, "PUT" = Fall
+        contract_type: str,   # "CALL" = Rise, "PUT" = Fall, "DIGITOVER", "DIGITEVEN", etc.
         duration: int,
         duration_unit: str,   # "t" = ticks, "m" = minutes
         stake: float,
         currency: str = "USD",
+        barrier: str | None = None,  # required for DIGITOVER/DIGITUNDER/DIGITMATCH/DIGITDIFF
     ) -> dict:
-        proposal_resp = await self._send({
+        payload: dict = {
             "proposal": 1,
             "amount": round(stake, 2),
             "basis": "stake",
@@ -381,7 +382,10 @@ class DerivClient:
             "duration": duration,
             "duration_unit": duration_unit,
             "underlying_symbol": symbol,
-        })
+        }
+        if barrier is not None:
+            payload["barrier"] = barrier
+        proposal_resp = await self._send(payload)
 
         proposal_id = proposal_resp["proposal"]["id"]
         payout = proposal_resp["proposal"]["payout"]
