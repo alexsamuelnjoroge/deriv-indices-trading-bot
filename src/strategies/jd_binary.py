@@ -14,8 +14,10 @@ Config keys:
   spike_mult    ATR multiple that marks a spike     (default: 10.0)
   atr_period    ATR window size                     (default: 30)
   settle_ticks  Ticks to wait after spike before entry (default: 1)
-  spike_cooldown  Ticks to block after an entry     (default: 5)
-  loss_cooldown   Consecutive losses before pause   (default: 2)
+  spike_cooldown          Ticks to block after an entry     (default: 5)
+  loss_cooldown           Consecutive losses before pause   (default: 2)
+  min_spike_ratio         Min spike size in ATR multiples; 0=off (default: 0.0)
+  require_recoil_confirm  Skip entry if current tick not moving in recoil direction (default: True)
 """
 
 from .base import BaseStrategy, Signal
@@ -25,11 +27,13 @@ class JDBinaryStrategy(BaseStrategy):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.spike_mult    = float(config.get("spike_mult", 10.0))
-        self.atr_period    = int(config.get("atr_period", 30))
-        self.settle_ticks  = int(config.get("settle_ticks", 1))
-        self.spike_cooldown = int(config.get("spike_cooldown", 5))
-        self.loss_cooldown = int(config.get("loss_cooldown", 2))
+        self.spike_mult             = float(config.get("spike_mult", 10.0))
+        self.atr_period             = int(config.get("atr_period", 30))
+        self.settle_ticks           = int(config.get("settle_ticks", 1))
+        self.spike_cooldown         = int(config.get("spike_cooldown", 5))
+        self.loss_cooldown          = int(config.get("loss_cooldown", 2))
+        self.min_spike_ratio        = float(config.get("min_spike_ratio", 0.0))
+        self.require_recoil_confirm = bool(config.get("require_recoil_confirm", True))
 
         self._pending_dir    = None   # +1 = up spike (BUY_FALL), -1 = down spike (BUY_RISE)
         self._settle_left    = 0
@@ -75,11 +79,14 @@ class JDBinaryStrategy(BaseStrategy):
 
         # Spike detection — bidirectional
         if abs(move) > self.spike_mult * atr:
+            spike_ratio = abs(move) / atr
+            if self.min_spike_ratio > 0 and spike_ratio < self.min_spike_ratio:
+                return Signal(action="HOLD", reason=f"JD spike weak: {spike_ratio:.1f}x < min {self.min_spike_ratio:.0f}x ATR")
             self._pending_dir = 1 if move > 0 else -1
             self._settle_left = self.settle_ticks
             self._cooldown    = self.spike_cooldown
             direction = "UP" if self._pending_dir == 1 else "DOWN"
-            return Signal(action="HOLD", reason=f"Spike {direction} detected — settling {self.settle_ticks}t")
+            return Signal(action="HOLD", reason=f"Spike {direction} {spike_ratio:.0f}x ATR — settling {self.settle_ticks}t")
 
         # Count down settle period after spike
         if self._pending_dir is not None and self._settle_left > 0:
@@ -89,10 +96,18 @@ class JDBinaryStrategy(BaseStrategy):
         # Fire entry signal
         if self._pending_dir is not None and self._settle_left == 0 and self._cooldown == 0:
             direction = self._pending_dir
+
+            if self.require_recoil_confirm:
+                recoil = prices[-1] - prices[-2]
+                confirmed = (direction == -1 and recoil > 0) or (direction == 1 and recoil < 0)
+                if not confirmed:
+                    self._pending_dir = None
+                    return Signal(action="HOLD", reason=f"Recoil not confirmed (move={recoil:+.4f}) — skipping", atr=atr)
+
             self._pending_dir = None
             if direction == -1:
-                return Signal(action="BUY_RISE", reason="JD down-spike recoil: CALL", atr=atr)
+                return Signal(action="BUY_RISE", reason="JD down-spike recoil confirmed: CALL", atr=atr)
             else:
-                return Signal(action="BUY_FALL", reason="JD up-spike retrace: PUT", atr=atr)
+                return Signal(action="BUY_FALL", reason="JD up-spike retrace confirmed: PUT", atr=atr)
 
         return Signal(action="HOLD", reason="No spike signal")

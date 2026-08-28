@@ -371,6 +371,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 1000
+    max_cluster_spikes: 3
     growth_rate: 0.05
     hold_ticks: 8
     early_sell_pct: 0
@@ -425,6 +428,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 1000
+    max_cluster_spikes: 3
     growth_rate: 0.04
     hold_ticks: 20
     early_sell_pct: 0
@@ -481,6 +487,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 1000
+    max_cluster_spikes: 3
     growth_rate: 0.05
     hold_ticks: 15
     early_sell_pct: 0
@@ -535,6 +544,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 1000
+    max_cluster_spikes: 3
     growth_rate: 0.05
     hold_ticks: 12
     early_sell_pct: 0
@@ -564,6 +576,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 600
+    max_cluster_spikes: 3
     growth_rate: 0.04
     hold_ticks: 15
     settle_ticks: 0
@@ -592,6 +607,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 300
+    max_cluster_spikes: 4
     growth_rate: 0.04
     hold_ticks: 10
     settle_ticks: 0
@@ -620,6 +638,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 600
+    max_cluster_spikes: 3
     growth_rate: 0.04
     hold_ticks: 8
     settle_ticks: 15
@@ -646,10 +667,12 @@ symbols:
     symbol_type: boom
     long_atr_period: 50
     short_atr_period: 10
+    fast_atr_period: 5
     spike_mult: 15.0
     spike_cooldown: 100
     max_ticks_since_spike: 242
     calm_atr_ratio: 0.7
+    vol_rising_mult: 1.5
     entry_cooldown: 10
     loss_cooldown: 2
     growth_rate: 0.04
@@ -705,10 +728,12 @@ symbols:
     symbol_type: crash
     long_atr_period: 50
     short_atr_period: 10
+    fast_atr_period: 5
     spike_mult: 15.0
     spike_cooldown: 200
     max_ticks_since_spike: 693
     calm_atr_ratio: 1.5
+    vol_rising_mult: 1.5
     entry_cooldown: 20
     loss_cooldown: 2
     growth_rate: 0.04
@@ -771,6 +796,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 25.0
+    cluster_window: 200
+    max_cluster_spikes: 3
     barrier_pct: 0.0
     confirm_threshold: 0.0
     contract_duration: 5
@@ -799,6 +827,9 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
+    min_spike_ratio: 25.0
+    cluster_window: 200
+    max_cluster_spikes: 3
     barrier_pct: 0.0
     confirm_threshold: 0.0
     contract_duration: 20
@@ -1139,6 +1170,8 @@ symbols:
     settle_ticks: 1
     spike_cooldown: 5
     loss_cooldown: 2
+    require_recoil_confirm: true
+    min_spike_ratio: 0
     contract_duration: 1
     contract_duration_unit: t
     multiplier: 0
