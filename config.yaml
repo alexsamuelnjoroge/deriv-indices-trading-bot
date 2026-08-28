@@ -1054,6 +1054,103 @@ symbols:
     blocked_hours_eat: []
 
   # ══════════════════════════════════════════════════════════════════════
+  # DIGIT-OVER on JD indices — same digit-0 scarcity as R_ indices
+  # DIGITOVER(4) wins ~55.3-56.0% vs 51.28% BE on 95% payout (EV ~+3.8-4.5%)
+  # chi2-p=0.0000 on all symbols. JD100 excluded: payout=79% sets BE=55.9% > WR.
+  # ══════════════════════════════════════════════════════════════════════
+
+  - symbol: JD10
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: JD25
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: JD50
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  - symbol: JD75
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 5.0
+    min_stake: 0.35
+    daily_loss_limit: 50.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
+  # JD75 BINARY — post-spike directional CALL/PUT on Jump Diffusion 75
+  # Down-spike -> CALL (rebound up). Up-spike -> PUT (retrace down).
+  # Sweep (60k ticks, 2x30k): settle=1t dur=1t WR=59.6% EV=+6.9% 2/2
+  #                            settle=1t dur=5t WR=61.5% EV=+8.7% 2/2
+  # Payout=92% (BE=52.1%). spike_mult=10x ATR, atr_period=30.
+  # ══════════════════════════════════════════════════════════════════════
+
+  - symbol: JD75
+    enabled: true
+    strategy_type: jd_binary
+    spike_mult: 10.0
+    atr_period: 30
+    settle_ticks: 1
+    spike_cooldown: 5
+    loss_cooldown: 2
+    contract_duration: 1
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.92
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
   # ARCHIVED: All synthetic + multiplier strategies (disabled 2026-07-29)
   # Reason: shifted to real market binary CALL/PUT only.
   # Silver disabled separately: 63% payout sets BE WR=61.3% — no viable edge.
