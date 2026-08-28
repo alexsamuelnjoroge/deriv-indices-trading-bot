@@ -90,7 +90,7 @@ class Trader:
                     try:
                         await self.client.sell_contract(cid)
                     except Exception as e:
-                        if "BetExpired" in str(e):
+                        if "BetExpired" in str(e) or "ContractNotFound" in str(e):
                             logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv before sell — normal race condition")
                         else:
                             logger.error(f"[{self.symbol}] Failed to close ACCU {cid}: {e}")
@@ -104,7 +104,7 @@ class Trader:
                     await self.client.sell_contract(cid)
                     logger.warning(f"[{self.symbol}] ACCU {cid} sold ({reason})")
                 except Exception as e:
-                    if "BetExpired" in str(e):
+                    if "BetExpired" in str(e) or "ContractNotFound" in str(e):
                         logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv ({reason}) — normal race condition")
                     else:
                         logger.error(f"[{self.symbol}] Failed to sell ACCU {cid} ({reason}): {e}")
