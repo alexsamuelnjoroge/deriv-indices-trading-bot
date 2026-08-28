@@ -373,7 +373,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 8
-    early_sell_pct: 0.25
+    early_sell_pct: 0
     settle_ticks: 0
     barrier_pct: 0.00000227
     confirm_threshold: 0.5
@@ -427,7 +427,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.04
     hold_ticks: 20
-    early_sell_pct: 0.25
+    early_sell_pct: 0
     settle_ticks: 3
     barrier_pct: 0.00000261
     confirm_threshold: 0.5
@@ -471,7 +471,7 @@ symbols:
   # Deep sweep 2026-08-26 (86k ticks): WR=63.0% BE=48.1% EV=+16.0% 3/4 ROBUST
   # settle_ticks=3 is optimal (slightly better than 0-2); spike_mult has no effect
   # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
-  # early_sell_pct=0.25: lock in 27.6% profit at tick 5 rather than riding to tick 15.
+  # early_sell_pct removed 2026-08-28: riding to full hold_ticks (BE=48.1% vs 78.4% at tick 5).
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -483,7 +483,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 15
-    early_sell_pct: 0.25
+    early_sell_pct: 0
     settle_ticks: 3
     barrier_pct: 0.00000225
     confirm_threshold: 0.5
@@ -537,7 +537,7 @@ symbols:
     loss_cooldown: 2
     growth_rate: 0.05
     hold_ticks: 12
-    early_sell_pct: 0.25
+    early_sell_pct: 0
     settle_ticks: 3
     barrier_pct: 0.00000251
     confirm_threshold: 0.5
