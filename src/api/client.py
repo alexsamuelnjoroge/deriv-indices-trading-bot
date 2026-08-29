@@ -246,8 +246,15 @@ class DerivClient:
                 if not self._use_new_api:
                     await self._authorize()
                 for symbol in self._subscribed_symbols:
-                    await self._send({"ticks": symbol, "subscribe": 1})
-                    logger.info(f"Re-subscribed to ticks: {symbol}")
+                    try:
+                        await self._send({"ticks": symbol, "subscribe": 1})
+                        logger.info(f"Re-subscribed to ticks: {symbol}")
+                    except RuntimeError as e:
+                        if "MarketIsClosed" in str(e):
+                            logger.info(f"[{symbol}] Market closed during reconnect — retrying in background")
+                            asyncio.create_task(self._retry_subscribe_when_open(symbol))
+                        else:
+                            raise
                 logger.info(f"Reconnected successfully after {attempt} attempt(s)")
                 self._reconnecting = False
                 return
@@ -301,18 +308,29 @@ class DerivClient:
     async def subscribe_ticks(self, symbol: str):
         if symbol not in self._subscribed_symbols:
             self._subscribed_symbols.append(symbol)
-        retry_delay = 60
+        try:
+            resp = await self._send({"ticks": symbol, "subscribe": 1})
+            logger.info(f"Subscribed to ticks: {symbol} | response keys: {list(resp.keys())}")
+        except RuntimeError as e:
+            if "MarketIsClosed" in str(e):
+                logger.info(f"[{symbol}] Market closed — will retry in background every 60s")
+                asyncio.create_task(self._retry_subscribe_when_open(symbol))
+            else:
+                raise
+
+    async def _retry_subscribe_when_open(self, symbol: str, delay: int = 60):
         while True:
+            await asyncio.sleep(delay)
             try:
-                resp = await self._send({"ticks": symbol, "subscribe": 1})
-                logger.info(f"Subscribed to ticks: {symbol} | response keys: {list(resp.keys())}")
+                await self._send({"ticks": symbol, "subscribe": 1})
+                logger.info(f"[{symbol}] Market reopened — subscribed successfully")
                 return
             except RuntimeError as e:
                 if "MarketIsClosed" in str(e):
-                    logger.info(f"[{symbol}] Market closed — waiting {retry_delay}s before retry...")
-                    await asyncio.sleep(retry_delay)
+                    logger.info(f"[{symbol}] Still closed — retrying in {delay}s")
                 else:
-                    raise
+                    logger.error(f"[{symbol}] Subscribe retry failed: {e}")
+                    return
 
     async def subscribe_ticks_multi(self, symbols: list[str]):
         for symbol in symbols:
