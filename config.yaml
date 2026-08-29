@@ -781,14 +781,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── JD50 BINARY — DISABLED: live performance poor; API support for CALL/PUT unconfirmed
+  # ── JD50 BINARY — post-spike CALL/PUT (Jump 50) ──────────────────────────────
   # Sweep: spike=20x dur=5t  WR=61.9% BE=53.5% EV=+7.31% 4/4 ROBUST (42t / 60k)
   #        spike=15x dur=5t  WR=57.8% BE=53.5% EV=+3.72% 4/4 ROBUST (45t / 60k)
   # Raised spike_mult 15->20 on 2026-08-26: stronger spikes recoil more reliably.
   # Edge: JD50 recoil completes within 5 ticks. 10t/15t/20t all fail walk-forward.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD50
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
@@ -796,7 +796,7 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    min_spike_ratio: 25.0
+    min_spike_ratio: 0
     cluster_window: 200
     max_cluster_spikes: 3
     barrier_pct: 0.0
@@ -812,14 +812,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── JD75 BINARY — DISABLED: live performance poor; API support for CALL/PUT unconfirmed
+  # ── JD75 BINARY — post-spike CALL/PUT (Jump 75) ──────────────────────────────
   # Sweep: spike=20x dur=20t WR=63.9% BE=53.5% EV=+9.04% 4/4 ROBUST (36t / 60k)
   #        spike=12x dur=20t WR=61.5% BE=53.5% EV=+6.99% 4/4 ROBUST (52t / 60k)
   # Raised spike_mult 12->20 on 2026-08-26: stronger spikes recoil more reliably.
   # Edge: JD75 recoil is slower — needs 20 ticks. 10t is consistently below BE.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD75
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
@@ -827,7 +827,7 @@ symbols:
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
-    min_spike_ratio: 25.0
+    min_spike_ratio: 0
     cluster_window: 200
     max_cluster_spikes: 3
     barrier_pct: 0.0
