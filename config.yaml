@@ -362,8 +362,9 @@ symbols:
   # Deep sweep 2026-08-26 (86k ticks, 4x21.5k): settle_ticks=0 → WR=78.9% BE=67.7% EV=+5.4% 2/4
   # settle_ticks=3 (old live) → WR=63.2% EV=-2.2% NEGATIVE — that was the source of live losses
   # spike_mult has zero effect: all CRASH spikes far exceed any ATR threshold tested (10x–30x)
+  # DISABLED 2026-08-30: only 2/4 walk-forward + 1 live loss (WR=0%). Needs revalidation.
   - symbol: CRASH1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -478,8 +479,9 @@ symbols:
   # settle_ticks=3 is optimal (slightly better than 0-2); spike_mult has no effect
   # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
   # early_sell_pct removed 2026-08-28: riding to full hold_ticks (BE=48.1% vs 78.4% at tick 5).
+  # DISABLED 2026-08-30: 1 live loss (WR=0%). Insufficient live data to trust. Revalidate later.
   - symbol: BOOM1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -568,8 +570,9 @@ symbols:
 
   # Deep sweep (60k ticks): gr=4% ht=15 st=0 → WR=60.3% BE=55.5% EV=+3.859% 2/2 ROBUST
   # 5 hold_ticks configs pass 2/2 at gr=4% st=0; settle_ticks=0 is critical (st=3 kills edge)
+  # DISABLED 2026-08-30: 1 live loss (WR=0%). Insufficient live data. Revalidate with 30+ trades.
   - symbol: BOOM600
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 12.0
@@ -661,8 +664,9 @@ symbols:
 
   # Calm-period sweep (60k ticks): sc=100 ratio=0.7 ht=10 gr=4% → WR=68.9% BE=67.6% EV=+0.648% 2/2
   # Reduced hold 15→10 ticks: P(spike during hold) drops 9.5%→6.4%; gr=4% confirmed 2/2 at ht=10
+  # DISABLED 2026-08-30: live WR=50% after 6 trades vs 69% BE. CalmAccu not working in live.
   - symbol: BOOM150N
-    enabled: true
+    enabled: false
     strategy_type: calm_accu
     symbol_type: boom
     long_atr_period: 50
@@ -722,8 +726,10 @@ symbols:
 
   # Calm-period sweep (60k ticks): sc=200 ratio=1.5 ht=20 gr=4% → WR=52.7% BE=45.6% EV=+8.467% 2/2
   # Wide barrier (4.72e-6) is an asset in calm — normal ticks rarely reach it; 23 configs pass 2/2
+  # DISABLED 2026-08-30: live WR=21% after 19 trades (8 consecutive losses). Confirmed live failure.
+  # CalmAccu hypothesis (calm periods = high barrier survival) does not hold in live conditions.
   - symbol: CRASH500
-    enabled: true
+    enabled: false
     strategy_type: calm_accu
     symbol_type: crash
     long_atr_period: 50
