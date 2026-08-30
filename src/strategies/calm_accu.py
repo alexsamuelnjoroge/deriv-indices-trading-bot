@@ -8,7 +8,8 @@ spikes where barrier survival probability should be highest.
 Entry conditions (all must pass):
   1. ticks since last spike > spike_cooldown
   2. short-term ATR < calm_atr_ratio x long-term ATR  (market is calm)
-  3. entry_cooldown ticks elapsed since last entry signal
+  3. [optional] all recent ticks smaller than calm_barrier_mult x barrier  (barrier-relative calm)
+  4. entry_cooldown ticks elapsed since last entry signal
 
 Config keys:
   symbol_type            "crash" or "boom"              (default: crash)
@@ -22,6 +23,12 @@ Config keys:
   loss_cooldown          Losses before 15-tick pause    (default: 0)
   vol_rising_mult        Block if fast_atr > mult x short_atr; 0=off (default: 0.0)
   fast_atr_period        ATR window for vol_rising check (default: 5)
+  barrier_pct            Deriv barrier as fraction of price; 0=off  (default: 0.0)
+                         Get from check_contracts.py
+  calm_barrier_mult      Block if any recent tick > mult x barrier; 0=off (default: 0.0)
+                         Directly measures whether individual ticks fit inside the barrier.
+                         More precise than calm_atr_ratio for predicting ACCU survival.
+  calm_lookback          Ticks to inspect for barrier-relative calm filter (default: 10)
 """
 
 from .base import BaseStrategy, Signal
@@ -41,6 +48,9 @@ class CalmAccuStrategy(BaseStrategy):
         self.loss_cooldown    = int(config.get("loss_cooldown", 0))
         self.vol_rising_mult  = float(config.get("vol_rising_mult", 0.0))
         self.fast_atr_period  = int(config.get("fast_atr_period", 5))
+        self.barrier_pct      = float(config.get("barrier_pct", 0.0))
+        self.calm_barrier_mult = float(config.get("calm_barrier_mult", 0.0))
+        self.calm_lookback    = int(config.get("calm_lookback", 10))
 
         self._ticks_since_spike = self.spike_cooldown  # start ready
         self._ticks_since_entry = self.entry_cooldown
@@ -129,6 +139,17 @@ class CalmAccuStrategy(BaseStrategy):
                 reason=f"Not calm: s_atr={short_atr:.5f} > {self.calm_atr_ratio}x l_atr={long_atr:.5f}",
                 atr=long_atr,
             )
+
+        if self.calm_barrier_mult > 0 and self.barrier_pct > 0:
+            threshold = self.calm_barrier_mult * self.barrier_pct * prices[-1]
+            lookback  = min(self.calm_lookback, len(prices) - 1)
+            max_tick  = max(abs(prices[-(i+1)] - prices[-(i+2)]) for i in range(lookback))
+            if max_tick > threshold:
+                return Signal(
+                    action="HOLD",
+                    reason=f"Barrier calm: max tick {max_tick:.2e} > {self.calm_barrier_mult:.1f}x barrier {threshold:.2e}",
+                    atr=long_atr,
+                )
 
         self._ticks_since_entry = 0
         ratio = short_atr / long_atr
