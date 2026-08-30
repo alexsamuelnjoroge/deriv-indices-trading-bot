@@ -576,7 +576,7 @@ def run_symbol(symbol: str) -> None:
     print(SEP)
 
     raw    = fetch_ticks(symbol.upper(), count=TICK_COUNT + 2000)
-    prices = [t for t in raw][-TICK_COUNT:]
+    prices = [float(t["quote"]) for t in raw][-TICK_COUNT:]
     print(f"  Using {len(prices):,} ticks  |  price range: {min(prices):.4f} – {max(prices):.4f}")
 
     family    = meta["family"]
