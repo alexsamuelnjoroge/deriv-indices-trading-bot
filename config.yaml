@@ -359,12 +359,11 @@ symbols:
     blocked_hours_eat: []
 
   # ── CRASH1000 ACCU — post-spike Accumulator ─────────────────────────
-  # Deep sweep 2026-08-26 (86k ticks, 4x21.5k): settle_ticks=0 → WR=78.9% BE=67.7% EV=+5.4% 2/4
-  # settle_ticks=3 (old live) → WR=63.2% EV=-2.2% NEGATIVE — that was the source of live losses
-  # spike_mult has zero effect: all CRASH spikes far exceed any ATR threshold tested (10x–30x)
-  # DISABLED 2026-08-30: only 2/4 walk-forward + 1 live loss (WR=0%). Needs revalidation.
+  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 4/4 ROBUST
+  # ratio=0.7 per=8 ht=10 gr=5% → WR=71.4% BE=61.4% EV=+6.312%
+  # Baseline (settle=0, ht=8, gr=5%) was 2/4 EV=-0.875% — adaptive converts to 4/4
   - symbol: CRASH1000
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -376,9 +375,13 @@ symbols:
     cluster_window: 1000
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 8
+    hold_ticks: 10
     early_sell_pct: 0
     settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.7
+    settle_short_period: 8
+    max_settle_ticks: 15
     barrier_pct: 0.00000227
     confirm_threshold: 0.5
     contract_duration: 0
@@ -388,8 +391,8 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.477
-    min_rolling_wr: 70.0
+    payout_pct: 0.629
+    min_rolling_wr: 63.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -475,11 +478,9 @@ symbols:
     blocked_hours_eat: []
 
   # ── BOOM1000 ACCU — post-spike Accumulator ───────────────────────────
-  # Deep sweep 2026-08-26 (86k ticks): WR=63.0% BE=48.1% EV=+16.0% 3/4 ROBUST
-  # settle_ticks=3 is optimal (slightly better than 0-2); spike_mult has no effect
-  # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
-  # early_sell_pct removed 2026-08-28: riding to full hold_ticks (BE=48.1% vs 78.4% at tick 5).
-  # Re-enabled 2026-08-31: 1 loss is statistically normal at 63% WR (37% first-loss prob).
+  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 3/4 MOSTLY OK
+  # ratio=0.5 per=8 ht=12 gr=5% → WR=59.4% BE=55.7% EV=+2.938%
+  # Baseline (settle=3, ht=15, gr=5%) was 1/4 EV=-2.036% — adaptive converts to 3/4
   - symbol: BOOM1000
     enabled: true
     strategy_type: crash_boom_recoil
@@ -493,9 +494,13 @@ symbols:
     cluster_window: 1000
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 15
+    hold_ticks: 12
     early_sell_pct: 0
-    settle_ticks: 3
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.5
+    settle_short_period: 8
+    max_settle_ticks: 15
     barrier_pct: 0.00000225
     confirm_threshold: 0.5
     contract_duration: 0
@@ -505,8 +510,8 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 1.079
-    min_rolling_wr: 52.0
+    payout_pct: 0.796
+    min_rolling_wr: 57.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -600,8 +605,9 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # Deep sweep (60k ticks): gr=4% ht=10 st=0 → WR=69.4% BE=67.6% EV=+0.900% 2/2 ROBUST
-  # Narrowest barrier (1.61e-6); ~7x more entries than CRASH1000; settle_ticks=0 is critical
+  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 3/4 MOSTLY OK
+  # ratio=0.5 per=5 ht=12 gr=5% → WR=77.8% BE=55.7% EV=+17.584%
+  # Baseline (settle=0, ht=10, gr=4%) was 2/4 EV=-0.102% — adaptive converts to 3/4
   - symbol: CRASH150N
     enabled: true
     strategy_type: crash_boom_recoil
@@ -613,9 +619,13 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 300
     max_cluster_spikes: 4
-    growth_rate: 0.04
-    hold_ticks: 10
+    growth_rate: 0.05
+    hold_ticks: 12
     settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.5
+    settle_short_period: 5
+    max_settle_ticks: 15
     barrier_pct: 0.00000161
     confirm_threshold: 0.5
     contract_duration: 0
@@ -625,14 +635,15 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.480
-    min_rolling_wr: 68.0
+    payout_pct: 0.796
+    min_rolling_wr: 57.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # Deep sweep (60k ticks): st=15 gr=4% ht=8 → WR=79.0% BE=73.1% EV=+2.198% 2/2 ROBUST
-  # Extended settle_ticks=15 waits out post-spike burst; 12 configs pass 2/2 at st=12-15
+  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 4/4 ROBUST
+  # ratio=0.3 per=5 ht=10 gr=5% → WR=80.0% BE=61.4% EV=+11.703%
+  # Baseline (settle=15, ht=8, gr=4%) was 1/4 EV=-2.093% — adaptive converts to 4/4
   - symbol: CRASH600
     enabled: true
     strategy_type: crash_boom_recoil
@@ -644,9 +655,13 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 600
     max_cluster_spikes: 3
-    growth_rate: 0.04
-    hold_ticks: 8
-    settle_ticks: 15
+    growth_rate: 0.05
+    hold_ticks: 10
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 5
+    max_settle_ticks: 30
     barrier_pct: 0.00000392
     confirm_threshold: 0.5
     contract_duration: 0
@@ -656,8 +671,8 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.369
-    min_rolling_wr: 74.0
+    payout_pct: 0.629
+    min_rolling_wr: 63.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
