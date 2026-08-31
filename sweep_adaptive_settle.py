@@ -34,34 +34,22 @@ logger.remove()
 logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
 
 SYMBOLS = {
-    "BOOM1000": {
-        "symbol_type":    "boom",
-        "barrier_pct":    2.25e-6,
-        "hold_range":     [12, 15, 18],
-        "growth_rates":   [0.04, 0.05],
-        "baseline_settle": 3,
-    },
-    "CRASH1000": {
-        "symbol_type":    "crash",
-        "barrier_pct":    2.27e-6,
-        "hold_range":     [8, 10, 12],
-        "growth_rates":   [0.04, 0.05],
-        "baseline_settle": 0,
-    },
-    "CRASH150N": {
-        "symbol_type":    "crash",
-        "barrier_pct":    1.61e-6,
-        "hold_range":     [8, 10, 12],
-        "growth_rates":   [0.04, 0.05],
-        "baseline_settle": 0,
-    },
-    "CRASH600": {
-        "symbol_type":    "crash",
-        "barrier_pct":    3.92e-6,
-        "hold_range":     [6, 8, 10],
-        "growth_rates":   [0.04, 0.05],
-        "baseline_settle": 15,
-    },
+    # barrier_pct at ~4% growth (1% growth value × 0.849, verified on BOOM1000/150N/300N)
+    # hold_range chosen to keep P(in-hold spike) < 15% for the symbol's rate
+    "BOOM50":    {"symbol_type": "boom",  "barrier_pct": 1.55e-5, "hold_range": [3, 5, 8],    "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH50":   {"symbol_type": "crash", "barrier_pct": 1.55e-5, "hold_range": [3, 5, 8],    "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM150N":  {"symbol_type": "boom",  "barrier_pct": 1.65e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH150N": {"symbol_type": "crash", "barrier_pct": 1.61e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM300N":  {"symbol_type": "boom",  "barrier_pct": 2.07e-5, "hold_range": [10, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH300N": {"symbol_type": "crash", "barrier_pct": 2.07e-5, "hold_range": [10, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM500":   {"symbol_type": "boom",  "barrier_pct": 4.72e-6, "hold_range": [12, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH500":  {"symbol_type": "crash", "barrier_pct": 4.72e-6, "hold_range": [12, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM600":   {"symbol_type": "boom",  "barrier_pct": 3.92e-6, "hold_range": [6, 8, 10],   "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH600":  {"symbol_type": "crash", "barrier_pct": 3.92e-6, "hold_range": [6, 8, 10],   "growth_rates": [0.04, 0.05], "baseline_settle": 15},
+    "BOOM900":   {"symbol_type": "boom",  "barrier_pct": 2.60e-6, "hold_range": [12, 15, 18], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "CRASH900":  {"symbol_type": "crash", "barrier_pct": 2.60e-6, "hold_range": [12, 15, 18], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM1000":  {"symbol_type": "boom",  "barrier_pct": 2.35e-6, "hold_range": [12, 15, 18], "growth_rates": [0.04, 0.05], "baseline_settle": 3},
+    "CRASH1000": {"symbol_type": "crash", "barrier_pct": 2.33e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
 }
 
 SETTLE_ATR_RATIOS   = [0.3, 0.5, 0.7, 1.0, 1.5, 2.0]
