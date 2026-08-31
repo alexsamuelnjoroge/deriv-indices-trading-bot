@@ -60,12 +60,21 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self.min_spike_ratio          = float(config.get("min_spike_ratio", 0.0))
         self.cluster_window           = int(config.get("cluster_window", 0))
         self.max_cluster_spikes       = int(config.get("max_cluster_spikes", 3))
+        # Adaptive ATR settle: instead of waiting a fixed settle_ticks, wait until
+        # the short-term ATR drops below settle_atr_ratio × barrier width.
+        # Requires barrier_pct > 0. Overrides settle_ticks when enabled.
+        self.adaptive_settle          = bool(config.get("adaptive_settle", False))
+        self.settle_atr_ratio         = float(config.get("settle_atr_ratio", 0.5))
+        self.settle_short_period      = int(config.get("settle_short_period", 5))
+        self.max_settle_ticks         = int(config.get("max_settle_ticks", 30))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
         self._extra_cooldown       = 0
         self._waiting_confirmation = False
         self._settle_remaining     = 0
+        self._adaptive_settling    = False
+        self._adaptive_settle_count = 0
         self._pending_reason       = ""
         self._pending_atr          = None
         self._pending_action       = ""
@@ -103,6 +112,14 @@ class CrashBoomRecoilStrategy(BaseStrategy):
     #  Main evaluation
     # ------------------------------------------------------------------ #
 
+    def _short_atr(self, prices: list[float], period: int) -> float | None:
+        hist = prices[-(period + 1):]
+        if len(hist) < period + 1:
+            return None
+        ranges = [abs(hist[i] - hist[i - 1]) for i in range(1, len(hist))]
+        avg = sum(ranges) / len(ranges)
+        return avg if avg > 0 else None
+
     def evaluate(self, tick_store) -> Signal:
         self._tick_idx += 1
         prices = tick_store.prices
@@ -114,6 +131,59 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         pre_atr = self._pre_spike_atr(prices)
         if pre_atr is None or pre_atr <= 0:
             return Signal(action="HOLD", reason="Pre-spike ATR not ready")
+
+        # ── Adaptive ATR settle: wait for volatility to fall below barrier fraction ─
+        if self._adaptive_settling:
+            self._adaptive_settle_count += 1
+            if self._cooldown > 0:
+                self._cooldown -= 1
+
+            # New spike during settle — abandon current entry, restart for new spike
+            last_move = prices[-1] - prices[-2]
+            abs_move  = abs(last_move)
+            if abs_move > self.spike_mult * pre_atr:
+                self._adaptive_settling = False
+                self._cooldown = self.cooldown_ticks
+                if ((self.symbol_type == "crash" and last_move < 0) or
+                        (self.symbol_type == "boom" and last_move > 0)):
+                    buy_action = "BUY_RISE" if self.use_binary else "BUY_ACCU"
+                    self._waiting_confirmation = True
+                    self._pending_action = buy_action
+                    self._pending_reason = (
+                        f"{self.symbol_type.upper()} spike during adaptive settle "
+                        f"({abs_move:.4f}, {abs_move/pre_atr:.0f}xATR) — restart"
+                    )
+                    self._pending_atr = pre_atr
+                return Signal(action="HOLD", reason="Adaptive settle: new spike — restarting",
+                              atr=pre_atr, close_open_accus=True)
+
+            if self._adaptive_settle_count > self.max_settle_ticks:
+                self._adaptive_settling = False
+                return Signal(
+                    action="HOLD",
+                    reason=f"Adaptive settle: timed out at {self.max_settle_ticks}t — skipping entry",
+                    atr=pre_atr,
+                )
+
+            satr = self._short_atr(prices, self.settle_short_period)
+            barrier_abs = self.barrier_pct * prices[-1] if prices[-1] > 0 else 0.0
+            if satr is not None and barrier_abs > 0 and satr < self.settle_atr_ratio * barrier_abs:
+                self._adaptive_settling = False
+                return Signal(
+                    action=self._pending_action,
+                    reason=(
+                        f"{self._pending_reason} | ATR settle {self._adaptive_settle_count}t: "
+                        f"atr={satr:.2e} < {self.settle_atr_ratio}×barrier={barrier_abs:.2e}"
+                    ),
+                    atr=self._pending_atr,
+                )
+
+            satr_str = f"{satr:.2e}" if satr is not None else "?"
+            return Signal(
+                action="HOLD",
+                reason=f"Adaptive settle ({self._adaptive_settle_count}t): atr={satr_str} need <{self.settle_atr_ratio}×{barrier_abs:.2e}",
+                atr=pre_atr,
+            )
 
         # ── Settle delay: ticks after confirm gate, before opening ACCU ───
         if self._settle_remaining > 0:
@@ -145,7 +215,12 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                         atr=self._pending_atr,
                     )
 
-            # Confirm gate passed — wait settle_ticks more before opening
+            # Confirm gate passed — choose settle mode
+            if self.adaptive_settle and self.barrier_pct > 0:
+                self._adaptive_settling = True
+                self._adaptive_settle_count = 0
+                return Signal(action="HOLD", reason="Adaptive settle: waiting for ATR calm", atr=self._pending_atr)
+
             if self.settle_ticks > 0:
                 self._settle_remaining = self.settle_ticks
                 return Signal(action="HOLD", reason=f"Settle delay: {self.settle_ticks} ticks", atr=self._pending_atr)

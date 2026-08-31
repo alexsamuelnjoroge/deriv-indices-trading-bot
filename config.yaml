@@ -479,9 +479,9 @@ symbols:
   # settle_ticks=3 is optimal (slightly better than 0-2); spike_mult has no effect
   # min_rolling_wr=52 (above 48.1% BE); max_stake capped at 2 during validation
   # early_sell_pct removed 2026-08-28: riding to full hold_ticks (BE=48.1% vs 78.4% at tick 5).
-  # DISABLED 2026-08-30: 1 live loss (WR=0%). Insufficient live data to trust. Revalidate later.
+  # Re-enabled 2026-08-31: 1 loss is statistically normal at 63% WR (37% first-loss prob).
   - symbol: BOOM1000
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
