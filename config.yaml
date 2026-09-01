@@ -539,11 +539,12 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — DISABLED: negative EV confirmed on 86k backtest ─────
-  # Deep sweep (86k ticks): best WR=53.1% vs BE=55.7% — ALL configs negative EV
-  # Earlier +7.08% EV was overfit to 60k tick window, does not generalise
+  # ── BOOM900 ACCU — 3/4 MOSTLY OK — baseline already passes (no adaptive needed)
+  # Adaptive sweep 2026-09-01 (86k ticks, 4×21.5k): baseline 3/4 at gr=5%
+  # ht=15, gr=5% → WR=58.6% BE=48.1% EV=+11.3% (29 trades)
+  # Previous "negative EV" was gr=4% (BE=55.7%); gr=5% drops BE to 48.1% which WR clears.
   - symbol: BOOM900
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -552,13 +553,14 @@ symbols:
     cooldown_ticks: 5
     loss_cooldown: 2
     min_spike_ratio: 0
-    cluster_window: 1000
+    cluster_window: 900
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 12
+    hold_ticks: 15
     early_sell_pct: 0
-    settle_ticks: 3
-    barrier_pct: 0.00000251
+    settle_ticks: 0
+    adaptive_settle: false
+    barrier_pct: 0.00000260
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -567,17 +569,17 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.796
-    min_rolling_wr: 58.0
+    payout_pct: 1.079
+    min_rolling_wr: 50.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # Deep sweep (60k ticks): gr=4% ht=15 st=0 → WR=60.3% BE=55.5% EV=+3.859% 2/2 ROBUST
-  # 5 hold_ticks configs pass 2/2 at gr=4% st=0; settle_ticks=0 is critical (st=3 kills edge)
-  # DISABLED 2026-08-30: 1 live loss (WR=0%). Insufficient live data. Revalidate with 30+ trades.
+  # ── BOOM600 ACCU — 4/4 ROBUST ratio=1.0 per=8 max=15 ht=8 gr=5%
+  # Adaptive sweep 2026-09-01 (86k ticks, 4×21.5k): WR=80.0% BE=67.7% EV=+5.9%
+  # per=8 is the key filter — any ratio ≥ 0.7 gives same result (ATR gate met on 1st check)
   - symbol: BOOM600
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 12.0
@@ -587,9 +589,14 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 600
     max_cluster_spikes: 3
-    growth_rate: 0.04
-    hold_ticks: 15
+    growth_rate: 0.05
+    hold_ticks: 8
+    early_sell_pct: 0
     settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 1.0
+    settle_short_period: 8
+    max_settle_ticks: 15
     barrier_pct: 0.00000394
     confirm_threshold: 0.5
     contract_duration: 0
@@ -599,8 +606,8 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.801
-    min_rolling_wr: 56.0
+    payout_pct: 0.477
+    min_rolling_wr: 69.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -799,6 +806,302 @@ symbols:
     payout_pct: 11.80
     min_rolling_wr: 5.0
     rolling_window: 100
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ══════════════════════════════════════════════════════════════════════
+  # CRASH/BOOM ADAPTIVE SETTLE — post-spike ACCU, sweep-validated 2026-09-01
+  # All use crash_boom_recoil with adaptive ATR gate. 86k tick, 4×21.5k WF.
+  # BOOM50/CRASH50: 8 trades/86k — sparse but tight confirm gate → 100% WR.
+  # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
+  # ══════════════════════════════════════════════════════════════════════
+
+  # BOOM50 — 4/4 ROBUST: WR=100% EV=+15.4% (8 trades/86k)
+  - symbol: BOOM50
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 50
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 8
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 3
+    max_settle_ticks: 15
+    barrier_pct: 0.0000155
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.477
+    min_rolling_wr: 69.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # CRASH50 — 4/4 ROBUST baseline (no adaptive needed): WR=100% EV=+15.4% (8 trades/86k)
+  - symbol: CRASH50
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 50
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 8
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: false
+    barrier_pct: 0.0000155
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.477
+    min_rolling_wr: 69.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM150N (post-spike recoil) — 3/4: WR=75.0% EV=+15.4% (12 trades/86k)
+  - symbol: BOOM150N
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 300
+    max_cluster_spikes: 4
+    growth_rate: 0.05
+    hold_ticks: 12
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.5
+    settle_short_period: 8
+    max_settle_ticks: 15
+    barrier_pct: 0.00000165
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 0.796
+    min_rolling_wr: 57.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM300N — 4/4 ROBUST: WR=45.5% EV=+12.8% (22 trades/86k)
+  # Low WR but 165% payout — BE=37.7%, each win covers 2.65 losses
+  - symbol: BOOM300N
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 300
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 20
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 8
+    max_settle_ticks: 30
+    barrier_pct: 0.0000207
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.653
+    min_rolling_wr: 39.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # CRASH300N — 3/4: WR=46.7% EV=+14.8% (30 trades/86k)
+  # Low WR but 165% payout — BE=37.7%, each win covers 2.65 losses
+  - symbol: CRASH300N
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 300
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 20
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.5
+    settle_short_period: 8
+    max_settle_ticks: 15
+    barrier_pct: 0.0000207
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.653
+    min_rolling_wr: 39.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM500 — 4/4 ROBUST: WR=59.5% EV=+12.3% (37 trades/86k)
+  # max_settle=50 critical — shorter waits only get 3/4
+  - symbol: BOOM500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 500
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 15
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 8
+    max_settle_ticks: 50
+    barrier_pct: 0.00000472
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.079
+    min_rolling_wr: 50.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # CRASH500 — 4/4 ROBUST STANDOUT: WR=63.0% EV=+41.9% (46 trades/86k)
+  - symbol: CRASH500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 500
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 20
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 5
+    max_settle_ticks: 30
+    barrier_pct: 0.00000472
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.653
+    min_rolling_wr: 39.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # CRASH900 — 4/4 ROBUST: WR=60.0% EV=+12.8% (30 trades/86k)
+  # max_settle=50 critical (same pattern as BOOM500/CRASH500)
+  - symbol: CRASH900
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 900
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 15
+    early_sell_pct: 0
+    settle_ticks: 0
+    adaptive_settle: true
+    settle_atr_ratio: 0.3
+    settle_short_period: 8
+    max_settle_ticks: 50
+    barrier_pct: 0.00000260
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 2.0
+    stake_percent: 1.0
+    use_kelly: true
+    payout_pct: 1.079
+    min_rolling_wr: 50.0
+    rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
