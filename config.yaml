@@ -816,7 +816,9 @@ symbols:
   # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
   # ══════════════════════════════════════════════════════════════════════
 
-  # BOOM50 — 4/4 ROBUST: WR=100% EV=+15.4% (8 trades/86k)
+  # BOOM50 — 4/4 ROBUST: WR=78.5% BE=74.4% EV=+1.397% (497 trades/60k)
+  # Correct barrier: 2.30e-6 (3% growth). Old 1.55e-5 was 6.7x too wide (1% growth anomaly).
+  # Adaptive settle ratio=0.3/period=3/max=15 selects calmer sub-periods → lower KO rate.
   - symbol: BOOM50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -829,15 +831,15 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.05
-    hold_ticks: 8
+    growth_rate: 0.03
+    hold_ticks: 10
     early_sell_pct: 0
     settle_ticks: 0
     adaptive_settle: true
     settle_atr_ratio: 0.3
     settle_short_period: 3
     max_settle_ticks: 15
-    barrier_pct: 0.0000155
+    barrier_pct: 0.0000023
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -846,13 +848,15 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.477
-    min_rolling_wr: 69.0
+    payout_pct: 0.344
+    min_rolling_wr: 73.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — 4/4 ROBUST baseline (no adaptive needed): WR=100% EV=+15.4% (8 trades/86k)
+  # CRASH50 — 4/4 ROBUST: WR=90.7% BE=88.9% EV=+0.220% (482 trades/60k)
+  # Correct barrier: 2.15e-6 (4% growth). Old 1.55e-5 was 7.2x too wide (1% growth anomaly).
+  # Adaptive settle ratio=1.0/period=5/max=15 with short hold_ticks=3 for high-frequency edge.
   - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -865,12 +869,15 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.05
-    hold_ticks: 8
+    growth_rate: 0.04
+    hold_ticks: 3
     early_sell_pct: 0
     settle_ticks: 0
-    adaptive_settle: false
-    barrier_pct: 0.0000155
+    adaptive_settle: true
+    settle_atr_ratio: 1.0
+    settle_short_period: 5
+    max_settle_ticks: 15
+    barrier_pct: 0.00000215
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -879,8 +886,8 @@ symbols:
     max_stake: 2.0
     stake_percent: 1.0
     use_kelly: true
-    payout_pct: 0.477
-    min_rolling_wr: 69.0
+    payout_pct: 0.125
+    min_rolling_wr: 88.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
