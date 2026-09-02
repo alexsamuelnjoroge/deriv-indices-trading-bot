@@ -38,7 +38,7 @@ SYMBOLS = {
     # hold_range chosen to keep P(in-hold spike) < 15% for the symbol's rate
     "BOOM50":    {"symbol_type": "boom",  "barrier_pct": 1.55e-5, "hold_range": [3, 5, 8],    "growth_rates": [0.04, 0.05], "baseline_settle": 0},
     "CRASH50":   {"symbol_type": "crash", "barrier_pct": 1.55e-5, "hold_range": [3, 5, 8],    "growth_rates": [0.04, 0.05], "baseline_settle": 0},
-    "BOOM150N":  {"symbol_type": "boom",  "barrier_pct": 1.65e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
+    "BOOM150N":  {"symbol_type": "boom",  "barrier_pct": 1.61e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
     "CRASH150N": {"symbol_type": "crash", "barrier_pct": 1.61e-6, "hold_range": [8, 10, 12],  "growth_rates": [0.04, 0.05], "baseline_settle": 0},
     "BOOM300N":  {"symbol_type": "boom",  "barrier_pct": 2.07e-5, "hold_range": [10, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},
     "CRASH300N": {"symbol_type": "crash", "barrier_pct": 2.07e-5, "hold_range": [10, 15, 20], "growth_rates": [0.04, 0.05], "baseline_settle": 0},

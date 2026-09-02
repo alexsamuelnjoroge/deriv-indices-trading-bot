@@ -906,7 +906,7 @@ symbols:
     settle_atr_ratio: 0.5
     settle_short_period: 8
     max_settle_ticks: 15
-    barrier_pct: 0.00000165
+    barrier_pct: 0.00000161
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -1216,10 +1216,11 @@ symbols:
   # ══════════════════════════════════════════════════════════════════════
 
   # ── R_50 RSI MULT 300x — Volatility 50 mean-reversion ────────────────────────
+  # DISABLED: mean-reversion thesis wrong — R_50 Hurst=0.60 (trending). Loses live.
   # Sweep: RSI(10) reversal | 300x mult | TP=1% | WR=32.2% | Exp=+0.259R | 4/4 ***
   # Stop-out at -0.33% adverse move. 24/7 synthetic (no session filter).
   - symbol: R_50
-    enabled: true
+    enabled: false
     strategy_type: rsi_multiplier
     rsi_period: 10
     rsi_os: 20.0
@@ -1234,11 +1235,30 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
+  # ── R_50 Donchian 120s/20 — Volatility 50 trend-following ────────────────────
+  # Sweep: Donchian(20) on 120s bars | 300x mult | SL=0.3% TP=0.9% | WR=31.6% BE=27.7%
+  # EV=+0.14R | 3/4 walk-forward windows. Hurst H=0.60 confirms trending structure.
+  - symbol: R_50
+    enabled: true
+    strategy_type: donchian
+    donchian_period: 20
+    bar_seconds: 120
+    sl_pct: 0.003
+    tp_pct: 0.009
+    multiplier: 300
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
   # ── R_75 BB-MULT 200x — Volatility 75 Bollinger Band mean-reversion ──────────
+  # DISABLED: mean-reversion thesis wrong — R_75 Hurst=0.59 (trending). Loses live.
   # Sweep: BB(20,2.0σ) touch | 200x mult | TP=3% | WR=17.2% | Exp=+0.197R | 4/4 ***
   # Stop-out at -0.5% adverse move. 24/7 synthetic (no session filter).
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: bb_multiplier
     bb_period: 20
     bb_std: 2.0
@@ -1246,6 +1266,24 @@ symbols:
     bar_seconds: 300
     multiplier: 200
     tp_pct: 0.03
+    min_stake: 1.0
+    max_stake: 5.0
+    stake_percent: 1.0
+    use_kelly: false
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # ── R_75 Donchian 120s/20 — Volatility 75 trend-following ────────────────────
+  # Sweep: Donchian(20) on 120s bars | 200x mult | SL=0.5% TP=1.0% | WR=40.0% BE=34.0%
+  # EV=+0.18R | 3/4 walk-forward windows. Hurst H=0.59 confirms trending structure.
+  - symbol: R_75
+    enabled: true
+    strategy_type: donchian
+    donchian_period: 20
+    bar_seconds: 120
+    sl_pct: 0.005
+    tp_pct: 0.010
+    multiplier: 200
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
@@ -1329,7 +1367,7 @@ symbols:
   # ══════════════════════════════════════════════════════════════════════
 
   - symbol: R_10
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
@@ -1345,7 +1383,7 @@ symbols:
     blocked_hours_eat: []
 
   - symbol: R_25
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
@@ -1361,7 +1399,7 @@ symbols:
     blocked_hours_eat: []
 
   - symbol: R_50
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
@@ -1377,7 +1415,7 @@ symbols:
     blocked_hours_eat: []
 
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
@@ -1393,7 +1431,7 @@ symbols:
     blocked_hours_eat: []
 
   - symbol: R_100
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
