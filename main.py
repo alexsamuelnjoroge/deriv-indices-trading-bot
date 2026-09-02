@@ -131,20 +131,17 @@ async def midnight_reset_loop(bots: list[SymbolBot], alerter):
 
 # ── Tick watchdog ──────────────────────────────────────────────────────
 
-async def tick_watchdog(bots: list[SymbolBot], stale_secs: int = 600):
+async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
     """
     Warn if any symbol's last tick is older than stale_secs (default 10 min).
-    A stale symbol means the WebSocket stopped delivering data for that feed.
+    After 15 minutes stale, automatically resubscribes the WebSocket feed.
     """
-    # seed with current epoch so we don't false-alarm on startup
+    resub_secs = 900  # attempt resubscription after 15 min stale
     last_seen: dict[str, float] = {}
+    last_resubbed: dict[str, float] = {}
     for bot in bots:
         last_seen.setdefault(bot.symbol, _time.time())
-
-    # patch each bot's tick handler to update last_seen
-    originals: dict[str, list] = {}
-    for sym in list(last_seen):
-        originals[sym] = []
+        last_resubbed[bot.symbol] = 0.0
 
     # check every 2 minutes
     while True:
@@ -158,6 +155,15 @@ async def tick_watchdog(bots: list[SymbolBot], stale_secs: int = 600):
                 logger.warning(
                     f"[{bot.symbol}] No ticks for {gap/60:.1f} min — WebSocket may be stale"
                 )
+                time_since_resub = _time.time() - last_resubbed[bot.symbol]
+                if gap > resub_secs and time_since_resub > resub_secs:
+                    logger.warning(f"[{bot.symbol}] Resubscribing stale WebSocket feed...")
+                    try:
+                        await client.subscribe_ticks(bot.symbol)
+                        last_resubbed[bot.symbol] = _time.time()
+                        logger.info(f"[{bot.symbol}] WebSocket resubscribed successfully")
+                    except Exception as e:
+                        logger.error(f"[{bot.symbol}] Resubscription failed: {e}")
 
 
 # ── Main bot loop ───────────────────────────────────────────────────────
@@ -438,7 +444,7 @@ async def run(watch_only: bool = False):
 
     # ── Start midnight reset loop + tick watchdog ─────────────────
     asyncio.create_task(midnight_reset_loop(bots, alerter))
-    asyncio.create_task(tick_watchdog(bots))
+    asyncio.create_task(tick_watchdog(bots, client))
 
     # ── Keep running ─────────────────────────────────────────────
     _last_halted_log = 0.0
