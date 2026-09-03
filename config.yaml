@@ -363,7 +363,7 @@ symbols:
   # ratio=0.7 per=8 ht=10 gr=5% → WR=71.4% BE=61.4% EV=+6.312%
   # Baseline (settle=0, ht=8, gr=5%) was 2/4 EV=-0.875% — adaptive converts to 4/4
   - symbol: CRASH1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -544,7 +544,7 @@ symbols:
   # ht=15, gr=5% → WR=58.6% BE=48.1% EV=+11.3% (29 trades)
   # Previous "negative EV" was gr=4% (BE=55.7%); gr=5% drops BE to 48.1% which WR clears.
   - symbol: BOOM900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -908,7 +908,7 @@ symbols:
     growth_rate: 0.05
     hold_ticks: 12
     early_sell_pct: 0
-    settle_ticks: 0
+    settle_ticks: 3
     adaptive_settle: true
     settle_atr_ratio: 0.5
     settle_short_period: 8
@@ -931,7 +931,7 @@ symbols:
   # BOOM300N — 4/4 ROBUST: WR=45.5% EV=+12.8% (22 trades/86k)
   # Low WR but 165% payout — BE=37.7%, each win covers 2.65 losses
   - symbol: BOOM300N
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -968,7 +968,7 @@ symbols:
   # CRASH300N — 3/4: WR=46.7% EV=+14.8% (30 trades/86k)
   # Low WR but 165% payout — BE=37.7%, each win covers 2.65 losses
   - symbol: CRASH300N
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -1041,7 +1041,7 @@ symbols:
 
   # CRASH500 — 4/4 ROBUST STANDOUT: WR=63.0% EV=+41.9% (46 trades/86k)
   - symbol: CRASH500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -1078,7 +1078,7 @@ symbols:
   # CRASH900 — 4/4 ROBUST: WR=60.0% EV=+12.8% (30 trades/86k)
   # max_settle=50 critical (same pattern as BOOM500/CRASH500)
   - symbol: CRASH900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
