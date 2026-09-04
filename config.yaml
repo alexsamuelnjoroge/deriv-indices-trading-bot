@@ -1119,7 +1119,7 @@ symbols:
   # Edge: JD50 recoil completes within 5 ticks. 10t/15t/20t all fail walk-forward.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD50
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
