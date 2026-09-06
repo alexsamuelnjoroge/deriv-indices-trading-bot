@@ -80,7 +80,6 @@ def main(paths):
                         hold_ticks = opens[cid]["hold_ticks"]
                         ticks = min(round(secs), hold_ticks)  # cap at hold_ticks
                         knockouts[sym].append((ticks, hold_ticks))
-                    del opens.get(cid, {}) or {}
                     opens.pop(cid, None)
 
     # ── Report ───────────────────────────────────────────────────────────────
