@@ -258,8 +258,8 @@ class Trader:
         if contract_id not in self._open:
             return
 
-        meta      = self._open.pop(contract_id)
-        self._open_accu.pop(contract_id, None)   # clean up if barrier knocked it out
+        meta          = self._open.pop(contract_id)
+        ticks_remaining = self._open_accu.pop(contract_id, None)  # None = normal sell (already removed)
         buy_price = meta["stake"]
 
         # Multiplier contracts carry a direct 'profit' field; binary use sell_price - buy_price
@@ -282,10 +282,16 @@ class Trader:
         self.risk.on_contract_closed(trade)
 
         if meta.get("is_accumulator"):
-            outcome = "WIN" if profit > 0 else "LOSS (knockout)"
+            if profit > 0:
+                outcome = "WIN"
+                tick_info = ""
+            else:
+                ticks_held = (self.hold_ticks - ticks_remaining) if ticks_remaining is not None else "?"
+                outcome = f"LOSS (knockout @t{ticks_held}/{self.hold_ticks})"
+                tick_info = f" ticks_survived={ticks_held}"
             logger.warning(
                 f"[{self.symbol}] ACCU {contract_id} {outcome} | "
-                f"stake={buy_price:.2f} profit={profit:+.2f} | "
+                f"stake={buy_price:.2f} profit={profit:+.2f}{tick_info} | "
                 f"WR={self.risk.win_rate:.1f}% ({self.risk.total_trades}t) | "
                 f"bal={self.risk.current_balance:.2f}"
             )
