@@ -120,7 +120,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.80
     max_open_contracts: 1
 
@@ -142,7 +142,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.80
     max_open_contracts: 1
     # London session only (10-15 EAT = 07-12 UTC) — override global list
@@ -166,7 +166,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.80
     max_open_contracts: 1
 
@@ -188,7 +188,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.90
     max_open_contracts: 1
 
@@ -210,7 +210,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.90
     atr_period: 14
     atr_min_mult: 1.25
@@ -235,7 +235,7 @@ symbols:
     min_stake: 1.0
     max_stake: 10.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.85
     atr_period: 14
     atr_min_mult: 1.0
@@ -353,7 +353,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -388,9 +388,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.629
     min_rolling_wr: 63.0
     rolling_window: 30
@@ -415,7 +415,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -445,9 +445,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.191
     min_rolling_wr: 50.0
     rolling_window: 30
@@ -472,7 +472,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -507,9 +507,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.796
     min_rolling_wr: 57.0
     rolling_window: 30
@@ -534,7 +534,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -566,9 +566,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.079
     min_rolling_wr: 50.0
     rolling_window: 30
@@ -603,9 +603,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.477
     min_rolling_wr: 69.0
     rolling_window: 30
@@ -639,9 +639,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.796
     min_rolling_wr: 57.0
     rolling_window: 30
@@ -675,9 +675,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.629
     min_rolling_wr: 63.0
     rolling_window: 30
@@ -708,9 +708,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.480
     min_rolling_wr: 69.0
     rolling_window: 30
@@ -771,9 +771,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.191
     min_rolling_wr: 46.0
     rolling_window: 30
@@ -845,9 +845,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.344
     min_rolling_wr: 73.0
     rolling_window: 30
@@ -883,9 +883,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.125
     min_rolling_wr: 88.0
     rolling_window: 30
@@ -919,9 +919,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.796
     min_rolling_wr: 57.0
     rolling_window: 30
@@ -956,9 +956,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.653
     min_rolling_wr: 39.0
     rolling_window: 30
@@ -993,9 +993,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.653
     min_rolling_wr: 39.0
     rolling_window: 30
@@ -1030,9 +1030,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.079
     min_rolling_wr: 50.0
     rolling_window: 30
@@ -1066,9 +1066,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.653
     min_rolling_wr: 39.0
     rolling_window: 30
@@ -1103,9 +1103,9 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 2.0
+    max_stake: 1.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 1.079
     min_rolling_wr: 50.0
     rolling_window: 30
@@ -1138,7 +1138,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -1169,7 +1169,7 @@ symbols:
     min_stake: 1.0
     max_stake: 5.0
     stake_percent: 1.0
-    use_kelly: true
+    use_kelly: false
     payout_pct: 0.87
     max_open_contracts: 1
     blocked_hours_eat: []
