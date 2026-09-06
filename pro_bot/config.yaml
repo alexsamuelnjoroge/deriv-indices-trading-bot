@@ -90,6 +90,7 @@ strategies:
   - name: macd_momentum
     enabled: true
     symbols: [USDJPY]
+    direction_filter: long    # BUY only — SELL side 1/4 windows (no edge); carry dynamics favour long
     ltf_granularity: 3600     # 1H bars â†’ MACD signal + EMA100 trend
     htf_granularity: 14400    # 4H bars â†’ EMA slope gate (stored in _htf_bars)
     macd_fast: 8
