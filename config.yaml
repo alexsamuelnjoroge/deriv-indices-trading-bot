@@ -592,7 +592,7 @@ symbols:
     growth_rate: 0.05
     hold_ticks: 8
     early_sell_pct: 0
-    settle_ticks: 0
+    settle_ticks: 3
     adaptive_settle: true
     settle_atr_ratio: 1.0
     settle_short_period: 8
