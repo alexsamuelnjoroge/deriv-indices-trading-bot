@@ -204,8 +204,14 @@ class ProBot:
                             bar = bars[-1]
                             sig = strat.feed(bar)
                             if sig and sig.action != "HOLD":
-                                self.order_mgr.on_signal(sym, sig,
-                                                         bar_epoch=bar.get("epoch", 0))
+                                dir_filter = strat.config.get("direction_filter", "both")
+                                if dir_filter == "long" and sig.action == "SELL":
+                                    pass
+                                elif dir_filter == "short" and sig.action == "BUY":
+                                    pass
+                                else:
+                                    self.order_mgr.on_signal(sym, sig,
+                                                             bar_epoch=bar.get("epoch", 0))
 
                         def _htf_handler(symbol_name, bars):
                             if not bars:
