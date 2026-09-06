@@ -1,12 +1,12 @@
-# pro_bot configuration — multi-strategy, backtested on 365 days + holdout validation
+﻿# pro_bot configuration â€” multi-strategy, backtested on 365 days + holdout validation
 # Each symbol uses the strategy that generalised best to unseen data.
 
 strategies:
 
-  # ── Gold (XAUUSD) ─────────────────────────────────────────────────────────
+  # â”€â”€ Gold (XAUUSD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Strategy : MTF RSI-Pullback (adaptive + 4H filter + wide ATR SL)
   # Backtest : Train EV +0.103R WR 38.0% | Holdout EV +0.667R WR 61.3% n=39
-  # Stack: 4H EMA20 filter + ATR×2.0 SL + RSI lookback 30 — all additive
+  # Stack: 4H EMA20 filter + ATRÃ—2.0 SL + RSI lookback 30 â€” all additive
   - name: mtf_pullback
     enabled: true
     symbols: [XAUUSD]
@@ -17,7 +17,7 @@ strategies:
     rsi_period: 14
     rsi_entry: 35.0
     rsi_adaptive: true         # 20th-pct of last rsi_lookback RSI values
-    rsi_lookback: 30           # 30 bars — more responsive than 50
+    rsi_lookback: 30           # 30 bars â€” more responsive than 50
     tp_rr: 2.0
     adx_min: 0
     atr_mult_sl: 2.0           # wider SL lets trades breathe past noise (was 1.5)
@@ -28,10 +28,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── EUR/USD (EURUSD) ──────────────────────────────────────────────────────
+  # â”€â”€ EUR/USD (EURUSD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Strategy : Bollinger Band + RSI<55 Pullback + 4H EMA filter
   # Backtest : Train EV +0.286R WR 54.6% n=456 | Holdout EV +0.500R WR 66.7% n=68
-  # Stack: 4H EMA20 filter + ATR×2.0 SL + RR 2.0 — all additive (prev holdout -0.036R)
+  # Stack: 4H EMA20 filter + ATRÃ—2.0 SL + RR 2.0 â€” all additive (prev holdout -0.036R)
   - name: bb_rsi_pullback
     enabled: true
     symbols: [EURUSD]
@@ -42,9 +42,9 @@ strategies:
     bb_period: 20
     bb_std: 2.0
     rsi_period: 14
-    rsi_thresh: 55.0           # BUY when RSI < 55 (relaxed — catches shallow BB pullbacks)
-    tp_rr: 2.0                 # raised from 1.5 — pairs well with wider ATR SL
-    atr_mult_sl: 2.0           # raised from 1.5 — lets trades breathe past noise spikes
+    rsi_thresh: 55.0           # BUY when RSI < 55 (relaxed â€” catches shallow BB pullbacks)
+    tp_rr: 2.0                 # raised from 1.5 â€” pairs well with wider ATR SL
+    atr_mult_sl: 2.0           # raised from 1.5 â€” lets trades breathe past noise spikes
     use_4h_filter: true        # 4H EMA must agree with 1H trend before entry
     ema_4h_period: 20
     session_peak: true         # London 10:00-13:30 EAT + NY 16:00-19:30 EAT
@@ -52,12 +52,12 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── GBP/USD (GBPUSD) ──────────────────────────────────────────────────────
-  # Strategy : BB+RSI Pullback (5m) — London session only + 4H EMA filter
-  # Backtest : 4-window walk-forward ROBUST 4/4 — all windows positive EV
+  # â”€â”€ GBP/USD (GBPUSD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  # Strategy : BB+RSI Pullback (5m) â€” London session only + 4H EMA filter
+  # Backtest : 4-window walk-forward ROBUST 4/4 â€” all windows positive EV
   #            W1 holdout +0.535R WR 65.3% n=85 | W2 +0.545R WR 63.5% n=56
   #            W3 holdout +0.292R WR 53.8% n=77 | W4 +0.177R WR 47.8% n=51
-  # London session (not NY) — GBP momentum driven by BoE and UK data, not NY flows.
+  # London session (not NY) â€” GBP momentum driven by BoE and UK data, not NY flows.
   # RR1.5 (not 2.0) optimises for higher WR; EMA200 stronger trend gate for vol pairs.
   - name: bb_rsi_pullback
     enabled: true
@@ -69,8 +69,8 @@ strategies:
     bb_period: 20
     bb_std: 2.0
     rsi_period: 14
-    rsi_thresh: 40.0           # tighter than EURUSD (55) — RSI drops harder on GBP
-    tp_rr: 1.5                 # lower target → higher win rate (vs EURUSD's 2.0)
+    rsi_thresh: 40.0           # tighter than EURUSD (55) â€” RSI drops harder on GBP
+    tp_rr: 1.5                 # lower target â†’ higher win rate (vs EURUSD's 2.0)
     atr_mult_sl: 2.0
     session: "london"          # London only: 10:00-13:30 EAT (BoE / UK data window)
     session_peak: false
@@ -80,18 +80,18 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── USD/JPY (USDJPY) ──────────────────────────────────────────────────────
+  # â”€â”€ USD/JPY (USDJPY) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Strategy : MACD Histogram Flip on 1H + 4H slope gate + daily macro
-  # Backtest : Dual-holdout validated — Win-A +0.600R WR 66.7% n=10 | Win-B +0.375R WR 50% n=16
+  # Backtest : Dual-holdout validated â€” Win-A +0.600R WR 66.7% n=10 | Win-B +0.375R WR 50% n=16
   # 5m strategies (RSI pullback, BB+RSI London-only) all failed walk-forward (0/4 windows).
-  # Root cause: JPY driven by BoJ interventions and carry dynamics — 5m patterns don't repeat.
+  # Root cause: JPY driven by BoJ interventions and carry dynamics â€” 5m patterns don't repeat.
   # 1H MACD histogram flips capture genuine momentum shifts; 125/~1000 configs passed
   # dual-holdout validation, confirming structural edge (not noise from single lucky config).
   - name: macd_momentum
     enabled: true
     symbols: [USDJPY]
-    ltf_granularity: 3600     # 1H bars → MACD signal + EMA100 trend
-    htf_granularity: 14400    # 4H bars → EMA slope gate (stored in _htf_bars)
+    ltf_granularity: 3600     # 1H bars â†’ MACD signal + EMA100 trend
+    htf_granularity: 14400    # 4H bars â†’ EMA slope gate (stored in _htf_bars)
     macd_fast: 8
     macd_slow: 21
     macd_signal: 9
@@ -104,14 +104,14 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── Walk-forward validated research strategies ────────────────────────────
+  # â”€â”€ Walk-forward validated research strategies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # All use 1H bars + daily bars. ROBUST = 4/4 windows. MOSTLY OK = 3/4 windows.
   # Backtest dataset: 730 days frx symbols, BE@1R, max_hold=48H.
 
-  # MBD — Multi-Bar Divergence: large displacement + stalled velocity → fade
+  # MBD â€” Multi-Bar Divergence: large displacement + stalled velocity â†’ fade
   # ROBUST 4/4: best holdout EV +1.0R (XAUUSD), +0.93R (EURUSD), +0.63R (GBPUSD)
   - name: mbd
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     long_window: 6
@@ -125,7 +125,7 @@ strategies:
     macro_ema_period: 20
 
   - name: mbd
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     long_window: 12
@@ -139,7 +139,7 @@ strategies:
     macro_ema_period: 20
 
   - name: mbd
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     long_window: 6
@@ -152,10 +152,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ZSR — Z-Score Mean Reversion: rolling z-score extreme → fade to mean
+  # ZSR â€” Z-Score Mean Reversion: rolling z-score extreme â†’ fade to mean
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 GBPUSD
   - name: zsr
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     zscore_period: 72
@@ -167,7 +167,7 @@ strategies:
     macro_ema_period: 20
 
   - name: zsr
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     zscore_period: 72
@@ -178,10 +178,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # DBSF — Daily Bar Streak Filter: N consecutive same-direction days → fade at London open
+  # DBSF â€” Daily Bar Streak Filter: N consecutive same-direction days â†’ fade at London open
   # ROBUST 4/4 XAUUSD; MOSTLY OK 3/4 USDJPY (too few trades in one window)
   - name: dbsf
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     min_streak: 2
@@ -193,7 +193,7 @@ strategies:
     macro_ema_period: 20
 
   - name: dbsf
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_streak: 2
@@ -204,10 +204,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # LSH — Liquidity Sweep: wick beyond key level closes back inside → stop-hunt fade
+  # LSH â€” Liquidity Sweep: wick beyond key level closes back inside â†’ stop-hunt fade
   # ROBUST 4/4 XAUUSD (PDH/PDL); ROBUST 4/4 USDJPY (Asian session range)
   - name: lsh
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     level_type: pdh_pdl
@@ -219,7 +219,7 @@ strategies:
     macro_ema_period: 20
 
   - name: lsh
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     level_type: asian
@@ -230,10 +230,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # NRC — Narrow Range Compression: N compressed bars → false breakout fade (EUR) or follow (JPY)
+  # NRC â€” Narrow Range Compression: N compressed bars â†’ false breakout fade (EUR) or follow (JPY)
   # ROBUST 4/4 EURUSD; MOSTLY OK 3/4 USDJPY
   - name: nrc
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     compress_n: 5
@@ -246,7 +246,7 @@ strategies:
     macro_ema_period: 20
 
   - name: nrc
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     compress_n: 4
@@ -258,10 +258,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # LND — London-NY Divergence: large London move → fade at NY open
+  # LND â€” London-NY Divergence: large London move â†’ fade at NY open
   # ROBUST 4/4 XAUUSD; MOSTLY OK 3/4 USDJPY
   - name: lnd
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     min_london_atr: 1.5
@@ -273,7 +273,7 @@ strategies:
     macro_ema_period: 20
 
   - name: lnd
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_london_atr: 2.0
@@ -283,10 +283,10 @@ strategies:
     atr_mult_sl: 1.5
     macro_filter: false
 
-  # BPS — Bar Pattern Sequences: pin bar at PDH/PDL
+  # BPS â€” Bar Pattern Sequences: pin bar at PDH/PDL
   # ROBUST 4/4 EURUSD; MOSTLY OK 3/4 USDJPY
   - name: bps
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     pattern_type: pin_bar
@@ -299,7 +299,7 @@ strategies:
     macro_ema_period: 20
 
   - name: bps
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     pattern_type: pin_bar
@@ -311,10 +311,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # PDL — Previous Day Level: first intraday touch of PDH/PDL → fade
+  # PDL â€” Previous Day Level: first intraday touch of PDH/PDL â†’ fade
   # ROBUST 4/4 XAUUSD (best holdout EV +0.56R); ROBUST 4/4 GBPUSD (EV +0.26R)
   - name: pdl
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     signal_type: first_touch
@@ -326,7 +326,7 @@ strategies:
     macro_ema_period: 20
 
   - name: pdl
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     signal_type: first_touch
@@ -337,10 +337,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # CPFA — CPF Acceleration: N consecutive extreme CPF bars = exhaustion → fade
+  # CPFA â€” CPF Acceleration: N consecutive extreme CPF bars = exhaustion â†’ fade
   # ROBUST 4/4 GBPUSD (streak type); MOSTLY OK 3/4 XAUUSD (reversal type)
   - name: cpfa
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     min_streak: 4
@@ -354,7 +354,7 @@ strategies:
     macro_ema_period: 20
 
   - name: cpfa
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     min_streak: 3
@@ -367,10 +367,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # SHD — Structural High/Low Deviation: wick pierces rolling N-bar level, closes back inside → stop-hunt fade
+  # SHD â€” Structural High/Low Deviation: wick pierces rolling N-bar level, closes back inside â†’ stop-hunt fade
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: shd
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     n_bars: 30
@@ -382,7 +382,7 @@ strategies:
     macro_ema_period: 20
 
   - name: shd
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     n_bars: 30
@@ -393,10 +393,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # RNM — Round Number Magnet: bar wicks to round-number grid then bounces → follow bounce
+  # RNM â€” Round Number Magnet: bar wicks to round-number grid then bounces â†’ follow bounce
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: rnm
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     touch_zone: 1.0
@@ -408,7 +408,7 @@ strategies:
     macro_ema_period: 20
 
   - name: rnm
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     touch_zone: 1.0
@@ -419,10 +419,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # PLT — Progressive Level Tests: successive declining approach peaks → distribution fade
+  # PLT â€” Progressive Level Tests: successive declining approach peaks â†’ distribution fade
   # ROBUST 4/4 XAUUSD, USDJPY, EURUSD, GBPUSD
   - name: plt
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     level_lookback: 50
@@ -435,7 +435,7 @@ strategies:
     macro_ema_period: 20
 
   - name: plt
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     level_lookback: 50
@@ -448,7 +448,7 @@ strategies:
     macro_ema_period: 20
 
   - name: plt
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     level_lookback: 30
@@ -461,7 +461,7 @@ strategies:
     macro_ema_period: 20
 
   - name: plt
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     level_lookback: 50
@@ -473,10 +473,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # OFBS — Order Flow Balance Shift: rolling CPF avg flips from bull to bear zone → institutional reversal
+  # OFBS â€” Order Flow Balance Shift: rolling CPF avg flips from bull to bear zone â†’ institutional reversal
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 GBPUSD
   - name: ofbs
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     avg_period: 15
@@ -489,7 +489,7 @@ strategies:
     macro_ema_period: 20
 
   - name: ofbs
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     avg_period: 5
@@ -501,10 +501,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # CRPB — Compression Range Position Bias: ATR quiet phase + close position bias → expansion direction
+  # CRPB â€” Compression Range Position Bias: ATR quiet phase + close position bias â†’ expansion direction
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: crpb
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     atr_sma_period: 20
@@ -519,7 +519,7 @@ strategies:
     macro_ema_period: 20
 
   - name: crpb
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     atr_sma_period: 20
@@ -533,10 +533,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ARS — Asian Range Sweep: London bar wicks beyond Asian session boundary then reverses → stop-hunt fade
+  # ARS â€” Asian Range Sweep: London bar wicks beyond Asian session boundary then reverses â†’ stop-hunt fade
   # ROBUST 4/4 USDJPY
   - name: ars
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_probe: 0.5
@@ -547,10 +547,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # FVG — Fair Value Gap Fill: impulse bar creates untested zone; price returns to fill it → follow impulse
+  # FVG â€” Fair Value Gap Fill: impulse bar creates untested zone; price returns to fill it â†’ follow impulse
   # ROBUST 4/4 USDJPY; ROBUST 4/4 EURUSD
   - name: fvg
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     impulse_atr: 1.0
@@ -563,7 +563,7 @@ strategies:
     macro_ema_period: 20
 
   - name: fvg
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     impulse_atr: 1.0
@@ -575,10 +575,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # RVD — Return Velocity Decay: close-to-close velocity shrinks each bar → counter-trend fade
+  # RVD â€” Return Velocity Decay: close-to-close velocity shrinks each bar â†’ counter-trend fade
   # MOSTLY OK 3/4 GBPUSD, EURUSD, USDJPY
   - name: rvd
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     min_streak: 4
@@ -591,7 +591,7 @@ strategies:
     macro_ema_period: 20
 
   - name: rvd
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     min_streak: 3
@@ -604,7 +604,7 @@ strategies:
     macro_ema_period: 20
 
   - name: rvd
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_streak: 4
@@ -616,10 +616,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # IBSB — Inside Bar Sequence Breakout: 2+ consecutive inside bars coil energy → breakout follow
+  # IBSB â€” Inside Bar Sequence Breakout: 2+ consecutive inside bars coil energy â†’ breakout follow
   # MOSTLY OK 3/4 USDJPY
   - name: ibsb
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_inside_bars: 2
@@ -630,10 +630,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ORB — Opening Range Breakout: London 07:00 bar defines equilibrium; sustained break → momentum follow
+  # ORB â€” Opening Range Breakout: London 07:00 bar defines equilibrium; sustained break â†’ momentum follow
   # MOSTLY OK 3/4 USDJPY
   - name: orb
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     min_orb_atr: 0.5
@@ -646,10 +646,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # SME — Session Move Exhaustion: cumulative session displacement beyond ATR threshold → fade
+  # SME â€” Session Move Exhaustion: cumulative session displacement beyond ATR threshold â†’ fade
   # MOSTLY OK 3/4 EURUSD (NY session); MOSTLY OK 3/4 GBPUSD (London session)
   - name: sme
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     exhaustion_thresh: 4.0
@@ -660,7 +660,7 @@ strategies:
     macro_filter: false
 
   - name: sme
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     exhaustion_thresh: 3.0
@@ -671,10 +671,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # CBVE — Candle Body Velocity Exhaustion: accel bodies then doji-size exhaustion → counter-trend fade
-  # ROBUST 4/4 GBPUSD (accel2 exhaust0.25 avg5 RR1.5 ATR×2.0 MACRO)
+  # CBVE â€” Candle Body Velocity Exhaustion: accel bodies then doji-size exhaustion â†’ counter-trend fade
+  # ROBUST 4/4 GBPUSD (accel2 exhaust0.25 avg5 RR1.5 ATRÃ—2.0 MACRO)
   - name: cbve
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     accel_bars: 2
@@ -687,9 +687,9 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ROBUST 4/4 USDJPY (accel2 exhaust0.15 avg8 RR1.5 ATR×1.5 MACRO)
+  # ROBUST 4/4 USDJPY (accel2 exhaust0.15 avg8 RR1.5 ATRÃ—1.5 MACRO)
   - name: cbve
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     accel_bars: 2
@@ -702,10 +702,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # CRD — Candle Rhythm Disruption: anomalously large candle vs recent rhythm → FADE institutional bar
-  # ROBUST 4/4 EURUSD (avg10 x2.5 body0.5 FADE cool12 RR3.0 ATR×1.5 MACRO EV +0.4054R)
+  # CRD â€” Candle Rhythm Disruption: anomalously large candle vs recent rhythm â†’ FADE institutional bar
+  # ROBUST 4/4 EURUSD (avg10 x2.5 body0.5 FADE cool12 RR3.0 ATRÃ—1.5 MACRO EV +0.4054R)
   - name: crd
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     granularity: 3600
     avg_period: 10
@@ -718,9 +718,9 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ROBUST 4/4 GBPUSD (avg5 x2.5 body0.5 FADE cool24 RR3.0 ATR×1.5 MACRO EV +0.2424R)
+  # ROBUST 4/4 GBPUSD (avg5 x2.5 body0.5 FADE cool24 RR3.0 ATRÃ—1.5 MACRO EV +0.2424R)
   - name: crd
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     avg_period: 5
@@ -733,9 +733,9 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ROBUST 4/4 USDJPY (avg5 x2.5 body0.3 FADE cool24 RR3.0 ATR×1.5 MACRO EV +0.4717R)
+  # ROBUST 4/4 USDJPY (avg5 x2.5 body0.3 FADE cool24 RR3.0 ATRÃ—1.5 MACRO EV +0.4717R)
   - name: crd
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     avg_period: 5
@@ -748,10 +748,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # VRT — Volatility Regime Transition: first bar of vol expansion after N quiet bars → follow body direction
-  # ROBUST 4/4 XAUUSD (sma20 quiet5 body0.2 cool24 RR3.0 ATR×2.0 MACRO EV +0.5385R)
+  # VRT â€” Volatility Regime Transition: first bar of vol expansion after N quiet bars â†’ follow body direction
+  # ROBUST 4/4 XAUUSD (sma20 quiet5 body0.2 cool24 RR3.0 ATRÃ—2.0 MACRO EV +0.5385R)
   - name: vrt
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     atr_sma_period: 20
@@ -763,9 +763,9 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ROBUST 4/4 GBPUSD (sma50 quiet8 body0.2 cool24 RR1.5 ATR×2.0 MACRO EV +0.0541R)
+  # ROBUST 4/4 GBPUSD (sma50 quiet8 body0.2 cool24 RR1.5 ATRÃ—2.0 MACRO EV +0.0541R)
   - name: vrt
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     atr_sma_period: 50
@@ -777,10 +777,10 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # CSD — Cross-Symbol Divergence: lead (EURUSD) moves while lag (GBPUSD) stays flat → lag catches up
-  # ROBUST 4/4 EURUSD→GBPUSD (win6 lead≥1.5ATR lag≤0.5ATR sess=london cool12 RR2.0 ATR×2.0 MACRO EV +0.5000R)
+  # CSD â€” Cross-Symbol Divergence: lead (EURUSD) moves while lag (GBPUSD) stays flat â†’ lag catches up
+  # ROBUST 4/4 EURUSDâ†’GBPUSD (win6 leadâ‰¥1.5ATR lagâ‰¤0.5ATR sess=london cool12 RR2.0 ATRÃ—2.0 MACRO EV +0.5000R)
   - name: csd
-    enabled: true
+    enabled: false
     lead_symbol: EURUSD
     symbols: [GBPUSD]
     granularity: 3600
@@ -794,14 +794,14 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
-  # ── CRW — Consecutive Rejection Wick ─────────────────────────────────────
-  # Repeated same-side wick rejections signal trapped breakout traders → fade.
-  # ROBUST 4/4 on USDJPY: wicks=4, wick_ratio=0.35, RR=3.0, ATR×2.0, minR=0.4
-  # MOSTLY OK 3/4 on XAUUSD: wicks=3, wick_ratio=0.55, RR=3.0, ATR×1.5, minR=0.2
-  # MOSTLY OK 3/4 on GBPUSD: wicks=3, wick_ratio=0.55, RR=1.5, ATR×2.0, minR=0.2
+  # â”€â”€ CRW â€” Consecutive Rejection Wick â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  # Repeated same-side wick rejections signal trapped breakout traders â†’ fade.
+  # ROBUST 4/4 on USDJPY: wicks=4, wick_ratio=0.35, RR=3.0, ATRÃ—2.0, minR=0.4
+  # MOSTLY OK 3/4 on XAUUSD: wicks=3, wick_ratio=0.55, RR=3.0, ATRÃ—1.5, minR=0.2
+  # MOSTLY OK 3/4 on GBPUSD: wicks=3, wick_ratio=0.55, RR=1.5, ATRÃ—2.0, minR=0.2
 
   - name: crw
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     granularity: 3600
     n_wicks: 4
@@ -813,7 +813,7 @@ strategies:
     macro_filter: false
 
   - name: crw
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     n_wicks: 3
@@ -825,7 +825,7 @@ strategies:
     macro_filter: false
 
   - name: crw
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     granularity: 3600
     n_wicks: 3
@@ -836,12 +836,12 @@ strategies:
     atr_mult_sl: 2.0
     macro_filter: false
 
-  # ── SHP — Session Handoff Pullback ────────────────────────────────────────
-  # London trend + NY open shallow pullback + rejection bar → London trend resumes.
-  # MOSTLY OK 3/4 on XAUUSD: disp=0.5xATR, pb=20-60%, RR=1.5, ATR×1.5
+  # â”€â”€ SHP â€” Session Handoff Pullback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  # London trend + NY open shallow pullback + rejection bar â†’ London trend resumes.
+  # MOSTLY OK 3/4 on XAUUSD: disp=0.5xATR, pb=20-60%, RR=1.5, ATRÃ—1.5
 
   - name: shp
-    enabled: true
+    enabled: false
     symbols: [XAUUSD]
     granularity: 3600
     min_displacement_atr: 0.5
@@ -859,19 +859,19 @@ risk:
   max_open_per_symbol: 2         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
 
-  # Min-lot safety: skip if min-lot forces actual risk beyond this × target (0 = off)
-  # Raised to 10 to allow XAUUSD through on a small account — each gold trade
+  # Min-lot safety: skip if min-lot forces actual risk beyond this Ã— target (0 = off)
+  # Raised to 10 to allow XAUUSD through on a small account â€” each gold trade
   # may risk 5-10% of balance rather than 1%. Daily loss limit is the safety net.
   min_lot_risk_mult: 10.0
 
-  # Spread filter: skip entry if spread > ratio × SL distance (0 = off)
+  # Spread filter: skip entry if spread > ratio Ã— SL distance (0 = off)
   max_spread_sl_ratio: 0.4
 
   # Break-even: move SL to entry once trade reaches this many R profit (0 = off)
   break_even_trigger_r: 1.0
 
   # Pyramid: open a scaled entry once trade reaches this many R profit (0 = off)
-  pyramid_trigger_r: 1.0
+  pyramid_trigger_r: 0
   pyramid_risk_pct: 0.5          # risk % of balance for the pyramid position
 
   # Trailing stop: once a pyramid is open, trail ALL positions in that group
@@ -887,10 +887,10 @@ risk:
   loss_cooldown_secs: 600        # 10 minutes = 2 full 5-min bars
 
   # Drawdown-aware sizing: scale risk_pct down as equity draws from session peak.
-  # At each threshold the scale factor applies — last threshold reached wins.
+  # At each threshold the scale factor applies â€” last threshold reached wins.
   dd_sizing:
-    enabled: true
+    enabled: false
     thresholds:
-      - {drawdown_pct: 2.0, risk_scale: 0.75}   # 2% DD  → 0.75% risk per trade
-      - {drawdown_pct: 4.0, risk_scale: 0.50}   # 4% DD  → 0.50%
-      - {drawdown_pct: 6.0, risk_scale: 0.25}   # 6% DD  → 0.25% (crisis mode)
+      - {drawdown_pct: 2.0, risk_scale: 0.75}   # 2% DD  â†’ 0.75% risk per trade
+      - {drawdown_pct: 4.0, risk_scale: 0.50}   # 4% DD  â†’ 0.50%
+      - {drawdown_pct: 6.0, risk_scale: 0.25}   # 6% DD  â†’ 0.25% (crisis mode)
