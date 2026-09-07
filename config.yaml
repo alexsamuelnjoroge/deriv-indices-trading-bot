@@ -819,6 +819,8 @@ symbols:
   # BOOM50 — 4/4 ROBUST: WR=78.5% BE=74.4% EV=+1.397% (497 trades/60k)
   # Correct barrier: 2.30e-6 (3% growth). Old 1.55e-5 was 6.7x too wide (1% growth anomaly).
   # Adaptive settle ratio=0.3/period=3/max=15 selects calmer sub-periods → lower KO rate.
+  # settle_ticks=3 tried 2026-09-07: WR crashed 85%→63% (49t), reverted same day.
+  # Edge is time-sensitive — 3-tick delay misses the post-spike calm window.
   - symbol: BOOM50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -834,7 +836,7 @@ symbols:
     growth_rate: 0.03
     hold_ticks: 10
     early_sell_pct: 0
-    settle_ticks: 3
+    settle_ticks: 0
     adaptive_settle: true
     settle_atr_ratio: 0.3
     settle_short_period: 3
@@ -1002,10 +1004,10 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM500 — 4/4 ROBUST: WR=59.5% EV=+12.3% (37 trades/86k)
-  # max_settle=50 critical — shorter waits only get 3/4
+  # BOOM500 — disabled: 29.4% WR live (5W/12L Sep 7) vs 50.5% BE — backtest had only 37 trades (sparse, overfit)
+  # 4/4 ROBUST: WR=59.5% EV=+12.3% (37 trades/86k) — too few trades to trust
   - symbol: BOOM500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
