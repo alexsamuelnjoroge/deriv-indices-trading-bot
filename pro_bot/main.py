@@ -476,7 +476,7 @@ def main():
     parser.add_argument("--config", default="pro_bot/config.yaml")
     args = parser.parse_args()
 
-    with open(args.config) as f:
+    with open(args.config, encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     if mt5 is None:
