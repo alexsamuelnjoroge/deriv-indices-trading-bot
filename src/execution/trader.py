@@ -71,7 +71,7 @@ class Trader:
             self._open_accu[cid] -= 1
             ticks_left = self._open_accu[cid]
 
-            sell = ticks_left <= 0
+            sell = ticks_left < 0  # < 0 (not <= 0): Deriv applies growth on the sell tick too, so wait one extra tick
 
             if not sell and self.early_sell_pct > 0 and cid in self._open:
                 elapsed = self.hold_ticks - ticks_left
