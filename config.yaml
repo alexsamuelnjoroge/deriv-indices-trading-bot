@@ -814,48 +814,15 @@ symbols:
   # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
   # ══════════════════════════════════════════════════════════════════════
 
-  # BOOM50 — disabled: live WR 85%→73% (291t Sep 7-8), below 74.4% BE. Barrier re-calibration needed.
-  # Binary recoil edge (98% per-tick WR) confirmed but unexploitable: BOOM/CRASH has no CALL/PUT contracts.
-  # Available: ACCU, MULTUP, MULTDOWN only. Multiplier EV≈0 due to secondary spikes offsetting drift.
+  # BOOM50 — re-enabled: sweep 2026-09-08 (86k ticks, 4×21.5k): 4/4 ROBUST
+  # gr=4% hold=12 settle=3 → WR=72.0% BE=62.5% EV=+15.294% (661 trades)
+  # Previous failure (live WR 73% < 74.4% BE) caused by wrong gr=3% barrier (2.30e-6).
+  # Binary recoil analysis confirmed: post-spike ATR 34% calmer → lower KO per tick.
+  # Correct barrier for gr=4%: 2.15e-6 (sourced from check_contracts.py 2026-08-24).
   - symbol: BOOM50
-    enabled: false
-    strategy_type: crash_boom_recoil
-    symbol_type: boom
-    use_binary: false
-    spike_mult: 12.0
-    atr_period: 50
-    cooldown_ticks: 5
-    loss_cooldown: 2
-    min_spike_ratio: 0
-    cluster_window: 50
-    max_cluster_spikes: 3
-    growth_rate: 0.04
-    hold_ticks: 12
-    early_sell_pct: 0
-    settle_ticks: 0
-    adaptive_settle: false
-    barrier_pct: 0.00000215
-    confirm_threshold: 0.5
-    contract_duration: 0
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 1.0
-    stake_percent: 1.0
-    use_kelly: false
-    payout_pct: 0.601
-    min_rolling_wr: 62.0
-    rolling_window: 30
-    max_open_contracts: 1
-    blocked_hours_eat: []
-
-  # CRASH50 — ACCU hold=12 gr=4% — recovery sweep 2026-09-08 (86k ticks, 4×21.5k): 3/4 ★★
-  # WR=64.1% BE=62.5% EV=+0.956% (637 trades). Post-spike ATR 34% calmer → fewer KO events.
-  # Binary recoil (98% WR) is real but unexploitable: BOOM/CRASH has no CALL/PUT contracts.
-  - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
-    symbol_type: crash
+    symbol_type: boom
     use_binary: false
     spike_mult: 12.0
     atr_period: 50
@@ -880,6 +847,41 @@ symbols:
     use_kelly: false
     payout_pct: 0.601
     min_rolling_wr: 62.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # CRASH50 — upgraded to gr=5% hold=12 — sweep 2026-09-08 (86k ticks, 4×21.5k): 4/4 ROBUST
+  # WR=72.7% BE=55.7% EV=+30.531% (637 trades). Prior gr=4% was 3/4 with EV=+0.956% (too thin).
+  # Barrier for gr=5%: 2.03e-6 (live Deriv value). Payout = 1.05^12 - 1 = 79.6%.
+  - symbol: CRASH50
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 50
+    max_cluster_spikes: 3
+    growth_rate: 0.05
+    hold_ticks: 12
+    early_sell_pct: 0
+    settle_ticks: 3
+    adaptive_settle: false
+    barrier_pct: 0.00000203
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.796
+    min_rolling_wr: 56.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
