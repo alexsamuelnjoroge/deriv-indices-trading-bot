@@ -856,9 +856,10 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — 4/4 ROBUST: WR=90.7% BE=88.9% EV=+0.220% (482 trades/60k)
-  # Correct barrier: 2.15e-6 (4% growth). Old 1.55e-5 was 7.2x too wide (1% growth anomaly).
-  # Adaptive settle ratio=1.0/period=5/max=15 with short hold_ticks=3 for high-frequency edge.
+  # CRASH50 — recovery sweep 2026-09-08 (86k ticks, 4×21.5k): 3/4 ★★
+  # settle=3 gr=4% hold=12 → WR=64.1% BE=62.5% EV=+0.956% (637 trades)
+  # Moved from hold=3 (BE=88.9%, live WR 87% < BE) to hold=12 (BE=62.5%, live WR should clear easily)
+  # Switched to fixed settle_ticks=3, adaptive_settle=false (sweep validated with fixed settle)
   - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -872,13 +873,10 @@ symbols:
     cluster_window: 50
     max_cluster_spikes: 3
     growth_rate: 0.04
-    hold_ticks: 3
+    hold_ticks: 12
     early_sell_pct: 0
     settle_ticks: 3
-    adaptive_settle: true
-    settle_atr_ratio: 1.0
-    settle_short_period: 5
-    max_settle_ticks: 15
+    adaptive_settle: false
     barrier_pct: 0.00000215
     confirm_threshold: 0.5
     contract_duration: 0
@@ -888,8 +886,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.125
-    min_rolling_wr: 88.0
+    payout_pct: 0.601
+    min_rolling_wr: 62.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
