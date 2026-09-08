@@ -851,11 +851,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — upgraded to gr=5% hold=12 — sweep 2026-09-08 (86k ticks, 4×21.5k): 4/4 ROBUST
-  # WR=72.7% BE=55.7% EV=+30.531% (637 trades). Prior gr=4% was 3/4 with EV=+0.956% (too thin).
-  # Barrier for gr=5%: 2.03e-6 (live Deriv value). Payout = 1.05^12 - 1 = 79.6%.
+  # CRASH50 — DISABLED 2026-09-08: no 4/4 ROBUST config found.
+  # Extended sweep (gr=4-5%, hold=8-20, settle=0/3, 86k ticks):
+  #   Best: gr=4% hold=12 settle=3 → 3/4, WR=64.1%, EV=+0.956% (too thin for live).
+  #   gr=5% hold=12 settle=3 → 1/4, WR=53.2%, EV=-1.983% (below BE=55.7%).
+  # BOOM50 and CRASH50 have different post-spike dynamics: CRASH rebound is more volatile,
+  # causing higher KO rate at gr=5% barrier=2.03e-6. Will re-evaluate with more tick history.
   - symbol: CRASH50
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -866,12 +869,12 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.05
+    growth_rate: 0.04
     hold_ticks: 12
     early_sell_pct: 0
     settle_ticks: 3
     adaptive_settle: false
-    barrier_pct: 0.00000203
+    barrier_pct: 0.00000215
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -880,8 +883,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.796
-    min_rolling_wr: 56.0
+    payout_pct: 0.601
+    min_rolling_wr: 62.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
