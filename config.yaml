@@ -612,36 +612,36 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH150N — binary recoil — 4/4 ROBUST: WR=99.77% BE=53.8% EV=+40.278% (sweep 2026-09-08)
-  # Same mechanism as CRASH50: post-spike mean reversion; each tick ~98% up. CALL 1-tick binary.
-  # Sweep: mult=10, settle=2, dur=1 best. Used settle=2 here to allow API processing buffer.
+  # CRASH150N — disabled: live WR 60%→51.9% (181t Sep 7-8), below 55.7% BE.
+  # ACCU has no edge: Deriv calibrated barrier tighter for 150N (1.61e-6), pushing baseline KO to 3.80% ≈ BE 3.85%.
+  # Binary recoil (99.77% WR) confirmed but unexploitable: no CALL/PUT contracts on any Boom/Crash symbol.
   - symbol: CRASH150N
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
-    use_binary: true
-    spike_mult: 10.0
+    use_binary: false
+    spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     min_spike_ratio: 0
     cluster_window: 300
     max_cluster_spikes: 4
-    growth_rate: 0.0
-    hold_ticks: 1
-    settle_ticks: 2
+    growth_rate: 0.05
+    hold_ticks: 12
+    settle_ticks: 0
     adaptive_settle: false
-    barrier_pct: 0
-    confirm_threshold: 0
-    contract_duration: 1
+    barrier_pct: 0.00000161
+    confirm_threshold: 0.5
+    contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.00
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
-    min_rolling_wr: 90.0
+    payout_pct: 0.796
+    min_rolling_wr: 57.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -814,52 +814,14 @@ symbols:
   # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
   # ══════════════════════════════════════════════════════════════════════
 
-  # BOOM50 — binary recoil — 4/4 ROBUST: WR=98.22% BE=53.8% EV=+38.929% (730 spikes/50k)
-  # Mechanism: BOOM spike leaves price elevated for many ticks; each post-spike tick has ~98%
-  # probability of being lower (strong mean reversion). PUT (BUY_FALL) 1-tick binary after spike.
-  # Sweep 2026-09-08: mult=10, settle=0, dur=1 best. Edge persists settle=0..4 (97-98% WR).
+  # BOOM50 — disabled: live WR 85%→73% (291t Sep 7-8), below 74.4% BE. Barrier re-calibration needed.
+  # Binary recoil edge (98% per-tick WR) confirmed but unexploitable: BOOM/CRASH has no CALL/PUT contracts.
+  # Available: ACCU, MULTUP, MULTDOWN only. Multiplier EV≈0 due to secondary spikes offsetting drift.
   - symbol: BOOM50
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
-    use_binary: true
-    spike_mult: 10.0
-    atr_period: 50
-    cooldown_ticks: 5
-    loss_cooldown: 2
-    min_spike_ratio: 0
-    cluster_window: 50
-    max_cluster_spikes: 3
-    growth_rate: 0.0
-    hold_ticks: 1
-    early_sell_pct: 0
-    settle_ticks: 0
-    adaptive_settle: false
-    barrier_pct: 0
-    confirm_threshold: 0
-    contract_duration: 1
-    contract_duration_unit: t
-    multiplier: 0
-    min_stake: 1.0
-    max_stake: 1.0
-    stake_percent: 1.0
-    use_kelly: false
-    payout_pct: 0.87
-    min_rolling_wr: 90.0
-    rolling_window: 30
-    max_open_contracts: 1
-    blocked_hours_eat: []
-
-  # CRASH50 — binary recoil — 4/4 ROBUST: WR=98.12% BE=53.8% EV=+38.838% (677 spikes/50k)
-  # Mechanism: CRASH spike depresses price; each post-spike tick has ~97-98% probability of
-  # being higher (mean reversion). CALL (BUY_RISE) 1-tick binary after spike.
-  # Sweep 2026-09-08: mult=12, settle=0, dur=1. Edge consistent across all settle values.
-  # Replaces ACCU hold=12 (EV=+0.956%) — binary EV is 40× higher per trade.
-  - symbol: CRASH50
-    enabled: true
-    strategy_type: crash_boom_recoil
-    symbol_type: crash
-    use_binary: true
+    use_binary: false
     spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
@@ -867,58 +829,91 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.0
-    hold_ticks: 1
+    growth_rate: 0.04
+    hold_ticks: 12
     early_sell_pct: 0
     settle_ticks: 0
     adaptive_settle: false
-    barrier_pct: 0
-    confirm_threshold: 0
-    contract_duration: 1
+    barrier_pct: 0.00000215
+    confirm_threshold: 0.5
+    contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
-    min_rolling_wr: 90.0
+    payout_pct: 0.601
+    min_rolling_wr: 62.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM150N — binary recoil — 4/4 ROBUST: WR=99.75% BE=53.8% EV=+40.261% (sweep 2026-09-08)
-  # ACCU strategy failed live (50% WR vs 57% BE). Binary recoil exploits same post-spike
-  # mean reversion but with 1-tick duration: no barrier risk, no hold-too-long exposure.
-  # Sweep: mult=10, settle=1, dur=1 best.
-  - symbol: BOOM150N
+  # CRASH50 — ACCU hold=12 gr=4% — recovery sweep 2026-09-08 (86k ticks, 4×21.5k): 3/4 ★★
+  # WR=64.1% BE=62.5% EV=+0.956% (637 trades). Post-spike ATR 34% calmer → fewer KO events.
+  # Binary recoil (98% WR) is real but unexploitable: BOOM/CRASH has no CALL/PUT contracts.
+  - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
+    symbol_type: crash
+    use_binary: false
+    spike_mult: 12.0
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 2
+    min_spike_ratio: 0
+    cluster_window: 50
+    max_cluster_spikes: 3
+    growth_rate: 0.04
+    hold_ticks: 12
+    early_sell_pct: 0
+    settle_ticks: 3
+    adaptive_settle: false
+    barrier_pct: 0.00000215
+    confirm_threshold: 0.5
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.601
+    min_rolling_wr: 62.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
+  # BOOM150N — disabled: live WR 60%→50% (146t Sep 7-8). ACCU has no edge (tight barrier = BE ≈ baseline KO).
+  # Binary recoil (99.75% WR) confirmed but unexploitable: no CALL/PUT contracts on any Boom/Crash symbol.
+  - symbol: BOOM150N
+    enabled: false
+    strategy_type: crash_boom_recoil
     symbol_type: boom
-    use_binary: true
-    spike_mult: 10.0
+    use_binary: false
+    spike_mult: 12.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     min_spike_ratio: 0
     cluster_window: 300
     max_cluster_spikes: 4
-    growth_rate: 0.0
-    hold_ticks: 1
+    growth_rate: 0.05
+    hold_ticks: 12
     early_sell_pct: 0
-    settle_ticks: 1
+    settle_ticks: 3
     adaptive_settle: false
-    barrier_pct: 0
-    confirm_threshold: 0
-    contract_duration: 1
+    barrier_pct: 0.00000161
+    confirm_threshold: 0.5
+    contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
-    min_rolling_wr: 90.0
+    payout_pct: 0.796
+    min_rolling_wr: 57.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
