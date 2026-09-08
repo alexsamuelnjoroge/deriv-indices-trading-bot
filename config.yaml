@@ -477,12 +477,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM1000 ACCU — post-spike Accumulator ───────────────────────────
-  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 3/4 MOSTLY OK
-  # ratio=0.5 per=8 ht=12 gr=5% → WR=59.4% BE=55.7% EV=+2.938%
-  # Baseline (settle=3, ht=15, gr=5%) was 1/4 EV=-2.036% — adaptive converts to 3/4
+  # ── BOOM1000 ACCU — DISABLED 2026-09-08: too sparse for reliable statistics ──
+  # Extended sweep (gr=4-5%, hold=8-20, settle=0/3, 86k ticks): no 4/4 ROBUST.
+  # Best: gr=4% hold=8 settle=0 → 3/4 OK, WR=78.6%, EV=+2.028% (only 42 trades).
+  # Live config (gr=5% hold=12 settle=0): 1/4, EV=-5.494% — confirmed losing.
+  # Root cause: spike every ~1000t = only ~86 spikes in 86k ticks → ~10-11 per
+  # backtest window. Too few trades for walk-forward to be statistically reliable.
   - symbol: BOOM1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
