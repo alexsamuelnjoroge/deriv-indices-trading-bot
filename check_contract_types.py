@@ -41,7 +41,7 @@ async def main():
 
     for sym in SYMBOLS:
         try:
-            resp = await client._send({"contracts_for": sym, "currency": "USD"})
+            resp = await client._send({"contracts_for": sym})
             avail = resp.get("contracts_for", {}).get("available", [])
             types = set(c.get("contract_type") for c in avail)
             found = types & WANT
