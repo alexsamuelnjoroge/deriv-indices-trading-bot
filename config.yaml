@@ -854,8 +854,10 @@ symbols:
 
   # CRASH50 — RECONFIGURED 2026-09-09: noise-reduction sweep 4/4 ROBUST
   # spike_mult=20x filters to cleanest spikes only; settle=5 lets volatility settle.
-  # gr=5% hold=10 settle=5 → WR=69.5% BE=61.4% EV=+5.104% (446 trades/86k)
-  # [72%(OK) 69%(OK) 68%(OK) 69%(OK)] — consistent across all 4 windows
+  # gr=4% hold=10 settle=5 spike=20x ct=0.5 → WR=69.6% BE=67.6% EV=+0.969% (447 trades/86k)
+  # [72%(OK) 69%(OK) 68%(OK) 70%(OK)] — corrected barrier sim 2026-09-09
+  # NOTE: gr=5% barrier=2.03e-6 was tighter than gr=4% barrier=2.15e-6 — previous
+  # config used wrong (wider) barrier in sweep. gr=4% + barrier=2.15e-6 is correct.
   - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -868,12 +870,12 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.05
+    growth_rate: 0.04
     hold_ticks: 10
     early_sell_pct: 0
     settle_ticks: 5
     adaptive_settle: false
-    barrier_pct: 0.00000203
+    barrier_pct: 0.00000215
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -882,8 +884,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.629
-    min_rolling_wr: 65.0
+    payout_pct: 0.480
+    min_rolling_wr: 69.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
