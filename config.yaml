@@ -577,9 +577,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM600 ACCU — 4/4 ROBUST ratio=1.0 per=8 max=15 ht=8 gr=5%
-  # Adaptive sweep 2026-09-01 (86k ticks, 4×21.5k): WR=80.0% BE=67.7% EV=+5.9%
-  # per=8 is the key filter — any ratio ≥ 0.7 gives same result (ATR gate met on 1st check)
+  # ── BOOM600 ACCU — 4/4 ROBUST: gr=5% hold=10 settle=0
+  # Corrected sweep 2026-09-09 (86k ticks, 4×21.5k, fixed barrier sim):
+  # WR=66.7% BE=61.4% EV=+3.318% — 4/4 across all windows.
+  # Simpler than old adaptive config (no adaptive_settle); more hold ticks = higher payout.
+  # Previous hold=8 adaptive config live WR=61-62% was below old BE=67.7% (now 61.4%).
   - symbol: BOOM600
     enabled: true
     strategy_type: crash_boom_recoil
@@ -592,13 +594,10 @@ symbols:
     cluster_window: 600
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 8
+    hold_ticks: 10
     early_sell_pct: 0
-    settle_ticks: 3
-    adaptive_settle: true
-    settle_atr_ratio: 1.0
-    settle_short_period: 8
-    max_settle_ticks: 15
+    settle_ticks: 0
+    adaptive_settle: false
     barrier_pct: 0.00000394
     confirm_threshold: 0.5
     contract_duration: 0
@@ -608,8 +607,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.477
-    min_rolling_wr: 69.0
+    payout_pct: 0.629
+    min_rolling_wr: 65.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
