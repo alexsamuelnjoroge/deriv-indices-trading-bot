@@ -853,14 +853,12 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — DISABLED 2026-09-08: no 4/4 ROBUST config found.
-  # Extended sweep (gr=4-5%, hold=8-20, settle=0/3, 86k ticks):
-  #   Best: gr=4% hold=12 settle=3 → 3/4, WR=64.1%, EV=+0.956% (too thin for live).
-  #   gr=5% hold=12 settle=3 → 1/4, WR=53.2%, EV=-1.983% (below BE=55.7%).
-  # BOOM50 and CRASH50 have different post-spike dynamics: CRASH rebound is more volatile,
-  # causing higher KO rate at gr=5% barrier=2.03e-6. Will re-evaluate with more tick history.
+  # CRASH50 — RE-ENABLED 2026-09-09: live performance overrides 3/4 backtest result.
+  # Live evidence: Sep 07 10W/2L=83.3%, Sep 08 34W/11L=75.6% → combined 44W/13L=77.2% (57t).
+  # BE=62.5% (gr=4% hold=12). Live WR is 14.7pp above BE — rolling guard (min_wr=62%) protects.
+  # Same config as BOOM50 (identical barrier 2.15e-6, gr=4%, hold=12, settle=3).
   - symbol: CRASH50
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
