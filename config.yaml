@@ -854,28 +854,28 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — RE-ENABLED 2026-09-09: live performance overrides 3/4 backtest result.
-  # Live evidence: Sep 07 10W/2L=83.3%, Sep 08 34W/11L=75.6% → combined 44W/13L=77.2% (57t).
-  # BE=62.5% (gr=4% hold=12). Live WR is 14.7pp above BE — rolling guard (min_wr=62%) protects.
-  # Same config as BOOM50 (identical barrier 2.15e-6, gr=4%, hold=12, settle=3).
+  # CRASH50 — RECONFIGURED 2026-09-09: noise-reduction sweep 4/4 ROBUST
+  # spike_mult=20x filters to cleanest spikes only; settle=5 lets volatility settle.
+  # gr=5% hold=10 settle=5 → WR=69.5% BE=61.4% EV=+5.104% (446 trades/86k)
+  # [72%(OK) 69%(OK) 68%(OK) 69%(OK)] — consistent across all 4 windows
   - symbol: CRASH50
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
-    spike_mult: 12.0
+    spike_mult: 20.0
     atr_period: 50
     cooldown_ticks: 5
     loss_cooldown: 2
     min_spike_ratio: 0
     cluster_window: 50
     max_cluster_spikes: 3
-    growth_rate: 0.04
-    hold_ticks: 12
+    growth_rate: 0.05
+    hold_ticks: 10
     early_sell_pct: 0
-    settle_ticks: 3
+    settle_ticks: 5
     adaptive_settle: false
-    barrier_pct: 0.00000215
+    barrier_pct: 0.00000203
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -884,8 +884,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.601
-    min_rolling_wr: 62.0
+    payout_pct: 0.629
+    min_rolling_wr: 65.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
