@@ -815,11 +815,10 @@ symbols:
   # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
   # ══════════════════════════════════════════════════════════════════════
 
-  # BOOM50 — re-enabled: sweep 2026-09-08 (86k ticks, 4×21.5k): 4/4 ROBUST
-  # gr=4% hold=12 settle=3 → WR=72.0% BE=62.5% EV=+15.294% (661 trades)
-  # Previous failure (live WR 73% < 74.4% BE) caused by wrong gr=3% barrier (2.30e-6).
-  # Binary recoil analysis confirmed: post-spike ATR 34% calmer → lower KO per tick.
-  # Correct barrier for gr=4%: 2.15e-6 (sourced from check_contracts.py 2026-08-24).
+  # BOOM50 — recoil gate enabled 2026-09-09: sweep showed settle=3 is 1/4 EV=-0.310%.
+  # Recoil gate (minR=3 maxW=30): WR=63.9% BE=62.5% EV=+0.841% 3/4 (368 trades/86k).
+  # Gate waits for 3 recoil ticks then first counter-recoil tick before entering ACCU —
+  # directional pressure spent = smaller subsequent ticks = better ACCU survival.
   - symbol: BOOM50
     enabled: true
     strategy_type: crash_boom_recoil
@@ -835,8 +834,11 @@ symbols:
     growth_rate: 0.04
     hold_ticks: 12
     early_sell_pct: 0
-    settle_ticks: 3
+    settle_ticks: 0
     adaptive_settle: false
+    recoil_gate: true
+    min_recoil_ticks: 3
+    max_recoil_wait: 30
     barrier_pct: 0.00000215
     confirm_threshold: 0.5
     contract_duration: 0

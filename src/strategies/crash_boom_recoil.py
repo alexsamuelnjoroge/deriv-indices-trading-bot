@@ -67,6 +67,15 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self.settle_atr_ratio         = float(config.get("settle_atr_ratio", 0.5))
         self.settle_short_period      = int(config.get("settle_short_period", 5))
         self.max_settle_ticks         = int(config.get("max_settle_ticks", 30))
+        # Recoil-completion gate: after confirm, wait for the first tick that moves
+        # AGAINST the recoil direction (counter-recoil), signalling directional pressure
+        # is spent. Requires min_recoil_ticks recoil ticks before accepting a counter.
+        # Overrides adaptive_settle and settle_ticks when enabled.
+        # BOOM spike UP: recoil = DOWN ticks, counter = first UP tick.
+        # CRASH spike DOWN: recoil = UP ticks, counter = first DOWN tick.
+        self.recoil_gate              = bool(config.get("recoil_gate", False))
+        self.min_recoil_ticks         = int(config.get("min_recoil_ticks", 2))
+        self.max_recoil_wait          = int(config.get("max_recoil_wait", 30))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
@@ -75,6 +84,9 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self._settle_remaining     = 0
         self._adaptive_settling    = False
         self._adaptive_settle_count = 0
+        self._recoil_tracking      = False
+        self._recoil_count         = 0
+        self._recoil_wait_count    = 0
         self._pending_reason       = ""
         self._pending_atr          = None
         self._pending_action       = ""
@@ -185,6 +197,80 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                 atr=pre_atr,
             )
 
+        # ── Recoil-completion gate ────────────────────────────────────────
+        if self._recoil_tracking:
+            self._recoil_wait_count += 1
+            if self._cooldown > 0:
+                self._cooldown -= 1
+
+            last_move = prices[-1] - prices[-2]
+
+            # New spike during tracking — restart for the new spike
+            if abs(last_move) > self.spike_mult * pre_atr:
+                self._recoil_tracking = False
+                self._recoil_count    = 0
+                self._recoil_wait_count = 0
+                self._cooldown = self.cooldown_ticks
+                is_valid_spike = (
+                    (self.symbol_type == "boom"  and last_move > 0) or
+                    (self.symbol_type == "crash" and last_move < 0)
+                )
+                if is_valid_spike:
+                    self._waiting_confirmation = True
+                    self._pending_action = self._pending_action
+                    self._pending_reason = (
+                        f"{self.symbol_type.upper()} spike during recoil gate — restart"
+                    )
+                    self._pending_atr = pre_atr
+                return Signal(action="HOLD",
+                              reason="Recoil gate: new spike — restarting",
+                              atr=pre_atr, close_open_accus=True)
+
+            # Timeout
+            if self._recoil_wait_count > self.max_recoil_wait:
+                self._recoil_tracking   = False
+                self._recoil_count      = 0
+                self._recoil_wait_count = 0
+                return Signal(action="HOLD",
+                              reason=f"Recoil gate: timed out at {self.max_recoil_wait}t — skip",
+                              atr=pre_atr)
+
+            # Classify this tick
+            if self.symbol_type == "boom":
+                is_recoil  = last_move < 0   # DOWN tick = recoil for BOOM
+                is_counter = last_move > 0   # UP tick   = counter-recoil
+            else:
+                is_recoil  = last_move > 0   # UP tick   = recoil for CRASH
+                is_counter = last_move < 0   # DOWN tick = counter-recoil
+
+            if is_recoil:
+                self._recoil_count += 1
+                return Signal(
+                    action="HOLD",
+                    reason=(f"Recoil gate: recoil tick {self._recoil_count} "
+                            f"(need {self.min_recoil_ticks} before counter)"),
+                    atr=pre_atr,
+                )
+
+            if is_counter and self._recoil_count >= self.min_recoil_ticks:
+                self._recoil_tracking   = False
+                self._recoil_count      = 0
+                self._recoil_wait_count = 0
+                return Signal(
+                    action=self._pending_action,
+                    reason=(f"{self._pending_reason} | recoil gate: "
+                            f"{self._recoil_count}r then counter at t+{self._recoil_wait_count}"),
+                    atr=self._pending_atr,
+                )
+
+            # Flat tick or counter before min_recoil — keep waiting
+            return Signal(
+                action="HOLD",
+                reason=(f"Recoil gate: waiting (recoil={self._recoil_count}, "
+                        f"need {self.min_recoil_ticks}, t={self._recoil_wait_count})"),
+                atr=pre_atr,
+            )
+
         # ── Settle delay: ticks after confirm gate, before opening ACCU ───
         if self._settle_remaining > 0:
             self._settle_remaining -= 1
@@ -215,7 +301,15 @@ class CrashBoomRecoilStrategy(BaseStrategy):
                         atr=self._pending_atr,
                     )
 
-            # Confirm gate passed — choose settle mode
+            # Confirm gate passed — choose settle mode (recoil gate takes priority)
+            if self.recoil_gate:
+                self._recoil_tracking   = True
+                self._recoil_count      = 0
+                self._recoil_wait_count = 0
+                return Signal(action="HOLD",
+                              reason="Recoil gate: tracking for counter-recoil tick",
+                              atr=self._pending_atr)
+
             if self.adaptive_settle and self.barrier_pct > 0:
                 self._adaptive_settling = True
                 self._adaptive_settle_count = 0
