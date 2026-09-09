@@ -107,9 +107,9 @@ def run_window(seg, is_boom, spike_mult, growth_rate, hold_ticks,
             i += 1
             continue
 
-        barrier = entry_price * barrier_pct
-
-        # Simulate ACCU: price must stay on safe side of barrier for hold_ticks
+        # Simulate ACCU: knocked out if ANY tick-to-tick fractional move exceeds
+        # barrier_pct (matches BacktestEngine: abs(curr-prev)/prev > barrier_pct).
+        # Direction-agnostic — Deriv ACCU has a symmetric band around each tick.
         survived = True
         ko_tick  = -1
         for t in range(1, hold_ticks + 1):
@@ -117,19 +117,16 @@ def run_window(seg, is_boom, spike_mult, growth_rate, hold_ticks,
             if idx >= len(seg):
                 survived = False
                 break
-            price = seg[idx]
-            if is_boom:
-                # BOOM ACCU: knocked out if price FALLS below entry - barrier
-                if price <= entry_price - barrier:
-                    survived = False
-                    ko_tick  = idx
-                    break
-            else:
-                # CRASH ACCU: knocked out if price RISES above entry + barrier
-                if price >= entry_price + barrier:
-                    survived = False
-                    ko_tick  = idx
-                    break
+            prev_p = seg[idx - 1]
+            curr_p = seg[idx]
+            if prev_p <= 0:
+                survived = False
+                break
+            pct_move = abs(curr_p - prev_p) / prev_p
+            if pct_move > barrier_pct:
+                survived = False
+                ko_tick  = idx
+                break
 
         if survived:
             wins += 1
