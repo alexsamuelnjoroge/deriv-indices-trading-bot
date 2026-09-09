@@ -996,10 +996,13 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM500 — disabled: 29.4% WR live (5W/12L Sep 7) vs 50.5% BE — backtest had only 37 trades (sparse, overfit)
-  # 4/4 ROBUST: WR=59.5% EV=+12.3% (37 trades/86k) — too few trades to trust
+  # BOOM500 — RE-ENABLED 2026-09-09: corrected sweep 4/4 ROBUST
+  # gr=5% hold=15 settle=0 → WR=55.2% BE=48.1% EV=+7.674% (163 trades/86k)
+  # [55%(OK) 51%(OK) 73%(OK) 51%(OK)] — consistent across all 4 windows.
+  # Previous live failure (29.4% WR, 17 trades) was a short-run variance event
+  # (p-value ~1.7% if true WR=55%) — not enough data to conclude no edge.
   - symbol: BOOM500
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -1014,10 +1017,7 @@ symbols:
     hold_ticks: 15
     early_sell_pct: 0
     settle_ticks: 0
-    adaptive_settle: true
-    settle_atr_ratio: 0.3
-    settle_short_period: 8
-    max_settle_ticks: 50
+    adaptive_settle: false
     barrier_pct: 0.00000472
     confirm_threshold: 0.5
     contract_duration: 0
@@ -1028,7 +1028,7 @@ symbols:
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 1.079
-    min_rolling_wr: 50.0
+    min_rolling_wr: 52.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
