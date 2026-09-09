@@ -242,10 +242,16 @@ class MT5Client:
                          f"{result.comment if result else mt5.last_error()}")
         return ok
 
-    def get_open_positions(self, magic: int = 20260101) -> list[dict]:
+    def get_open_positions(self, magic: int = 20260101) -> list[dict] | None:
+        """
+        Returns filtered list of open positions, or None if the MT5 query failed.
+        Callers must treat None as "query error — unknown state" and NOT as "no positions".
+        An empty list [] means the query succeeded and there are genuinely no positions.
+        """
         positions = mt5.positions_get()
-        if not positions:
-            return []
+        if positions is None:
+            logger.warning(f"positions_get failed: {mt5.last_error()}")
+            return None
         return [
             {"ticket":  p.ticket,
              "symbol":  p.symbol,
