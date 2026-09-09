@@ -647,9 +647,10 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 4/4 ROBUST
-  # ratio=0.3 per=5 ht=10 gr=5% → WR=80.0% BE=61.4% EV=+11.703%
-  # Baseline (settle=15, ht=8, gr=4%) was 1/4 EV=-2.093% — adaptive converts to 4/4
+  # CRASH600 — RECONFIGURED 2026-09-09: corrected barrier sim (noise reduction sweep)
+  # Prior WR=80% result (Aug 31) used buggy cumulative barrier — overstated.
+  # Corrected sim: hold=8 gr=5% settle=15 → WR=75.4% BE=67.7% EV=+3.666% (138 trades/86k)
+  # [81%(OK) 68%(OK) 71%(OK) 80%(OK)] — settle=15 waits out choppy post-spike recovery
   - symbol: CRASH600
     enabled: true
     strategy_type: crash_boom_recoil
@@ -662,12 +663,9 @@ symbols:
     cluster_window: 600
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 10
-    settle_ticks: 3
-    adaptive_settle: true
-    settle_atr_ratio: 0.3
-    settle_short_period: 5
-    max_settle_ticks: 30
+    hold_ticks: 8
+    settle_ticks: 15
+    adaptive_settle: false
     barrier_pct: 0.00000392
     confirm_threshold: 0.5
     contract_duration: 0
@@ -677,8 +675,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.629
-    min_rolling_wr: 63.0
+    payout_pct: 0.477
+    min_rolling_wr: 71.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
