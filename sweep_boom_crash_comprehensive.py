@@ -39,15 +39,16 @@ BARRIERS = {
     "CRASH600": {0.03: None,    0.04: None,     0.05: 3.92e-6},
     "BOOM1000": {0.03: None,    0.04: None,     0.05: 2.25e-6},
     "CRASH1000":{0.03: None,    0.04: None,     0.05: 2.27e-6},
+    # Barriers from config.yaml (sourced from older check_contracts.py runs):
+    "BOOM500":  {0.03: None,    0.04: None,     0.05: 4.72e-6},
+    "CRASH500": {0.03: None,    0.04: None,     0.05: 4.72e-6},
+    "BOOM900":  {0.03: None,    0.04: None,     0.05: 2.60e-6},
+    "CRASH900": {0.03: None,    0.04: None,     0.05: 2.60e-6},
     # Add after running fetch_accu_barriers.py:
     # "BOOM100":  {0.03: ?, 0.04: ?, 0.05: ?},
     # "CRASH100": {0.03: ?, 0.04: ?, 0.05: ?},
     # "BOOM300N": {0.03: ?, 0.04: ?, 0.05: ?},
     # "CRASH300N":{0.03: ?, 0.04: ?, 0.05: ?},
-    # "BOOM500":  {0.03: ?, 0.04: ?, 0.05: ?},
-    # "CRASH500": {0.03: ?, 0.04: ?, 0.05: ?},
-    # "BOOM900":  {0.03: ?, 0.04: ?, 0.05: ?},
-    # "CRASH900": {0.03: ?, 0.04: ?, 0.05: ?},
 }
 
 SYMBOLS      = list(BARRIERS.keys())
