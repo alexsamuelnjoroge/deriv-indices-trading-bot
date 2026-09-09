@@ -852,14 +852,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH50 — RECONFIGURED 2026-09-09: noise-reduction sweep 4/4 ROBUST
-  # spike_mult=20x filters to cleanest spikes only; settle=5 lets volatility settle.
-  # gr=4% hold=10 settle=5 spike=20x ct=0.5 → WR=69.6% BE=67.6% EV=+0.969% (447 trades/86k)
-  # [72%(OK) 69%(OK) 68%(OK) 70%(OK)] — corrected barrier sim 2026-09-09
-  # NOTE: gr=5% barrier=2.03e-6 was tighter than gr=4% barrier=2.15e-6 — previous
-  # config used wrong (wider) barrier in sweep. gr=4% + barrier=2.15e-6 is correct.
+  # CRASH50 — DISABLED 2026-09-09: structurally poor live performance.
+  # Post-spike recovery UP ticks are violent and routinely breach barrier=2.15e-6.
+  # Tried settle=3/5/8/15, spike_mult=12/15/20/25/30 — all fail in live.
+  # Root cause: CRASH50 spikes every ~50-87t; recovery is aggressive upward bounce
+  # that cannot be waited out within the spike interval. BOOM50 (smooth recoil) works;
+  # CRASH50 (violent recovery) does not. BOOM50 alone covers the 50-series.
   - symbol: CRASH50
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
