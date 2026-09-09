@@ -33,7 +33,7 @@ strategies:
   # Backtest : Train EV +0.286R WR 54.6% n=456 | Holdout EV +0.500R WR 66.7% n=68
   # Stack: 4H EMA20 filter + ATRÃ—2.0 SL + RR 2.0 â€” all additive (prev holdout -0.036R)
   - name: bb_rsi_pullback
-    enabled: true
+    enabled: false
     symbols: [EURUSD]
     htf_granularity: 3600
     ltf_granularity: 300
@@ -60,7 +60,7 @@ strategies:
   # London session (not NY) â€” GBP momentum driven by BoE and UK data, not NY flows.
   # RR1.5 (not 2.0) optimises for higher WR; EMA200 stronger trend gate for vol pairs.
   - name: bb_rsi_pullback
-    enabled: true
+    enabled: false
     symbols: [GBPUSD]
     htf_granularity: 3600      # 1H bars for 1H trend EMA
     ltf_granularity: 300       # 5m bars for BB+RSI entry
@@ -88,7 +88,7 @@ strategies:
   # 1H MACD histogram flips capture genuine momentum shifts; 125/~1000 configs passed
   # dual-holdout validation, confirming structural edge (not noise from single lucky config).
   - name: macd_momentum
-    enabled: true
+    enabled: false
     symbols: [USDJPY]
     direction_filter: long    # BUY only — SELL side 1/4 windows (no edge); carry dynamics favour long
     ltf_granularity: 3600     # 1H bars â†’ MACD signal + EMA100 trend
@@ -112,7 +112,7 @@ strategies:
   # MBD â€” Multi-Bar Divergence: large displacement + stalled velocity â†’ fade
   # ROBUST 4/4: best holdout EV +1.0R (XAUUSD), +0.93R (EURUSD), +0.63R (GBPUSD)
   - name: mbd
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     long_window: 6
@@ -208,7 +208,7 @@ strategies:
   # LSH â€” Liquidity Sweep: wick beyond key level closes back inside â†’ stop-hunt fade
   # ROBUST 4/4 XAUUSD (PDH/PDL); ROBUST 4/4 USDJPY (Asian session range)
   - name: lsh
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     level_type: pdh_pdl
@@ -752,7 +752,7 @@ strategies:
   # VRT â€” Volatility Regime Transition: first bar of vol expansion after N quiet bars â†’ follow body direction
   # ROBUST 4/4 XAUUSD (sma20 quiet5 body0.2 cool24 RR3.0 ATRÃ—2.0 MACRO EV +0.5385R)
   - name: vrt
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     atr_sma_period: 20
@@ -855,9 +855,9 @@ strategies:
 
 risk:
   max_risk_per_trade_pct: 1.0    # % of account per trade
-  max_daily_loss_pct: 15.0       # raised: XAUUSD min-lot can risk 5-10% per trade
+  max_daily_loss_pct: 8.0        # single-symbol concentration — tighter daily circuit breaker
   max_open_trades: 5             # max base entries (pyramids are additional)
-  max_open_per_symbol: 2         # max open positions on any single symbol at once
+  max_open_per_symbol: 1         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
 
   # Min-lot safety: skip if min-lot forces actual risk beyond this Ã— target (0 = off)
@@ -890,7 +890,7 @@ risk:
   # Drawdown-aware sizing: scale risk_pct down as equity draws from session peak.
   # At each threshold the scale factor applies â€” last threshold reached wins.
   dd_sizing:
-    enabled: false
+    enabled: true
     thresholds:
       - {drawdown_pct: 2.0, risk_scale: 0.75}   # 2% DD  â†’ 0.75% risk per trade
       - {drawdown_pct: 4.0, risk_scale: 0.50}   # 4% DD  â†’ 0.50%
