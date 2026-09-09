@@ -102,6 +102,9 @@ class OrderManager:
           - break-even and pyramid management can track them
         """
         live = self.client.get_open_positions()
+        if live is None:
+            logger.warning("Reconcile: MT5 query failed — cannot reconcile existing positions")
+            return
         if not live:
             return
         balance  = self.client.get_balance()
@@ -195,6 +198,10 @@ class OrderManager:
         # Per-symbol position cap — checked against both in-memory state and live
         # MT5 positions so restarts or concurrent instances don't open duplicates.
         live_positions = self.client.get_open_positions()
+        if live_positions is None:
+            # MT5 query failed — skip this signal rather than risk a duplicate entry
+            logger.warning(f"[{symbol}] positions_get failed — skipping signal to avoid duplicate")
+            return False
         sym_live  = sum(1 for p in live_positions if p["symbol"] == symbol)
         sym_mem   = sum(1 for t in self._open.values() if t.symbol == symbol)
         sym_count = max(sym_live, sym_mem)
@@ -326,7 +333,10 @@ class OrderManager:
         if not self._open:
             return
 
-        live = {p["ticket"]: p for p in self.client.get_open_positions()}
+        live_data = self.client.get_open_positions()
+        if live_data is None:
+            return
+        live = {p["ticket"]: p for p in live_data}
 
         # Symbols where a pyramid is already active (used for trailing this cycle)
         trailing_groups: set[tuple[str, str]] = {
@@ -501,7 +511,13 @@ class OrderManager:
         Compares tracked open tickets against MT5's actual open positions.
         """
         self._check_day_reset()
-        live_tickets = {p["ticket"] for p in self.client.get_open_positions()}
+        live_data = self.client.get_open_positions()
+        if live_data is None:
+            # MT5 query failed — do NOT mark positions as closed; that would be wrong.
+            # The positions may still be open; we just can't confirm their state right now.
+            logger.warning("sync_positions: MT5 query failed — skipping sync to preserve position state")
+            return
+        live_tickets = {p["ticket"] for p in live_data}
         closed = [t for t in list(self._open.keys()) if t not in live_tickets]
 
         for ticket in closed:
