@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import os
 import sys
+import atexit
 from pathlib import Path
 
 import yaml
@@ -468,9 +469,39 @@ class ProBot:
                         f"W/L {s['wins']}/{s['losses']} | P&L ${s['today_pnl']:+.2f}")
 
 
+_LOCKFILE = Path("logs/pro_bot.pid")
+
+
+def _acquire_lock() -> None:
+    if _LOCKFILE.exists():
+        pid = _LOCKFILE.read_text().strip()
+        try:
+            import psutil
+            if psutil.pid_exists(int(pid)):
+                print(f"ERROR: pro_bot is already running (PID {pid}). "
+                      f"Kill it first or delete {_LOCKFILE}.", file=sys.stderr)
+                sys.exit(1)
+        except ImportError:
+            # psutil not installed — fall back: stale lock, overwrite
+            pass
+        except (ValueError, OSError):
+            pass
+    _LOCKFILE.write_text(str(os.getpid()))
+    atexit.register(_release_lock)
+
+
+def _release_lock() -> None:
+    try:
+        _LOCKFILE.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
 def main():
     load_dotenv()
     _setup_logging()
+    Path("logs").mkdir(exist_ok=True)
+    _acquire_lock()
 
     parser = argparse.ArgumentParser(description="pro_bot MT5 runner")
     parser.add_argument("--config", default="pro_bot/config.yaml")
