@@ -647,12 +647,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH600 — RECONFIGURED 2026-09-09: corrected barrier sim (noise reduction sweep)
-  # Prior WR=80% result (Aug 31) used buggy cumulative barrier — overstated.
+  # CRASH600 — DISABLED 2026-09-10: live WR=53.3% (30t) vs BE=67.7%. Self-halted 08:47.
   # Corrected sim: hold=8 gr=5% settle=15 → WR=75.4% BE=67.7% EV=+3.666% (138 trades/86k)
   # [81%(OK) 68%(OK) 71%(OK) 80%(OK)] — settle=15 waits out choppy post-spike recovery
   - symbol: CRASH600
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     spike_mult: 12.0
@@ -813,12 +812,12 @@ symbols:
   # 300N symbols: low WR (45-47%) offset by 165% payout (BE=37.7%).
   # ══════════════════════════════════════════════════════════════════════
 
-  # BOOM50 — recoil gate enabled 2026-09-09: sweep showed settle=3 is 1/4 EV=-0.310%.
+  # BOOM50 — DISABLED 2026-09-10: live WR=46.7% (30t) vs BE=62.5%. Self-halted 06:32.
   # Recoil gate (minR=3 maxW=30): WR=63.9% BE=62.5% EV=+0.841% 3/4 (368 trades/86k).
   # Gate waits for 3 recoil ticks then first counter-recoil tick before entering ACCU —
   # directional pressure spent = smaller subsequent ticks = better ACCU survival.
   - symbol: BOOM50
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -1035,11 +1034,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # CRASH500 — RE-ENABLED 2026-09-09: corrected sweep 4/4 ROBUST
+  # CRASH500 — DISABLED 2026-09-10: live WR=60.0% (30t) vs BE=67.7%. Self-halted 07:57.
   # gr=5% hold=8 settle=0 → WR=77.2% BE=67.7% EV=+4.535% (149 trades/86k)
   # [74%(OK) 70%(OK) 83%(OK) 79%(OK)] — consistent across all 4 windows
   - symbol: CRASH500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
