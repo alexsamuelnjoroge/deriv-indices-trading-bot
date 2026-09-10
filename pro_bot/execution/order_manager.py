@@ -13,6 +13,7 @@ Responsibilities:
 """
 
 import csv
+import json
 import pathlib
 import time
 from dataclasses import dataclass, field
@@ -40,6 +41,9 @@ class OpenTrade:
     pyramid_done:  bool  = False   # pyramid entry already opened
     is_pyramid:    bool  = False   # this position IS a pyramid entry
     high_water_mark: float = 0.0   # best price seen since trailing activated
+    entry_reason:  str   = ""      # human-readable reason from strategy signal
+    signal_meta:   dict  = field(default_factory=dict)  # indicator snapshot at entry
+    confidence:    float = 0.0     # signal confidence 0-1
 
 
 class OrderManager:
@@ -312,6 +316,9 @@ class OrderManager:
             sl_pips       = signal.sl_pips,
             risk_usd      = risk_usd,
             strategy_name = signal.strategy,
+            entry_reason  = signal.reason,
+            signal_meta   = signal.meta or {},
+            confidence    = signal.confidence,
         )
         self._total_trades += 1
         dd_note = (f" [risk scaled {eff_pct:.2f}%]"
@@ -527,6 +534,15 @@ class OrderManager:
 
             r_outcome = round(pnl / trade.risk_usd, 3) if trade.risk_usd > 0 else 0.0
             won = pnl > 0
+
+            # Determine exit reason
+            if pnl > trade.risk_usd * 0.5:
+                exit_reason = "TP"
+            elif trade.be_done and pnl >= -(trade.risk_usd * 0.15):
+                exit_reason = "BE"
+            else:
+                exit_reason = "SL"
+
             if won:
                 self._wins += 1
                 self._loss_cooldown.pop(trade.symbol, None)  # win clears any cooldown
@@ -539,9 +555,9 @@ class OrderManager:
 
             tag = "PYRAMID" if trade.is_pyramid else "TRADE"
             logger.info(f"{tag} closed | [{trade.strategy_name}] {trade.symbol} {trade.action} | "
-                        f"P&L ${pnl:+.2f} ({r_outcome:+.2f}R) | {'WIN' if won else 'LOSS'} | "
+                        f"P&L ${pnl:+.2f} ({r_outcome:+.2f}R) | {exit_reason} | "
                         f"Today {self._today_pnl:+.2f}")
-            self._write_pnl_log(trade, pnl, r_outcome)
+            self._write_pnl_log(trade, pnl, r_outcome, exit_reason)
 
             # Update peak balance after a close (equity may have changed)
             balance = self.client.get_balance()
@@ -584,26 +600,44 @@ class OrderManager:
 
     # ── Strategy P&L log ─────────────────────────────────────────────────────
 
-    def _write_pnl_log(self, trade: OpenTrade, pnl: float, r_outcome: float) -> None:
-        """Append one row to the strategy P&L CSV for post-session analysis."""
+    def _write_pnl_log(self, trade: OpenTrade, pnl: float,
+                       r_outcome: float, exit_reason: str = "") -> None:
+        """Append one row to the trade journal CSV for post-session analysis."""
         new_file = not self._pnl_log_path.exists()
+        closed_at = datetime.now()
+        duration_mins = round((closed_at - trade.opened_at).total_seconds() / 60, 1)
         try:
             with self._pnl_log_path.open("a", newline="") as f:
                 w = csv.writer(f)
                 if new_file:
-                    w.writerow(["closed_at", "strategy", "symbol", "direction",
-                                "r_outcome", "pnl_usd", "is_pyramid"])
+                    w.writerow([
+                        "opened_at", "closed_at", "duration_mins",
+                        "strategy", "symbol", "direction",
+                        "entry", "sl", "tp", "sl_pips",
+                        "r_outcome", "pnl_usd", "exit_reason",
+                        "confidence", "entry_reason", "indicators", "is_pyramid",
+                    ])
                 w.writerow([
-                    datetime.now().isoformat(timespec="seconds"),
+                    trade.opened_at.isoformat(timespec="seconds"),
+                    closed_at.isoformat(timespec="seconds"),
+                    duration_mins,
                     trade.strategy_name,
                     trade.symbol,
                     trade.action,
+                    round(trade.entry, 5),
+                    round(trade.sl, 5),
+                    round(trade.tp, 5),
+                    round(trade.sl_pips, 5),
                     r_outcome,
                     round(pnl, 2),
+                    exit_reason,
+                    round(trade.confidence, 3),
+                    trade.entry_reason,
+                    json.dumps(trade.signal_meta),
                     trade.is_pyramid,
                 ])
         except Exception as e:
-            logger.warning(f"P&L log write failed: {e}")
+            logger.warning(f"Trade journal write failed: {e}")
 
     # ── Status ───────────────────────────────────────────────────────────────
 
