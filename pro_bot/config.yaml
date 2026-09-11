@@ -885,6 +885,8 @@ risk:
 
   # Break-even: move SL to entry once trade reaches this many R profit (0 = off)
   break_even_trigger_r: 1.0
+  # Lock in this fraction of initial risk above entry when BE triggers (avoids whipsaw)
+  break_even_buffer_r: 0.15
 
   # Pyramid: open a scaled entry once trade reaches this many R profit (0 = off)
   pyramid_trigger_r: 0

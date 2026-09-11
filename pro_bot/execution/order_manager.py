@@ -57,6 +57,8 @@ class OrderManager:
 
         # Break-even: move SL to entry after this many R profit (0 = disabled)
         self.be_trigger_r     = config.get("break_even_trigger_r",  0.0)
+        # Buffer: lock in this fraction of initial risk above entry (avoids BE whipsaw)
+        self.be_buffer_r      = config.get("break_even_buffer_r",   0.0)
         # Pyramid: open scaled entry after this many R profit (0 = disabled)
         self.pyramid_trigger_r = config.get("pyramid_trigger_r",    0.0)
         self.pyramid_risk_pct  = config.get("pyramid_risk_pct",     0.5)
@@ -364,12 +366,15 @@ class OrderManager:
             if (not trade.be_done and not trade.is_pyramid
                     and self.be_trigger_r > 0
                     and profit_r >= self.be_trigger_r):
-                if self.client.modify_sl(ticket, trade.entry):
-                    trade.sl      = trade.entry
+                buffer   = trade.sl_pips * self.be_buffer_r
+                be_price = (trade.entry + buffer if trade.action == "BUY"
+                            else trade.entry - buffer)
+                if self.client.modify_sl(ticket, be_price):
+                    trade.sl      = be_price
                     trade.be_done = True
                     logger.info(
                         f"Break-even | {trade.symbol} ticket={ticket} "
-                        f"SL -> entry {trade.entry:.5f} (+{profit_r:.2f}R)"
+                        f"SL -> {be_price:.5f} (+{profit_r:.2f}R, buf={self.be_buffer_r}R)"
                     )
 
             # Pyramid
