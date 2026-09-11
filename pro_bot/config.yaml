@@ -749,6 +749,21 @@ strategies:
     macro_filter: true
     macro_ema_period: 20
 
+  # ETP â€” EMA Trend Pullback: RSI oversold recovery in direction of H1 EMA trend â†’ follow trend
+  # ROBUST 4/4 XAUUSD (ema15 rsi7 r_l=38 sl=1.5xATR tp=3R MACRO EV +0.3596R, 73 trades / 208 days)
+  - name: etp
+    enabled: true
+    symbols: [XAUUSD]
+    granularity: 3600
+    ema_period: 15
+    rsi_period: 7
+    rsi_low: 38
+    cooldown_bars: 6
+    tp_rr: 3.0
+    atr_mult_sl: 1.5
+    macro_filter: true
+    macro_ema_period: 20
+
   # VRT â€” Volatility Regime Transition: first bar of vol expansion after N quiet bars â†’ follow body direction
   # ROBUST 4/4 XAUUSD (sma20 quiet5 body0.2 cool24 RR3.0 ATRÃ—2.0 MACRO EV +0.5385R)
   - name: vrt
