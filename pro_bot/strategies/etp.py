@@ -71,6 +71,12 @@ class ETPStrategy(ResearchDailyStrategy):
 
     # ── Per-bar update ────────────────────────────────────────────────────────
 
+    def feed(self, bar: dict):
+        """Update EMA/RSI every bar (including cooldown bars) before delegating."""
+        if self._h1:
+            self._update_indicators(bar["close"], self._h1[-1]["close"])
+        return super().feed(bar)
+
     def _update_indicators(self, close: float, prev_close: float) -> None:
         p  = self.ema_period
         rp = self.rsi_period
@@ -105,9 +111,6 @@ class ETPStrategy(ResearchDailyStrategy):
             return None
 
         bar      = bars[-1]
-        prev_bar = bars[-2]
-
-        self._update_indicators(bar["close"], prev_bar["close"])
 
         ema      = self._ema
         ema_prev = self._ema_prev
