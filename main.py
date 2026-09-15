@@ -135,6 +135,7 @@ async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
     """
     Warn if any symbol's last tick is older than stale_secs (default 10 min).
     After 15 minutes stale, automatically resubscribes the WebSocket feed.
+    If all feeds are dead for 30 minutes, exits so systemd can restart fresh.
     """
     resub_secs = 900  # attempt resubscription after 15 min stale
     last_seen: dict[str, float] = {}
@@ -143,27 +144,53 @@ async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
         last_seen.setdefault(bot.symbol, _time.time())
         last_resubbed[bot.symbol] = 0.0
 
+    _all_stale_start = 0.0  # timestamp when all feeds first went stale; 0 = not all-stale
+
     # check every 2 minutes
     while True:
         await asyncio.sleep(120)
+        now = _time.time()
+        all_stale = True
+
         for bot in bots:
             epoch = bot.tick_store.latest_epoch
             if epoch is not None:
                 last_seen[bot.symbol] = max(last_seen.get(bot.symbol, 0), epoch)
-            gap = _time.time() - last_seen.get(bot.symbol, _time.time())
-            if gap > stale_secs:
-                logger.warning(
-                    f"[{bot.symbol}] No ticks for {gap/60:.1f} min — WebSocket may be stale"
+            gap = now - last_seen.get(bot.symbol, now)
+
+            if gap <= stale_secs:
+                all_stale = False
+                continue
+
+            logger.warning(
+                f"[{bot.symbol}] No ticks for {gap/60:.1f} min — WebSocket may be stale"
+            )
+            time_since_resub = now - last_resubbed[bot.symbol]
+            if gap > resub_secs and time_since_resub > resub_secs:
+                logger.warning(f"[{bot.symbol}] Resubscribing stale WebSocket feed...")
+                try:
+                    await client.subscribe_ticks(bot.symbol)
+                    last_resubbed[bot.symbol] = now
+                    logger.info(f"[{bot.symbol}] WebSocket resubscribed successfully")
+                except Exception as e:
+                    logger.error(f"[{bot.symbol}] Resubscription failed: {e}")
+                    last_resubbed[bot.symbol] = now  # rate-limit retries to resub_secs
+                    if not getattr(client, "_reconnecting", False):
+                        logger.warning(f"[{bot.symbol}] Triggering full client reconnect...")
+                        asyncio.create_task(client._reconnect())
+
+        # Exit after 30 min with all feeds dead — systemd Restart=always brings us back
+        if all_stale:
+            if _all_stale_start == 0.0:
+                _all_stale_start = now
+            elif now - _all_stale_start > 1800:
+                logger.critical(
+                    "All feeds dead for 30+ min, reconnect failed — "
+                    "exiting for systemd restart"
                 )
-                time_since_resub = _time.time() - last_resubbed[bot.symbol]
-                if gap > resub_secs and time_since_resub > resub_secs:
-                    logger.warning(f"[{bot.symbol}] Resubscribing stale WebSocket feed...")
-                    try:
-                        await client.subscribe_ticks(bot.symbol)
-                        last_resubbed[bot.symbol] = _time.time()
-                        logger.info(f"[{bot.symbol}] WebSocket resubscribed successfully")
-                    except Exception as e:
-                        logger.error(f"[{bot.symbol}] Resubscription failed: {e}")
+                sys.exit(1)
+        else:
+            _all_stale_start = 0.0
 
 
 # ── Main bot loop ───────────────────────────────────────────────────────
