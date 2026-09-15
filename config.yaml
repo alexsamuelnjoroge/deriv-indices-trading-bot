@@ -1005,9 +1005,10 @@ symbols:
   # [55%(OK) 51%(OK) 73%(OK) 51%(OK)] — consistent across all 4 windows.
   # Previous live failure (29.4% WR, 17 trades) was a short-run variance event
   # (p-value ~1.7% if true WR=55%) — not enough data to conclude no edge.
-  # 2026-09-12: Live WR ~34-43% (47+ trades) — below BE. Two failure modes identified:
-  #   early KOs (t0-5): post-spike volatility → settle_ticks 0→3
-  #   late KOs (t8-13): contract runs too long → hold_ticks 15→12
+  # 2026-09-12: Live WR ~43-45% (87+ trades) — below BE. Early-KO fix applied:
+  #   settle_ticks 0→3: waits out post-spike volatility before entering ACCU.
+  #   hold_ticks reverted to 15: ht=12 raised BE to 55.6% (worse than ht=15 BE=48.1%).
+  #   At WR=45%: ht=12 loses 3× more per trade than ht=15. Keep payout at 1.079.
   - symbol: BOOM500
     enabled: true
     strategy_type: crash_boom_recoil
@@ -1021,7 +1022,7 @@ symbols:
     cluster_window: 500
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 12
+    hold_ticks: 15
     early_sell_pct: 0
     settle_ticks: 3
     adaptive_settle: false
