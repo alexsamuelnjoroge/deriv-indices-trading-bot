@@ -156,7 +156,7 @@ strategies:
   # ZSR â€” Z-Score Mean Reversion: rolling z-score extreme â†’ fade to mean
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 GBPUSD
   - name: zsr
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     zscore_period: 72
@@ -182,7 +182,7 @@ strategies:
   # DBSF â€” Daily Bar Streak Filter: N consecutive same-direction days â†’ fade at London open
   # ROBUST 4/4 XAUUSD; MOSTLY OK 3/4 USDJPY (too few trades in one window)
   - name: dbsf
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     min_streak: 2
@@ -315,7 +315,7 @@ strategies:
   # PDL â€” Previous Day Level: first intraday touch of PDH/PDL â†’ fade
   # ROBUST 4/4 XAUUSD (best holdout EV +0.56R); ROBUST 4/4 GBPUSD (EV +0.26R)
   - name: pdl
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     signal_type: first_touch
@@ -371,7 +371,7 @@ strategies:
   # SHD â€” Structural High/Low Deviation: wick pierces rolling N-bar level, closes back inside â†’ stop-hunt fade
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: shd
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     n_bars: 30
@@ -397,7 +397,7 @@ strategies:
   # RNM â€” Round Number Magnet: bar wicks to round-number grid then bounces â†’ follow bounce
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: rnm
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     touch_zone: 1.0
@@ -423,7 +423,7 @@ strategies:
   # PLT â€” Progressive Level Tests: successive declining approach peaks â†’ distribution fade
   # ROBUST 4/4 XAUUSD, USDJPY, EURUSD, GBPUSD
   - name: plt
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     level_lookback: 50
@@ -477,7 +477,7 @@ strategies:
   # OFBS â€” Order Flow Balance Shift: rolling CPF avg flips from bull to bear zone â†’ institutional reversal
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 GBPUSD
   - name: ofbs
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     avg_period: 15
@@ -505,7 +505,7 @@ strategies:
   # CRPB â€” Compression Range Position Bias: ATR quiet phase + close position bias â†’ expansion direction
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 USDJPY
   - name: crpb
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     atr_sma_period: 20
