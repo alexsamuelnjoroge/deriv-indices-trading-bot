@@ -162,7 +162,11 @@ class DerivClient:
                     code = msg["error"].get("code", "")
                     message = msg["error"].get("message", "")
                     details = msg["error"].get("details", msg["error"])
-                    logger.error(f"API error [{code}]: {message} | details: {details}")
+                    _EXPECTED_CODES = {"MarketIsClosed", "ContractNotFound"}
+                    if code in _EXPECTED_CODES:
+                        logger.debug(f"API [{code}]: {message}")
+                    else:
+                        logger.error(f"API error [{code}]: {message} | details: {details}")
                     if req_id and req_id in self._pending:
                         self._pending.pop(req_id).set_exception(
                             RuntimeError(f"{code}: {message}")
