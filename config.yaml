@@ -1010,7 +1010,7 @@ symbols:
   #   hold_ticks reverted to 15: ht=12 raised BE to 55.6% (worse than ht=15 BE=48.1%).
   #   At WR=45%: ht=12 loses 3× more per trade than ht=15. Keep payout at 1.079.
   - symbol: BOOM500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -1151,7 +1151,7 @@ symbols:
   # Edge: JD75 recoil is slower — needs 20 ticks. 10t is consistently below BE.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
   - symbol: JD75
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
