@@ -1111,12 +1111,11 @@ symbols:
     blocked_hours_eat: []
 
   # ── JD50 BINARY — post-spike CALL/PUT (Jump 50) ──────────────────────────────
-  # sweep_jump_indices.py (15k ticks, 3x5k): spike=3x dur=5t recoil=N
-  # WR=59.7% BE=52.1% EV=+6.994% 3/3 *** (191 trades)
-  # ATR absorbs own spikes on JD10/25/50 — 2-3x threshold finds the real ones.
-  # require_recoil_confirm=false: recoil check filters good trades on JD, no benefit.
+  # DISABLED 2026-09-17: sweep_jd50_deep.py (50k ticks, 5x10k) shows no edge.
+  # Original 3/3 on 15k was a thin-sample artifact (191 trades, lucky window selection).
+  # 50k result: WR=48.8% EV=-3.0% 2/5 — below BE overall. No parameter gives 4/5+.
   - symbol: JD50
-    enabled: true
+    enabled: false
     strategy_type: jd_binary
     spike_mult: 3.0
     atr_period: 30
