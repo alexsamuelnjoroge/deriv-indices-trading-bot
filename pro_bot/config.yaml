@@ -906,10 +906,9 @@ risk:
   max_open_per_symbol: 1         # max open positions on any single symbol at once
   use_atr_sizing: true           # size position by ATR distance to SL
 
-  # Min-lot safety: skip if min-lot forces actual risk beyond this Ã— target (0 = off)
-  # Raised to 10 to allow XAUUSD through on a small account â€” each gold trade
-  # may risk 5-10% of balance rather than 1%. Daily loss limit is the safety net.
-  min_lot_risk_mult: 10.0
+  # Min-lot safety: skip if min-lot forces actual risk beyond this x target (0 = off)
+  # Disabled: account too small for proper sizing; daily loss limit is the only gate.
+  min_lot_risk_mult: 0
 
   # Spread filter: skip entry if spread > ratio Ã— SL distance (0 = off)
   max_spread_sl_ratio: 0.4
