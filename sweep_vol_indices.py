@@ -49,7 +49,7 @@ from src.strategies.calm_accu import CalmAccuStrategy
 logger.remove()
 logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
 
-SYMBOLS = ["V10", "V25", "V75", "V100"]
+SYMBOLS = ["R_10", "R_25", "R_75", "R_100"]
 
 # Binary payout (same for all V indices on Deriv)
 BINARY_PAYOUT = 0.87
@@ -57,10 +57,10 @@ BINARY_BE     = 1.0 / (1.0 + BINARY_PAYOUT) * 100
 
 # ACCU placeholder barriers — update from check_contracts.py on VPS
 ACCU_BARRIERS: dict[str, dict[float, float]] = {
-    "V10":  {0.03: 1.0e-4, 0.04: 9.5e-5, 0.05: 9.0e-5},
-    "V25":  {0.03: 2.5e-4, 0.04: 2.4e-4, 0.05: 2.3e-4},
-    "V75":  {0.03: 7.5e-4, 0.04: 7.2e-4, 0.05: 6.9e-4},
-    "V100": {0.03: 1.0e-3, 0.04: 9.6e-4, 0.05: 9.2e-4},
+    "R_10":  {0.03: 1.0e-4, 0.04: 9.5e-5, 0.05: 9.0e-5},
+    "R_25":  {0.03: 2.5e-4, 0.04: 2.4e-4, 0.05: 2.3e-4},
+    "R_75":  {0.03: 7.5e-4, 0.04: 7.2e-4, 0.05: 6.9e-4},
+    "R_100": {0.03: 1.0e-3, 0.04: 9.6e-4, 0.05: 9.2e-4},
 }
 
 # Walk-forward config
