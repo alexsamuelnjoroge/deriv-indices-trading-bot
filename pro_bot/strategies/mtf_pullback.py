@@ -148,6 +148,16 @@ class MTFPullbackStrategy(BaseProStrategy):
         trend_up   = ema_now > ema_prev
         trend_down = ema_now < ema_prev
 
+        # Price-side check: price must be on the correct side of the EMA.
+        # Slope alone lags — price crosses the EMA days before the slope flips.
+        # Requiring price < EMA for shorts and price > EMA for longs blocks trades
+        # that fire into a reversal while the slope hasn't caught up yet.
+        price_now = htf_closes[-1]
+        if price_now > ema_now:
+            allow_short = False
+        if price_now < ema_now:
+            allow_long = False
+
         # 4H EMA intermediate filter — 4H slope must agree with 1H slope
         if self.use_4h_filter and len(self._4h_bars) >= self.ema_4h_period + 1:
             ema_4h_vals = ema([b["close"] for b in self._4h_bars], self.ema_4h_period)
