@@ -49,7 +49,7 @@ PAYOUTS = {
 }
 SYMBOLS = list(PAYOUTS.keys())
 
-SPIKE_MULTS    = [8.0, 10.0, 12.0, 15.0]
+SPIKE_MULTS    = [2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0]
 SETTLE_OPTIONS = [0, 1, 2]
 DURATIONS      = [1, 3, 5]
 RECOIL_OPTIONS = [True, False]
