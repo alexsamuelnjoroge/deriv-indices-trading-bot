@@ -12,7 +12,7 @@ strategies:
     symbols: [XAUUSD]
     htf_granularity: 3600      # 1h bars for trend EMA
     ltf_granularity: 300       # 5min bars for entry
-    ema_period: 200
+    ema_period: 50
     slope_bars: 3
     rsi_period: 14
     rsi_entry: 35.0
