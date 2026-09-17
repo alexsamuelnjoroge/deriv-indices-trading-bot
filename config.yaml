@@ -586,7 +586,7 @@ symbols:
   # Simpler than old adaptive config (no adaptive_settle); more hold ticks = higher payout.
   # Previous hold=8 adaptive config live WR=61-62% was below old BE=67.7% (now 61.4%).
   - symbol: BOOM600
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 12.0
