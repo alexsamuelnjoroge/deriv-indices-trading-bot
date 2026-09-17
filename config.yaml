@@ -361,12 +361,12 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── CRASH1000 ACCU — post-spike Accumulator ─────────────────────────
-  # Adaptive settle sweep 2026-08-31 (86k ticks, 4x21.5k): 4/4 ROBUST
-  # ratio=0.7 per=8 ht=10 gr=5% → WR=71.4% BE=61.4% EV=+6.312%
-  # Baseline (settle=0, ht=8, gr=5%) was 2/4 EV=-0.875% — adaptive converts to 4/4
+  # ── CRASH1000 ACCU — re-enabled with active ATR regime filter
+  # sweep_boom600_regime.py (60k ticks, 2x30k): active (short>=long ATR) regime
+  # st=0 gr=4% ht=12 → WR=75.6% BE=62.5% EV=+10.26% 2/2 *** (12 configs, 35 trades)
+  # Calm regime has no confirmed edge — active filter is required to maintain edge.
   - symbol: CRASH1000
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -377,15 +377,14 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 1000
     max_cluster_spikes: 3
-    growth_rate: 0.05
-    hold_ticks: 10
-    early_sell_pct: 0
+    growth_rate: 0.04
+    hold_ticks: 12
     settle_ticks: 0
-    adaptive_settle: true
-    settle_atr_ratio: 0.7
-    settle_short_period: 8
-    max_settle_ticks: 15
-    barrier_pct: 0.00000227
+    adaptive_settle: false
+    atr_regime: active
+    atr_regime_short_period: 20
+    atr_regime_long_period: 100
+    barrier_pct: 0.00000236
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -394,8 +393,8 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.629
-    min_rolling_wr: 63.0
+    payout_pct: 0.601
+    min_rolling_wr: 62.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
@@ -544,12 +543,12 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — 3/4 MOSTLY OK — baseline already passes (no adaptive needed)
-  # Adaptive sweep 2026-09-01 (86k ticks, 4×21.5k): baseline 3/4 at gr=5%
-  # ht=15, gr=5% → WR=58.6% BE=48.1% EV=+11.3% (29 trades)
-  # Previous "negative EV" was gr=4% (BE=55.7%); gr=5% drops BE to 48.1% which WR clears.
+  # ── BOOM900 ACCU — re-enabled 24/7 (both ATR regimes have edge)
+  # sweep_boom600_regime.py (60k ticks, 2x30k): active regime + calm regime
+  # st=3 gr=4% ht=8 → active: WR=76.5% EV=+1.254% 2/2 *** | calm: WR=78.0% EV=+1.835% 2/2 ***
+  # settle=3 is critical: st=0 loses in calm regime (WR=56%, 0/2). Both regimes pass with st=3.
   - symbol: BOOM900
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -560,12 +559,11 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 900
     max_cluster_spikes: 3
-    growth_rate: 0.05
-    hold_ticks: 15
-    early_sell_pct: 0
-    settle_ticks: 0
+    growth_rate: 0.04
+    hold_ticks: 8
+    settle_ticks: 3
     adaptive_settle: false
-    barrier_pct: 0.00000260
+    barrier_pct: 0.00000262
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -574,19 +572,18 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 1.079
-    min_rolling_wr: 50.0
+    payout_pct: 0.369
+    min_rolling_wr: 73.0
     rolling_window: 30
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM600 ACCU — 4/4 ROBUST: gr=5% hold=10 settle=0
-  # Corrected sweep 2026-09-09 (86k ticks, 4×21.5k, fixed barrier sim):
-  # WR=66.7% BE=61.4% EV=+3.318% — 4/4 across all windows.
-  # Simpler than old adaptive config (no adaptive_settle); more hold ticks = higher payout.
-  # Previous hold=8 adaptive config live WR=61-62% was below old BE=67.7% (now 61.4%).
+  # ── BOOM600 ACCU — re-enabled with UTC 16-20 time filter (EAT 19-22)
+  # sweep_boom600_regime.py (60k ticks, 2x30k): UTC 16-20 bucket
+  # st=0 gr=5% ht=12 → WR=71.7% BE=55.7% EV=+17.82% 2/2 *** (11 configs, ~9 trades/window)
+  # Previous live failure was 24/7 — time filter isolates the UTC 16-20 BOOM edge.
   - symbol: BOOM600
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 12.0
@@ -597,11 +594,10 @@ symbols:
     cluster_window: 600
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 10
-    early_sell_pct: 0
+    hold_ticks: 12
     settle_ticks: 0
     adaptive_settle: false
-    barrier_pct: 0.00000394
+    barrier_pct: 0.00000377
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -610,17 +606,19 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.629
-    min_rolling_wr: 65.0
+    payout_pct: 0.796
+    min_rolling_wr: 55.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    # UTC 16-20 = EAT 19-22
+    blocked_hours_eat: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,23]
 
-  # CRASH150N — disabled: live WR 60%→51.9% (181t Sep 7-8), below 55.7% BE.
-  # ACCU has no edge: Deriv calibrated barrier tighter for 150N (1.61e-6), pushing baseline KO to 3.80% ≈ BE 3.85%.
-  # Binary recoil (99.77% WR) confirmed but unexploitable: no CALL/PUT contracts on any Boom/Crash symbol.
+  # CRASH150N — re-enabled with UTC 20-24 time filter (EAT 23-02)
+  # sweep_boom600_regime.py (60k ticks, 2x30k): UTC 20-24 bucket
+  # st=0 gr=4% ht=15 → WR=67.7% BE=55.5% EV=+11.96% 2/2 *** (18 configs pass, ~30 trades)
+  # Previous live failure was 24/7 — time filter extracts the genuine UTC 20-24 edge.
   - symbol: CRASH150N
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -631,8 +629,8 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 300
     max_cluster_spikes: 4
-    growth_rate: 0.05
-    hold_ticks: 12
+    growth_rate: 0.04
+    hold_ticks: 15
     settle_ticks: 0
     adaptive_settle: false
     barrier_pct: 0.00000161
@@ -644,17 +642,19 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.796
-    min_rolling_wr: 57.0
+    payout_pct: 0.801
+    min_rolling_wr: 55.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    # UTC 20-24 = EAT 23, 0, 1, 2
+    blocked_hours_eat: [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
 
-  # CRASH600 — DISABLED 2026-09-10: live WR=53.3% (30t) vs BE=67.7%. Self-halted 08:47.
-  # Corrected sim: hold=8 gr=5% settle=15 → WR=75.4% BE=67.7% EV=+3.666% (138 trades/86k)
-  # [81%(OK) 68%(OK) 71%(OK) 80%(OK)] — settle=15 waits out choppy post-spike recovery
+  # CRASH600 — re-enabled with UTC 00-04 time filter (EAT 03-06)
+  # sweep_boom600_regime.py (60k ticks, 2x30k): UTC 00-04 bucket
+  # st=0 gr=5% ht=15 → WR=59.1% BE=48.1% EV=+16.32% 2/2 *** (9 configs, ~8 trades/window)
+  # Previous live failure was 24/7 with wrong hold/settle — time filter isolates the edge.
   - symbol: CRASH600
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: crash
     spike_mult: 12.0
@@ -665,10 +665,10 @@ symbols:
     cluster_window: 600
     max_cluster_spikes: 3
     growth_rate: 0.05
-    hold_ticks: 8
-    settle_ticks: 15
+    hold_ticks: 15
+    settle_ticks: 0
     adaptive_settle: false
-    barrier_pct: 0.00000392
+    barrier_pct: 0.00000376
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -677,11 +677,12 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.477
-    min_rolling_wr: 71.0
+    payout_pct: 1.079
+    min_rolling_wr: 48.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    # UTC 00-04 = EAT 03-06
+    blocked_hours_eat: [0,1,2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
 
   # Calm-period sweep (60k ticks): sc=100 ratio=0.7 ht=10 gr=4% → WR=68.9% BE=67.6% EV=+0.648% 2/2
   # Reduced hold 15→10 ticks: P(spike during hold) drops 9.5%→6.4%; gr=4% confirmed 2/2 at ht=10
@@ -1000,17 +1001,13 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # BOOM500 — RE-ENABLED 2026-09-09: corrected sweep 4/4 ROBUST
-  # gr=5% hold=15 settle=0 → WR=55.2% BE=48.1% EV=+7.674% (163 trades/86k)
-  # [55%(OK) 51%(OK) 73%(OK) 51%(OK)] — consistent across all 4 windows.
-  # Previous live failure (29.4% WR, 17 trades) was a short-run variance event
-  # (p-value ~1.7% if true WR=55%) — not enough data to conclude no edge.
-  # 2026-09-12: Live WR ~43-45% (87+ trades) — below BE. Early-KO fix applied:
-  #   settle_ticks 0→3: waits out post-spike volatility before entering ACCU.
-  #   hold_ticks reverted to 15: ht=12 raised BE to 55.6% (worse than ht=15 BE=48.1%).
-  #   At WR=45%: ht=12 loses 3× more per trade than ht=15. Keep payout at 1.079.
+  # BOOM500 — re-enabled with UTC 00-08 time filter (EAT 03-10)
+  # sweep_boom600_regime.py (60k ticks, 2x30k): UTC 04-08 bucket (best); UTC 00-04 also 2/2
+  # st=0 gr=4% ht=15 → WR=72.1% BE=55.5% EV=+22.80% 2/2 *** (6 configs, ~12 trades/window)
+  # Previous live failure was 24/7 with gr=5% — gr=4% lowers BE from 48.1%→55.5% but
+  # actual WR in UTC 00-08 window is 72%+, comfortably clearing the lower BE.
   - symbol: BOOM500
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -1021,12 +1018,11 @@ symbols:
     min_spike_ratio: 0
     cluster_window: 500
     max_cluster_spikes: 3
-    growth_rate: 0.05
+    growth_rate: 0.04
     hold_ticks: 15
-    early_sell_pct: 0
-    settle_ticks: 3
+    settle_ticks: 0
     adaptive_settle: false
-    barrier_pct: 0.00000472
+    barrier_pct: 0.00000473
     confirm_threshold: 0.5
     contract_duration: 0
     contract_duration_unit: t
@@ -1035,11 +1031,12 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 1.079
-    min_rolling_wr: 52.0
+    payout_pct: 0.801
+    min_rolling_wr: 55.0
     rolling_window: 30
     max_open_contracts: 1
-    blocked_hours_eat: []
+    # UTC 00-08 = EAT 03-10
+    blocked_hours_eat: [0,1,2,11,12,13,14,15,16,17,18,19,20,21,22,23]
 
   # CRASH500 — DISABLED 2026-09-10: live WR=60.0% (30t) vs BE=67.7%. Self-halted 07:57.
   # gr=5% hold=8 settle=0 → WR=77.2% BE=67.7% EV=+4.535% (149 trades/86k)
@@ -1114,25 +1111,20 @@ symbols:
     blocked_hours_eat: []
 
   # ── JD50 BINARY — post-spike CALL/PUT (Jump 50) ──────────────────────────────
-  # Sweep: spike=20x dur=5t  WR=61.9% BE=53.5% EV=+7.31% 4/4 ROBUST (42t / 60k)
-  #        spike=15x dur=5t  WR=57.8% BE=53.5% EV=+3.72% 4/4 ROBUST (45t / 60k)
-  # Raised spike_mult 15->20 on 2026-08-26: stronger spikes recoil more reliably.
-  # Edge: JD50 recoil completes within 5 ticks. 10t/15t/20t all fail walk-forward.
-  # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
+  # sweep_jump_indices.py (15k ticks, 3x5k): spike=3x dur=5t recoil=N
+  # WR=59.7% BE=52.1% EV=+6.994% 3/3 *** (191 trades)
+  # ATR absorbs own spikes on JD10/25/50 — 2-3x threshold finds the real ones.
+  # require_recoil_confirm=false: recoil check filters good trades on JD, no benefit.
   - symbol: JD50
-    enabled: false
-    strategy_type: crash_boom_recoil
-    symbol_type: jump
-    use_binary: true
-    spike_mult: 20.0
-    atr_period: 50
-    cooldown_ticks: 5
+    enabled: true
+    strategy_type: jd_binary
+    spike_mult: 3.0
+    atr_period: 30
+    settle_ticks: 0
+    spike_cooldown: 5
     loss_cooldown: 2
+    require_recoil_confirm: false
     min_spike_ratio: 0
-    cluster_window: 200
-    max_cluster_spikes: 3
-    barrier_pct: 0.0
-    confirm_threshold: 0.0
     contract_duration: 5
     contract_duration_unit: t
     multiplier: 0
@@ -1140,7 +1132,7 @@ symbols:
     max_stake: 5.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.87
+    payout_pct: 0.92
     max_open_contracts: 1
     blocked_hours_eat: []
 

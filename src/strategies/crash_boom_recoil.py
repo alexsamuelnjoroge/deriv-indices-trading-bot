@@ -34,6 +34,10 @@ Config keys (all optional):
                            Filters weak spikes near the spike_mult threshold.
   cluster_window           Tick window for cluster detection; 0=off (default: 0)
   max_cluster_spikes       Spikes in cluster_window that trigger block (default: 3)
+  atr_regime               Only trade in "active" (short>=long ATR) or "calm" (short<long).
+                           Empty string = no filter (default: "")
+  atr_regime_short_period  Short ATR period for regime classification (default: 20)
+  atr_regime_long_period   Long ATR period for regime classification (default: 100)
 """
 
 from .base import BaseStrategy, Signal
@@ -76,6 +80,9 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self.recoil_gate              = bool(config.get("recoil_gate", False))
         self.min_recoil_ticks         = int(config.get("min_recoil_ticks", 2))
         self.max_recoil_wait          = int(config.get("max_recoil_wait", 30))
+        self.atr_regime               = str(config.get("atr_regime", "")).lower()
+        self.atr_regime_short_period  = int(config.get("atr_regime_short_period", 20))
+        self.atr_regime_long_period   = int(config.get("atr_regime_long_period", 100))
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
@@ -143,6 +150,17 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         pre_atr = self._pre_spike_atr(prices)
         if pre_atr is None or pre_atr <= 0:
             return Signal(action="HOLD", reason="Pre-spike ATR not ready")
+
+        # ── ATR regime gate (active = short ATR >= long ATR; calm = opposite) ──
+        if self.atr_regime in ("active", "calm"):
+            short_r = self._short_atr(prices, self.atr_regime_short_period)
+            long_r  = self._short_atr(prices, self.atr_regime_long_period)
+            if short_r is not None and long_r is not None:
+                is_active = short_r >= long_r
+                if self.atr_regime == "active" and not is_active:
+                    return Signal(action="HOLD", reason="ATR regime: not active (short<long)")
+                elif self.atr_regime == "calm" and is_active:
+                    return Signal(action="HOLD", reason="ATR regime: not calm (short>=long)")
 
         # ── Adaptive ATR settle: wait for volatility to fall below barrier fraction ─
         if self._adaptive_settling:
