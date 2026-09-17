@@ -1,9 +1,12 @@
 """
-Discover all Crash/Boom symbols available on this Deriv account and show
-what contract types each one supports.
+Discover contract types and ACCU barriers for Crash/Boom or any named symbols.
 
-Usage: python check_contracts.py
+Usage:
+  python check_contracts.py                          # all Crash/Boom
+  python check_contracts.py --symbols R_10,R_25,R_75,R_100
+  python check_contracts.py --symbols JD50,JD100
 """
+import argparse
 import asyncio
 import os
 import sys
@@ -16,6 +19,11 @@ from src.api.client import DerivClient
 
 
 async def main():
+    parser = argparse.ArgumentParser(description="Check Deriv contract types and ACCU barriers")
+    parser.add_argument("--symbols", default=None,
+                        help="Comma-separated symbols to check (bypasses Crash/Boom filter)")
+    args = parser.parse_args()
+
     token  = os.getenv("DERIV_TOKEN") or os.getenv("DERIV_API_TOKEN", "")
     app_id = os.getenv("DERIV_APP_ID", "1089")
 
@@ -26,49 +34,53 @@ async def main():
     client = DerivClient(api_token=token, app_id=app_id)
     await client.connect()
 
-    # Step 1: fetch all active symbols and filter for Crash/Boom
-    print("Fetching active symbols...")
-    resp = await client._send({"active_symbols": "brief"})
-    all_symbols = resp.get("active_symbols", [])
+    if args.symbols:
+        symbol_list = [s.strip() for s in args.symbols.split(",") if s.strip()]
+        print(f"Checking {len(symbol_list)} symbol(s): {', '.join(symbol_list)}")
+    else:
+        # Default: fetch all active symbols and filter for Crash/Boom
+        print("Fetching active symbols...")
+        resp = await client._send({"active_symbols": "brief"})
+        all_symbols = resp.get("active_symbols", [])
 
-    if not all_symbols:
-        print("No symbols returned.")
-        await client.disconnect()
-        return
+        if not all_symbols:
+            print("No symbols returned.")
+            await client.disconnect()
+            return
 
-    # Detect the correct key name from the first element
-    first = all_symbols[0]
-    sym_key = "symbol" if "symbol" in first else (
-              "underlying_symbol" if "underlying_symbol" in first else None)
-    if sym_key is None:
-        print(f"Unknown symbol key. First element keys: {list(first.keys())}")
-        await client.disconnect()
-        return
+        first = all_symbols[0]
+        sym_key = "symbol" if "symbol" in first else (
+                  "underlying_symbol" if "underlying_symbol" in first else None)
+        if sym_key is None:
+            print(f"Unknown symbol key. First element keys: {list(first.keys())}")
+            await client.disconnect()
+            return
 
-    crash_boom = sorted(
-        [s for s in all_symbols if any(
-            s[sym_key].upper().startswith(k) for k in ("CRASH", "BOOM")
-        )],
-        key=lambda s: s[sym_key]
-    )
+        crash_boom = sorted(
+            [s for s in all_symbols if any(
+                s[sym_key].upper().startswith(k) for k in ("CRASH", "BOOM")
+            )],
+            key=lambda s: s[sym_key]
+        )
 
-    if not crash_boom:
-        print("No Crash/Boom symbols found on this account.")
-        print(f"Sample symbol keys: {list(first.keys())}")
-        await client.disconnect()
-        return
+        if not crash_boom:
+            print("No Crash/Boom symbols found on this account.")
+            print(f"Sample symbol keys: {list(first.keys())}")
+            await client.disconnect()
+            return
 
-    print(f"\nFound {len(crash_boom)} Crash/Boom symbol(s):")
-    for s in crash_boom:
-        print(f"  {s[sym_key]:<20} {s.get('display_name', s.get('market_display_name', ''))}")
+        print(f"\nFound {len(crash_boom)} Crash/Boom symbol(s):")
+        for s in crash_boom:
+            print(f"  {s[sym_key]:<20} {s.get('display_name', s.get('market_display_name', ''))}")
 
-    # Step 2: check contract types and fetch real ACCU barrier per symbol
+        symbol_list = [s[sym_key] for s in crash_boom]
+
+    # Check contract types and fetch real ACCU barrier per symbol
     print("\n" + "=" * 60)
     print("Contract types + ACCU barrier per symbol:")
     print("=" * 60)
 
-    for s in crash_boom:
-        symbol = s[sym_key]
+    for symbol in symbol_list:
         print(f"\n{symbol}")
         print("-" * 40)
         try:
