@@ -221,11 +221,24 @@ class MT5Client:
             logger.warning(f"modify_sl: ticket {ticket} not found")
             return False
         p = pos[0]
-        digits       = mt5.symbol_info(p.symbol).digits
+        info         = mt5.symbol_info(p.symbol)
+        digits       = info.digits
         new_sl_round = round(new_sl, digits)
         # MT5 already has the target SL — treat as success so callers sync their state
         if round(p.sl, digits) == new_sl_round:
             return True
+        # Broker enforces a minimum distance between current price and any stop.
+        # Skip silently if new SL is within that distance — caller will retry next cycle.
+        if info.trade_stops_level > 0:
+            tick       = mt5.symbol_info_tick(p.symbol)
+            cur_price  = tick.bid if p.type == 0 else tick.ask  # 0=BUY, 1=SELL
+            min_dist   = info.trade_stops_level * info.point
+            if abs(cur_price - new_sl_round) < min_dist:
+                logger.debug(
+                    f"modify_sl deferred | ticket={ticket} new_sl={new_sl_round} "
+                    f"within stop_level ({min_dist:.5f}) of price {cur_price:.5f}"
+                )
+                return False
         request = {
             "action":   mt5.TRADE_ACTION_SLTP,
             "symbol":   p.symbol,
