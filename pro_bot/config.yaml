@@ -27,6 +27,7 @@ strategies:
     tz_offset_hours: 3         # EAT = UTC+3
     macro_filter: true
     macro_ema_period: 20
+    swing_bars: 5               # LTF bars for swing structure check (HH+HL or LH+LL)
 
   # â”€â”€ EUR/USD (EURUSD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Strategy : Bollinger Band + RSI<55 Pullback + 4H EMA filter

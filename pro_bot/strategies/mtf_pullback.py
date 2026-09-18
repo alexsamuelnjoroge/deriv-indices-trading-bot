@@ -49,6 +49,7 @@ class MTFPullbackStrategy(BaseProStrategy):
         self.rsi_lookback     = config.get("rsi_lookback",          50)
         self.use_4h_filter    = config.get("use_4h_filter",      False)
         self.ema_4h_period    = config.get("ema_4h_period",        20)
+        self.swing_bars       = config.get("swing_bars",            5)
 
     def feed_htf(self, bar: dict) -> None:
         self._htf_bars.append(bar)
@@ -73,6 +74,30 @@ class MTFPullbackStrategy(BaseProStrategy):
         if self.session_only:
             return (7.0 + self.tz_offset_hours) <= h < (20.0 + self.tz_offset_hours)
         return True
+
+    def _swing_structure(self, bars: list[dict], n: int) -> str:
+        """
+        Returns 'up', 'down', or 'neutral' based on the last n LTF bars.
+        Up   = each successive swing high > previous AND each swing low > previous.
+        Down = each successive swing high < previous AND each swing low < previous.
+        Neutral = mixed — price is ranging, no clear short-term direction.
+        Uses bar highs/lows so a pullback candle inside the range stays neutral
+        rather than flipping the structure.
+        """
+        if len(bars) < n + 1:
+            return "neutral"
+        segment = bars[-(n + 1):]
+        highs = [b["high"]  for b in segment]
+        lows  = [b["low"]   for b in segment]
+        hh = all(highs[i] > highs[i - 1] for i in range(1, len(highs)))
+        hl = all(lows[i]  > lows[i - 1]  for i in range(1, len(lows)))
+        lh = all(highs[i] < highs[i - 1] for i in range(1, len(highs)))
+        ll = all(lows[i]  < lows[i - 1]  for i in range(1, len(lows)))
+        if hh and hl:
+            return "up"
+        if lh and ll:
+            return "down"
+        return "neutral"
 
     def _adaptive_entry_threshold(self, rsi_series: list[float]) -> float:
         """
@@ -162,7 +187,15 @@ class MTFPullbackStrategy(BaseProStrategy):
                 if trend_down and ema4h_up:
                     return Signal(action="HOLD", reason="4H EMA opposes 1H downtrend")
 
-        tp_dist    = sl_dist * self.tp_rr
+        tp_dist = sl_dist * self.tp_rr
+
+        # Short-term swing structure on LTF — confirms price is making progress
+        # in the trade direction right now, not just ranging around the EMA.
+        swing = self._swing_structure(bars, self.swing_bars)
+        if swing == "down" and trend_up:
+            allow_long = False
+        if swing == "up" and trend_down:
+            allow_short = False
 
         if trend_up and rsi_prev >= entry_thresh > rsi_now and allow_long:
             return Signal(
