@@ -366,7 +366,7 @@ symbols:
   # st=0 gr=4% ht=12 → WR=75.6% BE=62.5% EV=+10.26% 2/2 *** (12 configs, 35 trades)
   # Calm regime has no confirmed edge — active filter is required to maintain edge.
   - symbol: CRASH1000
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -618,7 +618,7 @@ symbols:
   # st=0 gr=4% ht=15 → WR=67.7% BE=55.5% EV=+11.96% 2/2 *** (18 configs pass, ~30 trades)
   # Previous live failure was 24/7 — time filter extracts the genuine UTC 20-24 edge.
   - symbol: CRASH150N
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     use_binary: false
@@ -654,7 +654,7 @@ symbols:
   # st=0 gr=5% ht=15 → WR=59.1% BE=48.1% EV=+16.32% 2/2 *** (9 configs, ~8 trades/window)
   # Previous live failure was 24/7 with wrong hold/settle — time filter isolates the edge.
   - symbol: CRASH600
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: crash
     spike_mult: 12.0
