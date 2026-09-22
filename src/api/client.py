@@ -31,6 +31,7 @@ class DerivClient:
         self._pending: dict[int, asyncio.Future] = {}
         self._tick_callbacks: dict[str, list[Callable]] = {}  # symbol -> callbacks
         self._contract_callbacks: list[Callable] = []
+        self._reconnect_callbacks: list[Callable] = []
         self._running = False
         self.account_info: dict = {}
         self._subscribed_symbols: list[str] = []
@@ -261,6 +262,8 @@ class DerivClient:
                             raise
                 logger.info(f"Reconnected successfully after {attempt} attempt(s)")
                 self._reconnecting = False
+                for cb in self._reconnect_callbacks:
+                    asyncio.create_task(cb())
                 return
             except Exception as e:
                 logger.warning(f"Reconnect attempt {attempt} failed: {e}")
@@ -308,6 +311,9 @@ class DerivClient:
 
     def on_contract_update(self, callback: Callable):
         self._contract_callbacks.append(callback)
+
+    def on_reconnect(self, callback: Callable):
+        self._reconnect_callbacks.append(callback)
 
     async def subscribe_ticks(self, symbol: str):
         if symbol not in self._subscribed_symbols:
