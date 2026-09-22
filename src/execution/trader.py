@@ -62,6 +62,20 @@ class Trader:
         self._alerter  = alerter
 
         self.client.on_contract_update(self._on_contract_update)
+        self.client.on_reconnect(self._on_reconnect)
+
+    async def _on_reconnect(self) -> None:
+        """Re-subscribe to proposal_open_contract for any contracts still open after a WS reconnect."""
+        if not self._open:
+            return
+        for contract_id in list(self._open):
+            try:
+                await self.client._send(
+                    {"proposal_open_contract": 1, "contract_id": int(contract_id), "subscribe": 1}
+                )
+                logger.info(f"[{self.symbol}] Re-subscribed to open contract {contract_id} after reconnect")
+            except Exception as e:
+                logger.warning(f"[{self.symbol}] Could not re-subscribe to contract {contract_id}: {e}")
 
     async def _tick_open_accus(self) -> None:
         """Decrement tick counters for open Accumulator contracts; sell when expired or profit target hit."""
