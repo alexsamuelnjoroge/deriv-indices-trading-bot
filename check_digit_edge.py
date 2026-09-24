@@ -42,7 +42,11 @@ async def main():
         digits = []
         for p in prices:
             try:
-                digits.append(int(str(round(float(p), pip_size)).replace(".", "")[-1]))
+                # Use f-string formatting (not round+str) so trailing zeros are preserved:
+                # 44906.569 → f"{:.4f}" → "44906.5690" → digit = 0
+                # round+str would give "44906.569" → digit = 9 (WRONG)
+                display = f"{float(p):.{pip_size}f}"
+                digits.append(int(display[-1]))
             except Exception:
                 pass
 
