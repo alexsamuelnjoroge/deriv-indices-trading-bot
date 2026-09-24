@@ -543,12 +543,12 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM900 ACCU — re-enabled 24/7 (both ATR regimes have edge)
-  # sweep_boom600_regime.py (60k ticks, 2x30k): active regime + calm regime
-  # st=3 gr=4% ht=8 → active: WR=76.5% EV=+1.254% 2/2 *** | calm: WR=78.0% EV=+1.835% 2/2 ***
-  # settle=3 is critical: st=0 loses in calm regime (WR=56%, 0/2). Both regimes pass with st=3.
+  # ── BOOM900 ACCU — DISABLED 2026-09-24: no edge confirmed with actual deployed params
+  # Backtest w/ gr=4% ht=8 (deployed): 1/4 windows pass. W4 had 0 detected spikes.
+  # Live since Sep 23 restart: WR=56.5% (23t) vs BE=74.5% → -$10.23. Two rolling-WR halts.
+  # Root cause: spike_mult=15 misses real spikes in certain data windows; payout too low.
   - symbol: BOOM900
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: false
@@ -578,12 +578,11 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── BOOM600 ACCU — re-enabled with UTC 16-20 time filter (EAT 19-22)
-  # sweep_boom600_regime.py (60k ticks, 2x30k): UTC 16-20 bucket
-  # st=0 gr=5% ht=12 → WR=71.7% BE=55.7% EV=+17.82% 2/2 *** (11 configs, ~9 trades/window)
-  # Previous live failure was 24/7 — time filter isolates the UTC 16-20 BOOM edge.
+  # ── BOOM600 ACCU — DISABLED 2026-09-24: no edge confirmed at deployed params
+  # Backtest w/ gr=5% ht=12 barrier=3.77e-6: 1/4 windows pass (24/7). WRs 54.5/57.7/48.4/54.8% — random noise.
+  # Live (86 cumulative trades): WR=54.7% vs BE=60% → negative EV. UTC 16-20 filter not rescuing it.
   - symbol: BOOM600
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     spike_mult: 12.0
@@ -1141,8 +1140,9 @@ symbols:
   # Raised spike_mult 12->20 on 2026-08-26: stronger spikes recoil more reliably.
   # Edge: JD75 recoil is slower — needs 20 ticks. 10t is consistently below BE.
   # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
+  # ENABLED 2026-09-24: 4/4 ROBUST validated — deploying at min stake to verify live.
   - symbol: JD75
-    enabled: false
+    enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
@@ -1159,7 +1159,7 @@ symbols:
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
-    max_stake: 5.0
+    max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.87
@@ -1399,15 +1399,18 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
+  # R_50 DIGITOVER — ENABLED 2026-09-24: structural digit-0 scarcity in Deriv RNG
+  # WR=55.58% EV=+4.08% 4/4 ROBUST. BE=51.28% (95% payout). High-frequency, 24/7.
+  # Start with min_stake=1 to verify live edge before raising stake.
   - symbol: R_50
-    enabled: false
+    enabled: true
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
     contract_duration: 1
     contract_duration_unit: t
     stake_percent: 1.0
-    max_stake: 5.0
+    max_stake: 1.0
     min_stake: 1.00
     daily_loss_limit: 50.0
     use_kelly: false
