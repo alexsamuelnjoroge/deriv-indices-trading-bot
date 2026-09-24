@@ -384,16 +384,24 @@ class Trader:
             outcome = "WIN" if profit > 0 else "LOSS"
             extra = ""
             if meta["contract_type"] in ("DIGITOVER", "DIGITUNDER"):
-                entry_disp = contract.get("entry_tick_display_value", "?")
-                exit_disp  = contract.get("exit_tick_display_value", "?")
-                if exit_disp and exit_disp != "?":
+                exit_disp = (
+                    contract.get("exit_tick_display_value")
+                    or contract.get("current_spot")
+                )
+                entry_disp = contract.get("entry_tick_display_value") or contract.get("entry_spot_display_value")
+                audit = contract.get("audit_details") or {}
+                all_ticks = audit.get("all_ticks", []) if isinstance(audit, dict) else []
+                exit_tick_from_audit = all_ticks[-1].get("tick_display_value") if all_ticks else None
+                exit_final = exit_tick_from_audit or exit_disp
+                if exit_final:
                     try:
-                        exit_digit = int(str(round(float(exit_disp), 4)).replace(".", "")[-1])
-                        extra = f" | entry={entry_disp} exit={exit_disp} digit={exit_digit}"
+                        exit_digit = int(str(round(float(str(exit_final)), 4)).replace(".", "")[-1])
+                        extra = f" | exit={exit_final} digit={exit_digit}"
                     except Exception:
-                        extra = f" | entry={entry_disp} exit={exit_disp}"
+                        extra = f" | exit={exit_final}"
                 else:
-                    extra = f" | contract_keys={list(contract.keys())[:12]}"
+                    barrier_val = contract.get("barrier", "?")
+                    extra = f" | barrier={barrier_val} keys={list(contract.keys())}"
             logger.warning(
                 f"[{self.symbol}] {meta['contract_type']} {outcome} | "
                 f"stake={buy_price:.2f} profit={profit:+.2f}{extra} | "
