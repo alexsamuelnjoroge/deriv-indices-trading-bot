@@ -1404,34 +1404,14 @@ symbols:
   # Digits 1-9 share probability equally → DIGITOVER(4) wins 5/9 = 55.56% structurally.
   # WR=55.58% EV=+$0.084/trade confirmed on 43k ticks. 24/7, no timing filter needed.
   # Fires every ~2 ticks (1 trade per 4s). ~21,600 trades/day at current tick rate.
+  # Rolling WR: window=1000 (fills in ~3 min), threshold=52% (1% above BE=51.28%).
+  # At true WR=55.56%, P(false halt) = 1.2%. If RNG changes → detected within 3 min.
   # Start max_stake=1.0; raise to 2-3 after 500+ live trades confirm edge holds.
   - symbol: R_50
     enabled: true
     strategy_type: digit_over
     barrier: 4
-    loss_cooldown: 3        # pause 6 ticks after 3 consecutive losses to reduce variance spikes
-    contract_duration: 1
-    contract_duration_unit: t
-    stake_percent: 1.0
-    max_stake: 1.0
-    min_stake: 1.00
-    daily_loss_limit: 30.0  # halt after -$30/day (safety net; resets at midnight)
-    use_kelly: false
-    payout_pct: 0.95
-    max_open_contracts: 1
-    blocked_hours_eat: []
-    # Rolling WR guard: halt if 100-trade WR drops below 53% (2% buffer above BE=51.28%)
-    # Protects against edge degradation or Deriv RNG changes
-    min_rolling_wr: 53.0
-    rolling_window: 100
-
-  # R_75 DIGITOVER — ENABLED 2026-09-24: same structural digit-0 scarcity as R_50
-  # Digit 0 = 0/43k ticks (0.00%). WR=55.85% EV=+$0.089/trade.
-  - symbol: R_75
-    enabled: true
-    strategy_type: digit_over
-    barrier: 4
-    loss_cooldown: 3
+    loss_cooldown: 0
     contract_duration: 1
     contract_duration_unit: t
     stake_percent: 1.0
@@ -1442,8 +1422,28 @@ symbols:
     payout_pct: 0.95
     max_open_contracts: 1
     blocked_hours_eat: []
-    min_rolling_wr: 53.0
-    rolling_window: 100
+    min_rolling_wr: 52.0
+    rolling_window: 1000
+
+  # R_75 DIGITOVER — ENABLED 2026-09-24: same structural digit-0 scarcity as R_50
+  # Digit 0 = 0/43k ticks (0.00%). WR=55.85% EV=+$0.089/trade.
+  - symbol: R_75
+    enabled: true
+    strategy_type: digit_over
+    barrier: 4
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 1.0
+    min_stake: 1.00
+    daily_loss_limit: 30.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+    min_rolling_wr: 52.0
+    rolling_window: 1000
 
   - symbol: R_100
     enabled: false
