@@ -8,7 +8,6 @@ Usage:  python analyze_live_ticks.py           # R_50 and R_75, 3 min
         python analyze_live_ticks.py R_25 120  # R_25, 2 min
 """
 import asyncio
-import json
 import os
 import sys
 import time
@@ -24,47 +23,32 @@ PIP_SIZE = {"R_10": 3, "R_25": 3, "R_50": 4, "R_75": 4, "R_100": 2}
 
 async def collect(client, symbol: str, duration: int):
     pip = PIP_SIZE.get(symbol, 4)
-    ticks_float   = []  # digit from float via f-format (same as our analysis)
-    ticks_display = []  # digit from tick_display_value string if API sends it
+    ticks_float   = []
+    ticks_display = []
     has_display   = False
 
-    # Send tick subscription
-    await client._send({"ticks": symbol, "subscribe": 1})
-
-    deadline = time.time() + duration
-    print(f"  [{symbol}] Collecting live ticks for {duration}s …", flush=True)
-
-    # Tap into the raw websocket stream
-    async for raw in client.ws:
-        if time.time() > deadline:
-            break
-        try:
-            msg = json.loads(raw)
-        except Exception:
-            continue
-        if msg.get("msg_type") != "tick":
-            continue
-        tick = msg.get("tick", {})
-
-        # Float digit (same method as check_digit_edge.py)
+    def on_tick(tick: dict):
+        nonlocal has_display
         quote = tick.get("quote")
         if quote is not None:
-            d_float = int(f"{float(quote):.{pip}f}"[-1])
-            ticks_float.append(d_float)
-
-        # Display-value digit — if the new API provides it
+            ticks_float.append(int(f"{float(quote):.{pip}f}"[-1]))
         disp = tick.get("tick_display_value") or tick.get("display_value")
         if disp:
             has_display = True
             ticks_display.append(int(str(disp)[-1]))
 
-    # Unsubscribe
-    try:
-        await client._send({"forget_all": "ticks"})
-    except Exception:
-        pass
+    # Register callback then subscribe
+    client.on_tick(symbol, lambda tick: asyncio.ensure_future(_wrap(on_tick, tick)))
+    await client.subscribe_ticks(symbol)
+
+    print(f"  [{symbol}] Collecting live ticks for {duration}s …", flush=True)
+    await asyncio.sleep(duration)
 
     return pip, ticks_float, ticks_display, has_display
+
+
+async def _wrap(fn, arg):
+    fn(arg)
 
 
 def report(symbol, pip, digits, label):
