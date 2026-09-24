@@ -62,6 +62,7 @@ class Trader:
         self.under_barrier   = under_barrier   # DIGIT_PAIR: UNDER barrier (default 6)
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
+        self._placing: bool = False  # prevents concurrent buy_contract calls on same symbol
         self._strategy = strategy
         self._alerter  = alerter
 
@@ -149,6 +150,16 @@ class Trader:
                         self._alerter.send_halt(self.symbol, reason, self.risk.current_balance)
                     )
             return
+
+        # Guard against concurrent executions on the same symbol.
+        # buy_contract awaits two API roundtrips (~4s), during which new ticks can
+        # fire and pass can_trade() (open_contracts still 0). Without this flag,
+        # multiple contracts are placed on the same tick — observed as 3x R_75
+        # contracts opening simultaneously, all settling on the same exit tick.
+        if self._placing:
+            logger.debug(f"[{self.symbol}] Skipping signal: buy already in flight")
+            return
+        self._placing = True
 
         logger.info(f"[{self.symbol}] Signal: {signal.action} | {signal.reason}")
         stake    = self.risk.calculate_stake(atr=signal.atr, atr_baseline=signal.atr_baseline)
@@ -337,6 +348,8 @@ class Trader:
 
         except Exception as e:
             logger.error(f"Failed to open contract [{type(e).__name__}]: {e}")
+        finally:
+            self._placing = False
 
     async def _on_contract_update(self, contract: dict):
         contract_id = str(contract.get("contract_id", ""))
