@@ -43,6 +43,8 @@ class Trader:
         hold_ticks: int = 5,
         early_sell_pct: float = 0.0,
         digit_barrier: int = 4,
+        over_barrier: int = 4,
+        under_barrier: int = 6,
         strategy=None,
         alerter=None,
     ):
@@ -55,7 +57,9 @@ class Trader:
         self.growth_rate     = growth_rate   # ACCU: fraction growth per tick (e.g. 0.03)
         self.hold_ticks      = hold_ticks    # ACCU: ticks to hold before auto-sell
         self.early_sell_pct  = early_sell_pct  # ACCU: sell early when profit fraction >= this (0 = disabled)
-        self.digit_barrier   = digit_barrier   # DIGITOVER: win if last digit > this value
+        self.digit_barrier   = digit_barrier   # DIGITOVER/DIGITUNDER: digit threshold
+        self.over_barrier    = over_barrier    # DIGIT_PAIR: OVER barrier (default 4)
+        self.under_barrier   = under_barrier   # DIGIT_PAIR: UNDER barrier (default 6)
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
         self._strategy = strategy
@@ -261,6 +265,51 @@ class Trader:
                 self.risk.on_contract_opened()
                 logger.info(
                     f"[{self.symbol}] DIGITUNDER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
+                )
+
+            elif signal.action == "BUY_DIGIT_PAIR":
+                # Both previous contracts must be fully settled before opening a new pair.
+                if self.risk.open_contracts > 0:
+                    return
+                # Place OVER and UNDER atomically — both settle on the same next price tick.
+                result_over = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type="DIGITOVER",
+                    duration=1,
+                    duration_unit="t",
+                    stake=stake,
+                    barrier=str(self.over_barrier),
+                )
+                cid_over = str(result_over["contract_id"])
+                self._open[cid_over] = {
+                    "signal_action": "BUY_DIGIT_PAIR",
+                    "contract_type": "DIGITOVER",
+                    "stake":         stake,
+                    "buy_price":     float(result_over.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+
+                result_under = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type="DIGITUNDER",
+                    duration=1,
+                    duration_unit="t",
+                    stake=stake,
+                    barrier=str(self.under_barrier),
+                )
+                cid_under = str(result_under["contract_id"])
+                self._open[cid_under] = {
+                    "signal_action": "BUY_DIGIT_PAIR",
+                    "contract_type": "DIGITUNDER",
+                    "stake":         stake,
+                    "buy_price":     float(result_under.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"[{self.symbol}] DIGIT_PAIR | OVER({self.over_barrier})={cid_over} "
+                    f"UNDER({self.under_barrier})={cid_under} | stake={stake:.2f}×2"
                 )
 
             else:

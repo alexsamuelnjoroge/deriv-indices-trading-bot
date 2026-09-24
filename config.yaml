@@ -1399,18 +1399,17 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # R_50 DIGITOVER — ENABLED 2026-09-24: structural digit-0 scarcity in Deriv RNG
-  # Digit 0 never appears as the 4th decimal in R_50 prices (0/43k ticks = 0.012%).
-  # Digits 1-9 share probability equally → DIGITOVER(4) wins 5/9 = 55.56% structurally.
-  # WR=55.58% EV=+$0.084/trade confirmed on 43k ticks. 24/7, no timing filter needed.
-  # Fires every ~2 ticks (1 trade per 4s). ~21,600 trades/day at current tick rate.
-  # Rolling WR: window=1000 (fills in ~3 min), threshold=52% (1% above BE=51.28%).
-  # At true WR=55.56%, P(false halt) = 1.2%. If RNG changes → detected within 3 min.
-  # Start max_stake=1.0; raise to 2-3 after 500+ live trades confirm edge holds.
+  # ── R_50 DIGIT PAIR — ENABLED 2026-09-24: same-tick OVER(4)+UNDER(6) hedge ────
+  # Structural digit-0 scarcity: digits 1-9 equal probability, digit 0 absent.
+  # OVER(4) wins {5,6,7,8,9}; UNDER(6) wins {1,2,3,4,5}. Disjoint losing sets.
+  # Both contracts placed atomically in one tick handler → settle on same next tick.
+  # Digit 5 (11.1%): BOTH win → net +$1.90. All other digits: net -$0.05.
+  # max_open_contracts=2 allows the pair; guard in trader ensures both slots free.
   - symbol: R_50
     enabled: true
-    strategy_type: digit_over
-    barrier: 4
+    strategy_type: digit_over_under
+    over_barrier: 4
+    under_barrier: 6
     loss_cooldown: 0
     contract_duration: 1
     contract_duration_unit: t
@@ -1420,17 +1419,18 @@ symbols:
     daily_loss_limit: 30.0
     use_kelly: false
     payout_pct: 0.95
-    max_open_contracts: 1
+    max_open_contracts: 2
     blocked_hours_eat: []
     min_rolling_wr: 52.0
     rolling_window: 1000
 
-  # R_75 DIGITOVER — ENABLED 2026-09-24: same structural digit-0 scarcity as R_50
-  # Digit 0 = 0/43k ticks (0.00%). WR=55.85% EV=+$0.089/trade.
+  # ── R_75 DIGIT PAIR — ENABLED 2026-09-24: same-tick OVER(4)+UNDER(6) hedge ────
+  # Same structural digit-0 scarcity as R_50. WR per contract = 5/9 = 55.56%.
   - symbol: R_75
     enabled: true
-    strategy_type: digit_over
-    barrier: 4
+    strategy_type: digit_over_under
+    over_barrier: 4
+    under_barrier: 6
     loss_cooldown: 0
     contract_duration: 1
     contract_duration_unit: t
@@ -1440,49 +1440,7 @@ symbols:
     daily_loss_limit: 30.0
     use_kelly: false
     payout_pct: 0.95
-    max_open_contracts: 1
-    blocked_hours_eat: []
-    min_rolling_wr: 52.0
-    rolling_window: 1000
-
-  # ── R_50 DIGITUNDER(6) — ENABLED 2026-09-24: complement to DIGITOVER(4) ──────
-  # Same structural digit-0 scarcity. UNDER(6) wins on digits {1,2,3,4,5} = 5/9 = 55.56%.
-  # OVER(4) and UNDER(6) never both lose on the same tick (disjoint losing sets).
-  # Digit 5 (11.1% of ticks): BOTH strategies win simultaneously.
-  - symbol: R_50
-    enabled: true
-    strategy_type: digit_under
-    barrier: 6
-    loss_cooldown: 0
-    contract_duration: 1
-    contract_duration_unit: t
-    stake_percent: 1.0
-    max_stake: 1.0
-    min_stake: 1.00
-    daily_loss_limit: 30.0
-    use_kelly: false
-    payout_pct: 0.95
-    max_open_contracts: 1
-    blocked_hours_eat: []
-    min_rolling_wr: 52.0
-    rolling_window: 1000
-
-  # ── R_75 DIGITUNDER(6) — ENABLED 2026-09-24: complement to DIGITOVER(4) ──────
-  # Same structural digit-0 scarcity as R_75. WR = 5/9 = 55.56%.
-  - symbol: R_75
-    enabled: true
-    strategy_type: digit_under
-    barrier: 6
-    loss_cooldown: 0
-    contract_duration: 1
-    contract_duration_unit: t
-    stake_percent: 1.0
-    max_stake: 1.0
-    min_stake: 1.00
-    daily_loss_limit: 30.0
-    use_kelly: false
-    payout_pct: 0.95
-    max_open_contracts: 1
+    max_open_contracts: 2
     blocked_hours_eat: []
     min_rolling_wr: 52.0
     rolling_window: 1000
