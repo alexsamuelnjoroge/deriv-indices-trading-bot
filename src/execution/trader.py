@@ -382,9 +382,21 @@ class Trader:
             )
         else:
             outcome = "WIN" if profit > 0 else "LOSS"
+            extra = ""
+            if meta["contract_type"] in ("DIGITOVER", "DIGITUNDER"):
+                entry_disp = contract.get("entry_tick_display_value", "?")
+                exit_disp  = contract.get("exit_tick_display_value", "?")
+                if exit_disp and exit_disp != "?":
+                    try:
+                        exit_digit = int(str(round(float(exit_disp), 4)).replace(".", "")[-1])
+                        extra = f" | entry={entry_disp} exit={exit_disp} digit={exit_digit}"
+                    except Exception:
+                        extra = f" | entry={entry_disp} exit={exit_disp}"
+                else:
+                    extra = f" | contract_keys={list(contract.keys())[:12]}"
             logger.warning(
                 f"[{self.symbol}] {meta['contract_type']} {outcome} | "
-                f"stake={buy_price:.2f} profit={profit:+.2f} | "
+                f"stake={buy_price:.2f} profit={profit:+.2f}{extra} | "
                 f"WR={self.risk.win_rate:.1f}% ({self.risk.total_trades}t) | "
                 f"bal={self.risk.current_balance:.2f}"
             )
