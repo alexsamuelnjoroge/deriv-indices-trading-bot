@@ -1445,6 +1445,48 @@ symbols:
     min_rolling_wr: 52.0
     rolling_window: 1000
 
+  # ── R_50 DIGITUNDER(6) — ENABLED 2026-09-24: complement to DIGITOVER(4) ──────
+  # Same structural digit-0 scarcity. UNDER(6) wins on digits {1,2,3,4,5} = 5/9 = 55.56%.
+  # OVER(4) and UNDER(6) never both lose on the same tick (disjoint losing sets).
+  # Digit 5 (11.1% of ticks): BOTH strategies win simultaneously.
+  - symbol: R_50
+    enabled: true
+    strategy_type: digit_under
+    barrier: 6
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 1.0
+    min_stake: 1.00
+    daily_loss_limit: 30.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+    min_rolling_wr: 52.0
+    rolling_window: 1000
+
+  # ── R_75 DIGITUNDER(6) — ENABLED 2026-09-24: complement to DIGITOVER(4) ──────
+  # Same structural digit-0 scarcity as R_75. WR = 5/9 = 55.56%.
+  - symbol: R_75
+    enabled: true
+    strategy_type: digit_under
+    barrier: 6
+    loss_cooldown: 0
+    contract_duration: 1
+    contract_duration_unit: t
+    stake_percent: 1.0
+    max_stake: 1.0
+    min_stake: 1.00
+    daily_loss_limit: 30.0
+    use_kelly: false
+    payout_pct: 0.95
+    max_open_contracts: 1
+    blocked_hours_eat: []
+    min_rolling_wr: 52.0
+    rolling_window: 1000
+
   - symbol: R_100
     enabled: false
     strategy_type: digit_over

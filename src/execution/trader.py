@@ -241,6 +241,28 @@ class Trader:
                     f"[{self.symbol}] DIGITOVER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
                 )
 
+            elif signal.action == "BUY_DIGITUNDER":
+                result = await self.client.buy_contract(
+                    symbol=self.symbol,
+                    contract_type="DIGITUNDER",
+                    duration=1,
+                    duration_unit="t",
+                    stake=stake,
+                    barrier=str(self.digit_barrier),
+                )
+                contract_id = str(result["contract_id"])
+                self._open[contract_id] = {
+                    "signal_action": "BUY_DIGITUNDER",
+                    "contract_type": "DIGITUNDER",
+                    "stake":         stake,
+                    "buy_price":     float(result.get("buy_price", stake)),
+                    "is_multiplier": False,
+                }
+                self.risk.on_contract_opened()
+                logger.info(
+                    f"[{self.symbol}] DIGITUNDER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
+                )
+
             else:
                 contract_type = _BINARY_TYPE[signal.action]
                 duration      = signal.contract_duration if signal.contract_duration is not None else self.duration

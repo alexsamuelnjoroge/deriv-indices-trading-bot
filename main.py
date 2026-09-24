@@ -37,6 +37,7 @@ from src.strategies.calm_accu import CalmAccuStrategy
 from src.strategies.bb_multiplier import BBMultiplierStrategy
 from src.strategies.digit_even import DigitEvenStrategy
 from src.strategies.digit_over import DigitOverStrategy
+from src.strategies.digit_under import DigitUnderStrategy
 from src.strategies.jd_binary import JDBinaryStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
@@ -369,6 +370,11 @@ async def run(watch_only: bool = False):
             # Structural digit-0 scarcity on all R_ indices boosts DIGITOVER(4) to ~55% WR.
             strategy = DigitOverStrategy(sym_cfg)
             logger.info(f"[{symbol}/digit_over] Ready — DIGITOVER({sym_cfg.get('barrier', 4)})")
+
+        elif strategy_type == "digit_under":
+            # Complement to digit_over: DIGITUNDER(6) wins on {1,2,3,4,5} = 5/9 = 55.56%.
+            strategy = DigitUnderStrategy(sym_cfg)
+            logger.info(f"[{symbol}/digit_under] Ready — DIGITUNDER({sym_cfg.get('barrier', 6)})")
 
         elif strategy_type == "jd_binary":
             # JD post-spike directional binary: CALL on down-spike, PUT on up-spike.
