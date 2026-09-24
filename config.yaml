@@ -1399,14 +1399,14 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # R_50 DIGITOVER — ENABLED 2026-09-24: structural digit-0 scarcity in Deriv RNG
-  # Digit 0 never appears as the 4th decimal in R_50 prices (0/43k ticks = 0.012%).
-  # Digits 1-9 share probability equally → DIGITOVER(4) wins 5/9 = 55.56% structurally.
-  # Deriv assumes 50% WR (5/10 digits) → pays 95%. We win 55.56% → EV = +8.3%/trade.
-  # DIGITUNDER(6) DISABLED: Deriv assumes 60% WR (6/10) → pays only 63%. Our true WR
-  # is 55.56% < 60% assumed → we win LESS than priced → EV = -9.4%. Pair = net -1.1%.
+  # R_50 DIGITOVER — DISABLED 2026-09-24: edge was a float formatting artifact.
+  # Settlement uses tick_display_value (string with trailing zeros preserved).
+  # ticks_history returns floats — 44906.5690 becomes 44906.569, stripping the trailing 0.
+  # Our analysis computed last digit from the stripped float → never saw digit-0.
+  # Settlement dump #5 confirmed digit-0 IS present: 44906.5690 settled as LOSS.
+  # True distribution ~uniform (10% each), true WR ≈ 50%, EV ≈ -2.5%.
   - symbol: R_50
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
@@ -1424,9 +1424,11 @@ symbols:
     rolling_window: 1000
 
   # R_75 DIGITOVER — pip_size=4 (4dp), same as R_50. Edge confirmed: digit-0=0%, OVER4=57%.
-  # Re-enabled 2026-09-24 after race-condition fix in trader.py (_placing guard).
+  # DISABLED 2026-09-24: settlement dump proved digit-0 IS present at 4dp.
+  # Trailing-zero stripping in ticks_history made 0% digit-0 look like an edge —
+  # it was a float formatting artifact. True WR ≈ 50%, EV ≈ -2.5%.
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
