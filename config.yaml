@@ -1423,11 +1423,10 @@ symbols:
     min_rolling_wr: 52.0
     rolling_window: 1000
 
-  # R_75 DIGITOVER — DISABLED 2026-09-24: pip_size=0.001 (3dp), not 4dp.
-  # Settlement digit is 3rd decimal, not 4th. Analysis was at wrong precision.
-  # Re-run digit analysis at 3dp before re-enabling.
+  # R_75 DIGITOVER — pip_size=4 (4dp), same as R_50. Edge confirmed: digit-0=0%, OVER4=57%.
+  # Re-enabled 2026-09-24 after race-condition fix in trader.py (_placing guard).
   - symbol: R_75
-    enabled: false
+    enabled: true
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
