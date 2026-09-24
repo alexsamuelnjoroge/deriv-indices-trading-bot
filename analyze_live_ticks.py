@@ -35,7 +35,7 @@ async def collect(client, symbol: str, duration: int):
     print(f"  [{symbol}] Collecting live ticks for {duration}s …", flush=True)
 
     # Tap into the raw websocket stream
-    async for raw in client._ws:
+    async for raw in client.ws:
         if time.time() > deadline:
             break
         try:
