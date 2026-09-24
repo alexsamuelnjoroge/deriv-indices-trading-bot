@@ -1423,10 +1423,11 @@ symbols:
     min_rolling_wr: 52.0
     rolling_window: 1000
 
-  # R_75 DIGITOVER — ENABLED 2026-09-24: same structural digit-0 scarcity as R_50
-  # Digit 0 = 0/43k ticks (0.00%). WR=55.85% EV=+$0.089/trade.
+  # R_75 DIGITOVER — DISABLED 2026-09-24: pip_size=0.001 (3dp), not 4dp.
+  # Settlement digit is 3rd decimal, not 4th. Analysis was at wrong precision.
+  # Re-run digit analysis at 3dp before re-enabling.
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: digit_over
     barrier: 4
     loss_cooldown: 0
