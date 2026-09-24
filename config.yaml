@@ -1425,21 +1425,25 @@ symbols:
     min_rolling_wr: 53.0
     rolling_window: 100
 
+  # R_75 DIGITOVER — ENABLED 2026-09-24: same structural digit-0 scarcity as R_50
+  # Digit 0 = 0/43k ticks (0.00%). WR=55.85% EV=+$0.089/trade.
   - symbol: R_75
-    enabled: false
+    enabled: true
     strategy_type: digit_over
     barrier: 4
-    loss_cooldown: 0
+    loss_cooldown: 3
     contract_duration: 1
     contract_duration_unit: t
     stake_percent: 1.0
-    max_stake: 5.0
+    max_stake: 1.0
     min_stake: 1.00
-    daily_loss_limit: 50.0
+    daily_loss_limit: 30.0
     use_kelly: false
     payout_pct: 0.95
     max_open_contracts: 1
     blocked_hours_eat: []
+    min_rolling_wr: 53.0
+    rolling_window: 100
 
   - symbol: R_100
     enabled: false
