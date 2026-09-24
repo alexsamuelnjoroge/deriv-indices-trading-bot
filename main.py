@@ -38,6 +38,7 @@ from src.strategies.bb_multiplier import BBMultiplierStrategy
 from src.strategies.digit_even import DigitEvenStrategy
 from src.strategies.digit_over import DigitOverStrategy
 from src.strategies.digit_under import DigitUnderStrategy
+from src.strategies.digit_over_under import DigitOverUnderStrategy
 from src.strategies.jd_binary import JDBinaryStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
@@ -376,6 +377,15 @@ async def run(watch_only: bool = False):
             strategy = DigitUnderStrategy(sym_cfg)
             logger.info(f"[{symbol}/digit_under] Ready — DIGITUNDER({sym_cfg.get('barrier', 6)})")
 
+        elif strategy_type == "digit_over_under":
+            # Same-tick hedge: places OVER(over_barrier) and UNDER(under_barrier) atomically.
+            # Both settle on the identical next price tick — guarantees the hedge.
+            strategy = DigitOverUnderStrategy(sym_cfg)
+            logger.info(
+                f"[{symbol}/digit_over_under] Ready — "
+                f"OVER({sym_cfg.get('over_barrier', 4)}) + UNDER({sym_cfg.get('under_barrier', 6)})"
+            )
+
         elif strategy_type == "jd_binary":
             # JD post-spike directional binary: CALL on down-spike, PUT on up-spike.
             strategy = JDBinaryStrategy(sym_cfg)
@@ -419,6 +429,8 @@ async def run(watch_only: bool = False):
             hold_ticks=sym_cfg.get("hold_ticks", 5),
             early_sell_pct=sym_cfg.get("early_sell_pct", 0.0),
             digit_barrier=sym_cfg.get("barrier", 4),
+            over_barrier=sym_cfg.get("over_barrier", 4),
+            under_barrier=sym_cfg.get("under_barrier", 6),
             strategy=strategy,
             alerter=alerter,
         )
