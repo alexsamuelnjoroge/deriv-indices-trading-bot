@@ -111,7 +111,7 @@ class GoldTrendStrategy(BaseStrategy):
             if atr is None or atr_mean is None or atr < self.atr_min_mult * atr_mean:
                 return Signal(
                     action="HOLD",
-                    reason=f"ATR gate: {atr:.5f if atr else 'n/a'} < {self.atr_min_mult}x mean",
+                    reason=f"ATR gate: {f'{atr:.5f}' if atr else 'n/a'} < {self.atr_min_mult}x mean",
                     rsi=rsi,
                 )
 
