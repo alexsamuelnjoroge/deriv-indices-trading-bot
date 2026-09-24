@@ -63,6 +63,7 @@ class Trader:
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
         self._placing: bool = False  # prevents concurrent buy_contract calls on same symbol
+        self._digit_debug_dumps: int = 5  # dump full contract dict for first N settlements
         self._strategy = strategy
         self._alerter  = alerter
 
@@ -397,11 +398,22 @@ class Trader:
             outcome = "WIN" if profit > 0 else "LOSS"
             extra = ""
             if meta["contract_type"] in ("DIGITOVER", "DIGITUNDER"):
+                # Dump full contract dict for the first few settlements to identify
+                # which field holds the actual settlement tick value in this API version.
+                if self._digit_debug_dumps > 0:
+                    self._digit_debug_dumps -= 1
+                    logger.warning(
+                        f"[{self.symbol}] DIGIT SETTLEMENT DUMP #{5 - self._digit_debug_dumps} "
+                        f"({outcome}): {dict(contract)}"
+                    )
+
+                # Try every known settlement-price field, ordered by reliability.
                 exit_disp = (
                     contract.get("exit_tick_display_value")
+                    or contract.get("exit_spot_display_value")
+                    or contract.get("current_spot_display_value")
                     or contract.get("current_spot")
                 )
-                entry_disp = contract.get("entry_tick_display_value") or contract.get("entry_spot_display_value")
                 audit = contract.get("audit_details") or {}
                 all_ticks = audit.get("all_ticks", []) if isinstance(audit, dict) else []
                 exit_tick_from_audit = all_ticks[-1].get("tick_display_value") if all_ticks else None
