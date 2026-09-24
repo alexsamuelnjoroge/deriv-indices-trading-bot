@@ -23,11 +23,12 @@ PIP_SIZE = {"R_10": 3, "R_25": 3, "R_50": 4, "R_75": 4, "R_100": 2}
 
 async def collect(client, symbol: str, duration: int):
     pip = PIP_SIZE.get(symbol, 4)
-    ticks_float   = []
-    ticks_display = []
-    has_display   = False
+    ticks_float: list[int]   = []
+    ticks_display: list[int] = []
+    has_display = False
 
-    def on_tick(tick: dict):
+    # Callback MUST be async — client does asyncio.create_task(cb(tick))
+    async def on_tick(tick: dict):
         nonlocal has_display
         quote = tick.get("quote")
         if quote is not None:
@@ -37,18 +38,13 @@ async def collect(client, symbol: str, duration: int):
             has_display = True
             ticks_display.append(int(str(disp)[-1]))
 
-    # Register callback then subscribe
-    client.on_tick(symbol, lambda tick: asyncio.ensure_future(_wrap(on_tick, tick)))
+    client.on_tick(symbol, on_tick)
     await client.subscribe_ticks(symbol)
 
     print(f"  [{symbol}] Collecting live ticks for {duration}s …", flush=True)
     await asyncio.sleep(duration)
 
     return pip, ticks_float, ticks_display, has_display
-
-
-async def _wrap(fn, arg):
-    fn(arg)
 
 
 def report(symbol, pip, digits, label):
