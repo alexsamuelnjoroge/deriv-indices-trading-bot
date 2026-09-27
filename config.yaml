@@ -1155,7 +1155,7 @@ symbols:
     max_cluster_spikes: 3
     barrier_pct: 0.0
     confirm_threshold: 0.0
-    contract_duration: 10
+    contract_duration: 20
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
