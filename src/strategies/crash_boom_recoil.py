@@ -83,6 +83,10 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         self.atr_regime               = str(config.get("atr_regime", "")).lower()
         self.atr_regime_short_period  = int(config.get("atr_regime_short_period", 20))
         self.atr_regime_long_period   = int(config.get("atr_regime_long_period", 100))
+        # For symbol_type=jump: restrict which spike directions fire an entry.
+        # "both" (default) = trade all spikes. "up" = only up-spikes (BUY_FALL/PUT).
+        # "down" = only down-spikes (BUY_RISE/CALL).
+        self.jump_direction           = str(config.get("jump_direction", "both")).lower()
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
@@ -452,7 +456,16 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         # Jump indices: spikes in both directions.
         # Large DOWN spike → BUY_RISE (CALL). Large UP spike → BUY_FALL (PUT).
+        # jump_direction filters which spikes to trade: "both" | "up" | "down"
         if self.symbol_type == "jump" and abs_move >= threshold:
+            is_up = last_move > 0
+            direction_cfg = getattr(self, "jump_direction", "both")
+            if direction_cfg == "up" and not is_up:
+                return Signal(action="HOLD",
+                              reason=f"JUMP down spike skipped (jump_direction=up)", atr=pre_atr)
+            if direction_cfg == "down" and is_up:
+                return Signal(action="HOLD",
+                              reason=f"JUMP up spike skipped (jump_direction=down)", atr=pre_atr)
             self._cooldown = self.cooldown_ticks
             if last_move < 0:
                 buy_action = "BUY_RISE"

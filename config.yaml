@@ -1134,18 +1134,17 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
-  # ── JD75 BINARY — post-spike CALL/PUT (Jump 75) ──────────────────────────────
+  # ── JD75 BINARY — post-spike PUT only (Jump 75) ──────────────────────────────
   # Sweep: spike=20x dur=20t WR=63.9% BE=53.5% EV=+9.04% 4/4 ROBUST (36t / 60k)
-  #        spike=12x dur=20t WR=61.5% BE=53.5% EV=+6.99% 4/4 ROBUST (52t / 60k)
-  # Raised spike_mult 12->20 on 2026-08-26: stronger spikes recoil more reliably.
-  # Edge: JD75 recoil is slower — needs 20 ticks. 10t is consistently below BE.
-  # Down-spike -> BUY_RISE (CALL). Up-spike -> BUY_FALL (PUT).
-  # ENABLED 2026-09-24: 4/4 ROBUST validated — deploying at min stake to verify live.
+  # Live (68T at 10t): UP-spike PUT WR=55.9% OK. DOWN-spike CALL WR=41.2% LOSING.
+  # 2026-09-27: disabled CALL/RISE on down-spikes (jump_direction=up). PUT only.
+  # Edge: UP spikes recoil. DOWN spikes continue. Only trade PUT after up spikes.
   - symbol: JD75
     enabled: true
     strategy_type: crash_boom_recoil
     symbol_type: jump
     use_binary: true
+    jump_direction: up
     spike_mult: 20.0
     atr_period: 50
     cooldown_ticks: 5
