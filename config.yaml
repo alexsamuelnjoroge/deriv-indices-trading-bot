@@ -1139,6 +1139,9 @@ symbols:
   # Live (68T at 10t): UP-spike PUT WR=55.9% OK. DOWN-spike CALL WR=41.2% LOSING.
   # 2026-09-27: disabled CALL/RISE on down-spikes (jump_direction=up). PUT only.
   # Edge: UP spikes recoil. DOWN spikes continue. Only trade PUT after up spikes.
+  # Duration: live data shows 55.9% WR at 10t (above 53.5% BE). Keeping 10t.
+  # The "10t below BE" backtest finding was from combined UP+DOWN spikes — DOWN
+  # spike CALLs at 41.2% dragged the combined average below BE. PUT-only is fine at 10t.
   - symbol: JD75
     enabled: true
     strategy_type: crash_boom_recoil
@@ -1154,7 +1157,7 @@ symbols:
     max_cluster_spikes: 3
     barrier_pct: 0.0
     confirm_threshold: 0.0
-    contract_duration: 20
+    contract_duration: 10
     contract_duration_unit: t
     multiplier: 0
     min_stake: 1.0
