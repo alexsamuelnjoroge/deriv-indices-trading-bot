@@ -87,6 +87,10 @@ class CrashBoomRecoilStrategy(BaseStrategy):
         # "both" (default) = trade all spikes. "up" = only up-spikes (BUY_FALL/PUT).
         # "down" = only down-spikes (BUY_RISE/CALL).
         self.jump_direction           = str(config.get("jump_direction", "both")).lower()
+        # "recoil" (default): bet against the spike direction (mean-reversion).
+        # "continuation": bet WITH the spike direction (trend-following).
+        # 1h BOOM500 live data shows 78% WR for continuation vs 22% for recoil.
+        self.direction_mode           = str(config.get("direction_mode", "recoil")).lower()
 
         self._cooldown             = 0
         self._consecutive_losses   = 0
@@ -416,9 +420,14 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         if self.symbol_type == "crash" and last_move < 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            buy_action = "BUY_RISE" if self.use_binary else "BUY_ACCU"
-            mode       = "binary CALL" if self.use_binary else "ACCU recoil"
-            reason     = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            if self.use_binary:
+                # recoil → CALL (price rises back); continuation → PUT (price keeps falling)
+                buy_action = "BUY_FALL" if self.direction_mode == "continuation" else "BUY_RISE"
+                mode = f"binary {'PUT continuation' if self.direction_mode == 'continuation' else 'CALL recoil'}"
+            else:
+                buy_action = "BUY_ACCU"
+                mode = "ACCU"
+            reason = f"CRASH spike: -{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
             if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason
@@ -430,9 +439,14 @@ class CrashBoomRecoilStrategy(BaseStrategy):
 
         if self.symbol_type == "boom" and last_move > 0 and abs_move >= threshold:
             self._cooldown = self.cooldown_ticks
-            buy_action = "BUY_FALL" if self.use_binary else "BUY_ACCU"
-            mode       = "binary PUT" if self.use_binary else "ACCU recoil"
-            reason     = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
+            if self.use_binary:
+                # recoil → PUT (price falls back); continuation → CALL (price keeps rising)
+                buy_action = "BUY_RISE" if self.direction_mode == "continuation" else "BUY_FALL"
+                mode = f"binary {'CALL continuation' if self.direction_mode == 'continuation' else 'PUT recoil'}"
+            else:
+                buy_action = "BUY_ACCU"
+                mode = "ACCU"
+            reason = f"BOOM spike: +{abs_move:.4f} ({mult:.0f}xATR) -> {mode}"
             if self.barrier_pct > 0 or self.use_binary:
                 self._waiting_confirmation = True
                 self._pending_reason       = reason

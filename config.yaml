@@ -1037,6 +1037,39 @@ symbols:
     # UTC 00-08 = EAT 03-10
     blocked_hours_eat: [0,1,2,11,12,13,14,15,16,17,18,19,20,21,22,23]
 
+  # ── BOOM500 BINARY CONTINUATION — post-spike CALL (price continues after boom) ──
+  # 1h live analysis (46 spikes): recoil WR=22% → continuation WR=78%.
+  # After UP boom spike, price stays at new level (doesn't recoil). Bet CALL.
+  # Only trade UP spikes (characteristic boom direction). settle=0 dur=2t.
+  # Payout TBD — using 0.87 (87%) as initial estimate. BE=53.5%.
+  - symbol: BOOM500
+    enabled: true
+    strategy_type: crash_boom_recoil
+    symbol_type: boom
+    use_binary: true
+    direction_mode: continuation
+    spike_mult: 2.5
+    atr_period: 50
+    cooldown_ticks: 5
+    loss_cooldown: 3
+    min_spike_ratio: 0
+    cluster_window: 0
+    confirm_threshold: 0.0
+    barrier_pct: 0.0
+    settle_ticks: 0
+    contract_duration: 2
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.87
+    min_rolling_wr: 60.0
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
   # CRASH500 — DISABLED 2026-09-10: live WR=60.0% (30t) vs BE=67.7%. Self-halted 07:57.
   # gr=5% hold=8 settle=0 → WR=77.2% BE=67.7% EV=+4.535% (149 trades/86k)
   # [74%(OK) 70%(OK) 83%(OK) 79%(OK)] — consistent across all 4 windows
