@@ -151,24 +151,33 @@ def analyze(symbol: str, digits: list, prices: list, pip: int):
 
 
 async def collect_symbol(client, symbol: str, duration: int):
-    pip = PIP_SIZE.get(symbol, 4)
+    # pip_size auto-detected from first tick; fallback to hardcoded map or 4
+    pip_box = [PIP_SIZE.get(symbol, 4)]
+    pip_resolved = [False]
     digits: list = []
     prices: list = []
 
-    # Factory avoids closure-capture problem in parallel collection
-    def make_callback(d_list, p_list, dp):
+    def make_callback(d_list, p_list, pb, pr):
         async def on_tick(tick: dict):
             q = tick.get("quote")
-            if q is not None:
-                p_list.append(float(q))
-                d_list.append(int(f"{float(q):.{dp}f}"[-1]))
+            if q is None:
+                return
+            # Resolve pip_size from tick on first arrival
+            if not pr[0]:
+                raw = tick.get("pip_size")
+                if raw is not None:
+                    pb[0] = int(raw)
+                pr[0] = True
+            dp = pb[0]
+            p_list.append(float(q))
+            d_list.append(int(f"{float(q):.{dp}f}"[-1]))
         return on_tick
 
-    client.on_tick(symbol, make_callback(digits, prices, pip))
+    client.on_tick(symbol, make_callback(digits, prices, pip_box, pip_resolved))
     await client.subscribe_ticks(symbol)
     print(f"[{symbol}] subscribed, collecting {duration}s …", flush=True)
     await asyncio.sleep(duration)
-    return symbol, digits, prices, pip
+    return symbol, digits, prices, pip_box[0]
 
 
 async def main():
