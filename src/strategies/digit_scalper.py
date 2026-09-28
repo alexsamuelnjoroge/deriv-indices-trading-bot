@@ -38,23 +38,25 @@ class DigitScalerStrategy(BaseStrategy):
             return Signal(action="HOLD", reason=f"digit_scalper: cooldown ({self._cooldown + 1} left)")
 
         ticks = tick_store._ticks
-        if len(ticks) < 2:
+        if len(ticks) < 1:
             return Signal(action="HOLD", reason="digit_scalper: warming up")
 
-        # Trigger = digit of the previous tick; contract settles on the NEXT tick (lag-1)
-        prev_digit = self._digit(ticks[-2].price)
+        # Trigger = digit of the CURRENT tick; contract settles on the NEXT tick (lag-1).
+        # Using ticks[-1] (not ticks[-2]) ensures the edge matches the measured r=+0.39
+        # at lag-1. Using ticks[-2] would trade lag-2 which is near zero.
+        curr_digit = self._digit(ticks[-1].price)
 
-        if prev_digit in self._over_digits:
+        if curr_digit in self._over_digits:
             return Signal(
                 action="BUY_DIGITOVER",
-                reason=f"digit_scalper: prev={prev_digit} ∈ over_digits → DIGITOVER({self._barrier})",
+                reason=f"digit_scalper: curr={curr_digit} ∈ over_digits → DIGITOVER({self._barrier})",
             )
-        if prev_digit in self._under_digits:
+        if curr_digit in self._under_digits:
             return Signal(
                 action="BUY_DIGITUNDER",
-                reason=f"digit_scalper: prev={prev_digit} ∈ under_digits → DIGITUNDER({self._barrier})",
+                reason=f"digit_scalper: curr={curr_digit} ∈ under_digits → DIGITUNDER({self._barrier})",
             )
-        return Signal(action="HOLD", reason=f"digit_scalper: prev={prev_digit} → skip")
+        return Signal(action="HOLD", reason=f"digit_scalper: curr={curr_digit} → skip")
 
     def on_result(self, won: bool) -> None:
         self._cooldown = self._cooldown_max
