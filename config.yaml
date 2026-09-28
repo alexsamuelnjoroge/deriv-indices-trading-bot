@@ -1572,8 +1572,8 @@ symbols:
     enabled: true
     strategy_type: digit_scalper
     barrier: 4
-    over_digits: [6, 7, 8]
-    under_digits: [1, 2, 3]
+    over_digits: [7]       # digit 7 → OVER4 at 86% WR (strongest trigger only)
+    under_digits: [2]      # digit 2 → UNDER4 at 84% WR (strongest trigger only)
     pip_size: 2
     cooldown_ticks: 2
     use_pre_proposal: true
@@ -1584,6 +1584,8 @@ symbols:
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.79
+    min_rolling_wr: 56.0   # halt if rolling WR drops below BE (55.9%) — default 48% is too low
+    rolling_window: 80     # wider window for reliability at high trade frequency
     daily_loss_limit: 100.0
     max_open_contracts: 1
     blocked_hours_eat: []
