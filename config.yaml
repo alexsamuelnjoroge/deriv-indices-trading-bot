@@ -1584,7 +1584,7 @@ symbols:
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.79
-    daily_loss_limit: 20.0
+    daily_loss_limit: 100.0
     max_open_contracts: 1
     blocked_hours_eat: []
 
