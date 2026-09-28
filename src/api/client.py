@@ -391,6 +391,42 @@ class DerivClient:
         await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
         return buy_resp["buy"]
 
+    async def propose_contract(
+        self,
+        symbol: str,
+        contract_type: str,
+        duration: int,
+        duration_unit: str,
+        stake: float,
+        currency: str = "USD",
+        barrier: str | None = None,
+    ) -> tuple[str, float]:
+        """Request a proposal and return (proposal_id, payout). Does NOT buy."""
+        payload: dict = {
+            "proposal": 1,
+            "amount": round(stake, 2),
+            "basis": "stake",
+            "contract_type": contract_type,
+            "currency": currency,
+            "duration": duration,
+            "duration_unit": duration_unit,
+            "underlying_symbol": symbol,
+        }
+        if barrier is not None:
+            payload["barrier"] = barrier
+        resp = await self._send(payload)
+        proposal_id = resp["proposal"]["id"]
+        payout      = resp["proposal"]["payout"]
+        return proposal_id, payout
+
+    async def buy_proposal(self, proposal_id: str, stake: float) -> dict:
+        """Buy a pre-fetched proposal by ID. Much faster than buy_contract."""
+        buy_resp    = await self._send({"buy": proposal_id, "price": stake})
+        contract_id = buy_resp["buy"]["contract_id"]
+        logger.info(f"Contract bought (pre-proposal): {contract_id} | stake={stake}")
+        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        return buy_resp["buy"]
+
     async def buy_contract(
         self,
         symbol: str,
