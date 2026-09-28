@@ -66,9 +66,14 @@ class Trader:
         self._digit_debug_dumps: int = 5  # dump full contract dict for first N settlements
         self._strategy = strategy
         self._alerter  = alerter
+        self._proposal_pool = None  # set via set_proposal_pool() for pre-proposal latency cut
 
         self.client.on_contract_update(self._on_contract_update)
         self.client.on_reconnect(self._on_reconnect)
+
+    def set_proposal_pool(self, pool) -> None:
+        """Attach a PreProposalPool so DIGITOVER/UNDER use pre-fetched proposals."""
+        self._proposal_pool = pool
 
     async def _on_reconnect(self) -> None:
         """Re-subscribe to proposal_open_contract for any contracts still open after a WS reconnect."""
@@ -236,14 +241,27 @@ class Trader:
                 )
 
             elif signal.action == "BUY_DIGITOVER":
-                result = await self.client.buy_contract(
-                    symbol=self.symbol,
-                    contract_type="DIGITOVER",
-                    duration=1,
-                    duration_unit="t",
-                    stake=stake,
-                    barrier=str(self.digit_barrier),
-                )
+                pool = self._proposal_pool
+                if pool is not None and round(stake, 2) == round(pool.stake, 2):
+                    pid = await pool.consume("DIGITOVER")
+                    if pid:
+                        result = await self.client.buy_proposal(pid, stake)
+                        logger.info(
+                            f"[{self.symbol}] DIGITOVER({self.digit_barrier}) pre-proposal | ID: {result['contract_id']} | stake={stake:.2f}"
+                        )
+                    else:
+                        logger.warning(f"[{self.symbol}] No pre-proposal for DIGITOVER — falling back")
+                        result = await self.client.buy_contract(
+                            symbol=self.symbol, contract_type="DIGITOVER",
+                            duration=1, duration_unit="t", stake=stake,
+                            barrier=str(self.digit_barrier),
+                        )
+                else:
+                    result = await self.client.buy_contract(
+                        symbol=self.symbol, contract_type="DIGITOVER",
+                        duration=1, duration_unit="t", stake=stake,
+                        barrier=str(self.digit_barrier),
+                    )
                 contract_id = str(result["contract_id"])
                 self._open[contract_id] = {
                     "signal_action": "BUY_DIGITOVER",
@@ -253,19 +271,29 @@ class Trader:
                     "is_multiplier": False,
                 }
                 self.risk.on_contract_opened()
-                logger.info(
-                    f"[{self.symbol}] DIGITOVER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
-                )
 
             elif signal.action == "BUY_DIGITUNDER":
-                result = await self.client.buy_contract(
-                    symbol=self.symbol,
-                    contract_type="DIGITUNDER",
-                    duration=1,
-                    duration_unit="t",
-                    stake=stake,
-                    barrier=str(self.digit_barrier),
-                )
+                pool = self._proposal_pool
+                if pool is not None and round(stake, 2) == round(pool.stake, 2):
+                    pid = await pool.consume("DIGITUNDER")
+                    if pid:
+                        result = await self.client.buy_proposal(pid, stake)
+                        logger.info(
+                            f"[{self.symbol}] DIGITUNDER({self.digit_barrier}) pre-proposal | ID: {result['contract_id']} | stake={stake:.2f}"
+                        )
+                    else:
+                        logger.warning(f"[{self.symbol}] No pre-proposal for DIGITUNDER — falling back")
+                        result = await self.client.buy_contract(
+                            symbol=self.symbol, contract_type="DIGITUNDER",
+                            duration=1, duration_unit="t", stake=stake,
+                            barrier=str(self.digit_barrier),
+                        )
+                else:
+                    result = await self.client.buy_contract(
+                        symbol=self.symbol, contract_type="DIGITUNDER",
+                        duration=1, duration_unit="t", stake=stake,
+                        barrier=str(self.digit_barrier),
+                    )
                 contract_id = str(result["contract_id"])
                 self._open[contract_id] = {
                     "signal_action": "BUY_DIGITUNDER",
@@ -275,9 +303,6 @@ class Trader:
                     "is_multiplier": False,
                 }
                 self.risk.on_contract_opened()
-                logger.info(
-                    f"[{self.symbol}] DIGITUNDER({self.digit_barrier}) | ID: {contract_id} | stake={stake:.2f}"
-                )
 
             elif signal.action == "BUY_DIGIT_PAIR":
                 # Both previous contracts must be fully settled before opening a new pair.

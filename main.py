@@ -40,6 +40,7 @@ from src.strategies.digit_over import DigitOverStrategy
 from src.strategies.digit_under import DigitUnderStrategy
 from src.strategies.digit_over_under import DigitOverUnderStrategy
 from src.strategies.jd_binary import JDBinaryStrategy
+from src.strategies.digit_scalper import DigitScalerStrategy
 from src.risk.manager import RiskManager
 from src.execution.trader import Trader
 from src.monitoring.dashboard import Dashboard
@@ -391,6 +392,16 @@ async def run(watch_only: bool = False):
             strategy = JDBinaryStrategy(sym_cfg)
             logger.info(f"[{symbol}/jd_binary] Ready — settle={sym_cfg.get('settle_ticks', 1)}t")
 
+        elif strategy_type == "digit_scalper":
+            # JD100 digit autocorrelation scalper: OVER after {6,7,8}, UNDER after {1,2,3}.
+            strategy = DigitScalerStrategy(sym_cfg)
+            logger.info(
+                f"[{symbol}/digit_scalper] Ready — "
+                f"OVER on {sym_cfg.get('over_digits', [6,7,8])} | "
+                f"UNDER on {sym_cfg.get('under_digits', [1,2,3])} | "
+                f"pre_proposal={sym_cfg.get('use_pre_proposal', False)}"
+            )
+
         elif strategy_type == "mtf_v5":
             strategy     = MTFV5Strategy(sym_cfg)
             htf_count    = sym_cfg.get("ema_period", 100) + sym_cfg.get("slope_bars", 3) + 20
@@ -434,6 +445,21 @@ async def run(watch_only: bool = False):
             strategy=strategy,
             alerter=alerter,
         )
+
+        # Wire up pre-proposal pool for digit_scalper to cut entry latency
+        if strategy_type == "digit_scalper" and sym_cfg.get("use_pre_proposal", False):
+            from src.execution.proposal_pool import PreProposalPool
+            _pool = PreProposalPool(
+                client=client,
+                symbol=symbol,
+                barrier=str(sym_cfg.get("barrier", "4")),
+                duration=sym_cfg.get("contract_duration", 1),
+                duration_unit=sym_cfg.get("contract_duration_unit", "t"),
+                stake=float(sym_cfg.get("min_stake", 1.0)),
+            )
+            await _pool.start()
+            trader.set_proposal_pool(_pool)
+            logger.info(f"[{symbol}/digit_scalper] Pre-proposal pool started (stake={_pool.stake})")
 
         # Map any signal to CALL/PUT for paper-trade direction tracking
         _PAPER_CT = {"BUY_RISE": "CALL", "BUY_FALL": "PUT"}

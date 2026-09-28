@@ -1562,6 +1562,32 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
+  # ── JD100 DIGIT SCALPER — autocorrelation DIGITOVER/DIGITUNDER ──────────────
+  # Edge: JD100 digit autocorrelation r=+0.39 at lag-1.
+  #   After digits {6,7,8}: P(next > 4) = 74-86%
+  #   After digits {1,2,3}: P(next ≤ 4) = 70-84%
+  # Payout ~79%, BE=55.9%. use_pre_proposal cuts latency from ~4s to ~1s
+  # so the contract settles at lag-1 (r=+0.39) instead of lag-3/4 (r≈+0.05).
+  - symbol: JD100
+    enabled: true
+    strategy_type: digit_scalper
+    barrier: 4
+    over_digits: [6, 7, 8]
+    under_digits: [1, 2, 3]
+    pip_size: 2
+    cooldown_ticks: 2
+    use_pre_proposal: true
+    contract_duration: 1
+    contract_duration_unit: t
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 0.79
+    daily_loss_limit: 20.0
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
   # ══════════════════════════════════════════════════════════════════════
   # ARCHIVED: All synthetic + multiplier strategies (disabled 2026-07-29)
   # Reason: shifted to real market binary CALL/PUT only.
