@@ -1606,7 +1606,7 @@ symbols:
     strategy_type: digit_scalper
     barrier: 4
     over_digits: [7]       # digit 7 → OVER4 at 86% WR (strongest trigger only)
-    under_digits: [2]      # digit 2 → UNDER4 at 84% WR (strongest trigger only)
+    under_digits: []       # DIGITUNDER disabled: payout=43% sets BE=70%, live WR only 61.8%
     pip_size: 2
     cooldown_ticks: 2
     use_pre_proposal: true
@@ -1616,9 +1616,9 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.79
-    min_rolling_wr: 56.0   # halt if rolling WR drops below BE (55.9%) — default 48% is too low
-    rolling_window: 80     # wider window for reliability at high trade frequency
+    payout_pct: 0.25       # actual Deriv payout for DIGITOVER(4) on JD100 — not 0.79
+    min_rolling_wr: 80.5   # BE = 80.0% at 25% payout — halt immediately if dipping below
+    rolling_window: 80
     daily_loss_limit: 100.0
     max_open_contracts: 1
     blocked_hours_eat: []

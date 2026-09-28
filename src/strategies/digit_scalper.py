@@ -1,9 +1,12 @@
 """
 Digit Scalper — exploits positive autocorrelation in the JD100 digit stream.
 
-Edge: after digits {6, 7, 8} the next digit is >4 with ~74-86% probability.
-      after digits {1, 2, 3} the next digit is ≤4  with ~70-84% probability.
-Payout ~79%, BE=55.9%.
+Edge: after digit 7, the next digit is >4 (DIGITOVER) with ~86% probability.
+      DIGITUNDER disabled — actual payout=43% sets BE=69.9%, too high to sustain.
+
+Actual Deriv payouts on JD100 (measured from live statement, not estimates):
+  DIGITOVER(4):  25% payout → BE=80.0%  (digit 7 trigger: ~86% WR ✓)
+  DIGITUNDER(4): 43% payout → BE=69.9%  (digit 2 trigger: only 61.8% WR ✗)
 
 Requires use_pre_proposal: true in config to cut API latency to ~1s so the
 contract settles on lag-1 (r=+0.39) rather than lag-3/4 (r≈+0.05).
