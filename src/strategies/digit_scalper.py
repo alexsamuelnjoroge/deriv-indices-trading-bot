@@ -44,6 +44,16 @@ class DigitScalerStrategy(BaseStrategy):
         if len(ticks) < 1:
             return Signal(action="HOLD", reason="digit_scalper: warming up")
 
+        # Warn once if API-reported pip_size differs from config
+        api_pip = getattr(ticks[-1], "pip_size", None)
+        if api_pip is not None and api_pip != self._pip_size and not getattr(self, "_pip_warned", False):
+            self._pip_warned = True
+            import logging
+            logging.getLogger(__name__).warning(
+                f"digit_scalper: config pip_size={self._pip_size} but API reports {api_pip} — "
+                "check config or digits will be wrong"
+            )
+
         # Trigger = digit of the CURRENT tick; contract settles on the NEXT tick (lag-1).
         # Using ticks[-1] (not ticks[-2]) ensures the edge matches the measured r=+0.39
         # at lag-1. Using ticks[-2] would trade lag-2 which is near zero.
