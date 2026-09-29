@@ -1601,12 +1601,11 @@ symbols:
   #   After digits {1,2,3}: P(next ≤ 4) = 70-84%
   # Payout ~79%, BE=55.9%. use_pre_proposal cuts latency from ~4s to ~1s
   # so the contract settles at lag-1 (r=+0.39) instead of lag-3/4 (r≈+0.05).
-  # R_100 digit scalper — strongest autocorrelation of all synthetic indices
-  # pip_size=1 + ATR≈0.12 means each tick moves digit by ~1 unit → r=+0.528 at lag-1
-  # Payouts: DIGITOVER(4)=192% (BE=34.2%), DIGITUNDER(4)=238% (BE=29.6%)
-  # use_pre_proposal ensures contract settles at lag-1 where the edge lives
+  # R_100: DISABLED — pip auto-detection was unreliable (pip=1 in scan1, pip=2 in scan2).
+  # With correct pip=2, ATR=0.12 moves the digit by ~12 units/tick → random, r≈0.
+  # The scan1 edge (r=+0.528) was an artifact of computing digits from wrong decimal place.
   - symbol: R_100
-    enabled: true
+    enabled: false
     strategy_type: digit_scalper
     barrier: 4
     over_digits: [7, 8]            # highest-confidence first (90.8%, 84.4% WR) — expand after 2nd scan
@@ -1631,8 +1630,8 @@ symbols:
     enabled: true
     strategy_type: digit_scalper
     barrier: 4
-    over_digits: [7]       # digit 7 → OVER4 at 86% WR (strongest trigger only)
-    under_digits: []       # DIGITUNDER disabled: payout=43% sets BE=70%, live WR only 61.8%
+    over_digits: [6, 7, 8]  # confirmed both scans: 72%, 82%, 74% WR vs BE~52% (implied)
+    under_digits: []        # DIGITUNDER disabled: payout=43% sets BE=70%, live WR only 61.8%
     pip_size: 2
     cooldown_ticks: 2
     use_pre_proposal: true
