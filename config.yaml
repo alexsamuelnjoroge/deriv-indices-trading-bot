@@ -1037,13 +1037,12 @@ symbols:
     # UTC 00-08 = EAT 03-10
     blocked_hours_eat: [0,1,2,11,12,13,14,15,16,17,18,19,20,21,22,23]
 
-  # ── BOOM500 BINARY CONTINUATION — post-spike CALL (price continues after boom) ──
-  # 1h live analysis (46 spikes): recoil WR=22% → continuation WR=78%.
-  # After UP boom spike, price stays at new level (doesn't recoil). Bet CALL.
-  # Only trade UP spikes (characteristic boom direction). settle=0 dur=2t.
-  # Payout TBD — using 0.87 (87%) as initial estimate. BE=53.5%.
+  # ── BOOM500 BINARY CONTINUATION — DISABLED: binary CALL/PUT not available on Crash/Boom
+  # Only ACCU and Multiplier contracts are supported on these symbols.
+  # TradingDurationNotAllowed errors confirmed. Multiplier not viable either:
+  # post-spike price move = 0.0001%/tick vs 0.02% commission needed at x100.
   - symbol: BOOM500
-    enabled: true
+    enabled: false
     strategy_type: crash_boom_recoil
     symbol_type: boom
     use_binary: true
