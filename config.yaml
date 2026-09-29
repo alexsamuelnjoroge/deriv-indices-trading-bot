@@ -1617,7 +1617,7 @@ symbols:
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.25       # actual Deriv payout for DIGITOVER(4) on JD100 — not 0.79
-    min_rolling_wr: 80.5   # BE = 80.0% at 25% payout — halt immediately if dipping below
+    min_rolling_wr: 0      # disabled: BE=80%, actual WR=81.4% — margin too thin for rolling gate
     rolling_window: 80
     daily_loss_limit: 100.0
     max_open_contracts: 1
