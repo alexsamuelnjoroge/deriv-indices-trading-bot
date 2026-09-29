@@ -175,7 +175,7 @@ def analyze(symbol: str, prices: list) -> dict:
     implied_payout_u = over4_rate / under4_rate if under4_rate > 0 else 0
     implied_be_u     = 1 / (1 + implied_payout_u) if implied_payout_u > 0 else 0
     for trigger_d in range(10):
-        idxs = [i for i, d in enumerate(digits[:-1]) if d == trigger_d]
+        idxs = [i for i, td in enumerate(digits[:-1]) if td == trigger_d]
         if len(idxs) < 10:
             continue
         wins_u = sum(1 for i in idxs if digits[i + 1] < 4)
@@ -184,7 +184,7 @@ def analyze(symbol: str, prices: list) -> dict:
         if margin_u > 0.04 and len(idxs) >= 15:
             findings["edges"].append({
                 "type": "digit_trigger_under",
-                "detail": f"digit {d} → DIGITUNDER(4): WR={wr_u*100:.1f}% vs BE={implied_be_u*100:.1f}% (+{margin_u*100:.1f}%) n={len(idxs)}",
+                "detail": f"digit {trigger_d} → DIGITUNDER(4): WR={wr_u*100:.1f}% vs BE={implied_be_u*100:.1f}% (+{margin_u*100:.1f}%) n={len(idxs)}",
                 "strength": margin_u,
             })
 
