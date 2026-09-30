@@ -1308,6 +1308,43 @@ symbols:
     max_open_contracts: 1
     blocked_hours_eat: []
 
+  # ── R_75 ACCU (calm_accu) — Volatility 75 accumulator ───────────────────────
+  # Historical rolling-barrier backtest (60k ticks): EV=+2.22/trade, WR=97%, avg_ticks=28.7
+  # 8.2% of contracts reach max_ticks=85 → (1.03)^85-1 = 11.77x payout drives EV
+  # Barrier 0.04027% is ~2x typical R_75 tick move (vs CRASH/BOOM 0.0005% barrier which fails)
+  # No spike risk (smooth vol index). Unlike failed CRASH500/BOOM150N calm_accu attempts.
+  - symbol: R_75
+    enabled: true
+    strategy_type: calm_accu
+    long_atr_period: 50
+    short_atr_period: 10
+    fast_atr_period: 5
+    spike_mult: 6.0             # catch unusually large R_75 moves (not Crash/Boom spikes)
+    spike_cooldown: 5           # brief pause after volatile tick
+    max_ticks_since_spike: 0    # disabled — no overdue-spike gating on Volatility index
+    calm_atr_ratio: 1.5         # mild filter: enter when short ATR < 1.5x long ATR
+    vol_rising_mult: 0.0        # disabled
+    entry_cooldown: 5           # reopen 5 ticks after previous contract closes
+    loss_cooldown: 0            # disabled
+    barrier_pct: 0.0004027      # actual R_75 barrier at 3% growth (from API probe)
+    calm_barrier_mult: 0.9      # skip if any recent tick > 90% of barrier width
+    calm_lookback: 5
+    growth_rate: 0.03           # 3%/tick — best EV combo from 60k-tick backtest
+    hold_ticks: 85              # max_ticks at 3% growth (informational; early_sell_pct=0)
+    early_sell_pct: 0.0         # never close early — hold to barrier breach or max_ticks
+    contract_duration: 0
+    contract_duration_unit: t
+    multiplier: 0
+    min_stake: 1.0
+    max_stake: 1.0
+    stake_percent: 1.0
+    use_kelly: false
+    payout_pct: 11.77           # (1.03)^85 - 1 — informational for rolling WR guard
+    min_rolling_wr: 0           # disabled for now — monitor live first
+    rolling_window: 30
+    max_open_contracts: 1
+    blocked_hours_eat: []
+
   # ── R_75 Donchian 120s/20 — Volatility 75 trend-following ────────────────────
   # Sweep: Donchian(20) on 120s bars | 200x mult | SL=0.5% TP=1.0% | WR=40.0% BE=34.0%
   # EV=+0.18R | 3/4 walk-forward windows. Hurst H=0.59 confirms trending structure.
