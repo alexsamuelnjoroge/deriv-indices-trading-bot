@@ -1626,10 +1626,10 @@ symbols:
     blocked_hours_eat: []
 
   - symbol: JD100
-    enabled: true
+    enabled: false          # disabled: payout=$0.18 → BE=84.75%, best live WR=79% — no viable edge
     strategy_type: digit_scalper
     barrier: 4
-    over_digits: [7]        # 72%(6), 82%(7), 74%(8) vs 80% BE — only digit 7 has edge
+    over_digits: [7]        # 72%(6), 82%(7), 74%(8) vs 80% BE (assumed) — moot: real BE=84.75%
     under_digits: []        # DIGITUNDER disabled: payout=43% sets BE=70%, live WR only 61.8%
     pip_size: 2
     cooldown_ticks: 2
@@ -1640,7 +1640,7 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 0.25       # actual Deriv payout for DIGITOVER(4) on JD100 — not 0.79
+    payout_pct: 0.18       # actual Deriv payout for DIGITOVER(4) on JD100 — BE=84.75%
     min_rolling_wr: 0      # disabled: BE=80%, actual WR=81.4% — margin too thin for rolling gate
     rolling_window: 80
     daily_loss_limit: 100.0
