@@ -1309,11 +1309,10 @@ symbols:
     blocked_hours_eat: []
 
   # ── R_75 ACCU (calm_accu) — Volatility 75 accumulator ───────────────────────
-  # Win condition: survive ALL 85 ticks → +$11.34. Barrier breach at any tick → -$1.
-  # Break-even: P(max_ticks) > 8.11%. Backtest baseline: 7.0% (negative).
-  # With max_ratio<0.80 filter (max tick in last 20 < 80% barrier): P=8.6% → EV=+$0.059
-  # Filter passes 16.8% of potential entries. Commission = $0. Edge is borderline — needs 50 live trades to confirm.
-  # Monitor: track how many trades hit max_ticks. Need ≥5/50 (10%) to confirm edge.
+  # Win: survive 31 ticks (hold_ticks=30, bot sells at +1), profit=(1.03)^31-1=+$1.50/stake
+  # Lose: barrier breach at any tick before 31 → lose full stake (-$1)
+  # Break-even: P(survive 31t) > 40.0%. With max_ratio<0.80 filter: P≈41% → EV=+$0.015
+  # Commission=$0. Filter passes ~17% of entries. Monitor: need 41%+ win rate over 50 trades.
   - symbol: R_75
     enabled: true
     strategy_type: calm_accu
@@ -1331,8 +1330,8 @@ symbols:
     calm_barrier_mult: 0.80     # KEY FILTER: skip if any of last 20 ticks > 80% of barrier
     calm_lookback: 20           # look back 20 ticks — tightened from 5
     growth_rate: 0.03
-    hold_ticks: 85              # max_ticks at 3% growth (informational)
-    early_sell_pct: 0.0         # never close early — only max_ticks counts as win
+    hold_ticks: 30              # bot force-sells at tick 31; profit=(1.03)^31-1=+$1.50/stake
+    early_sell_pct: 0.0         # hold_ticks timer handles the sell (no profit-target sell needed)
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -1340,7 +1339,7 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 11.34           # (1.03)^85 - 1 (correct value)
+    payout_pct: 1.50            # (1.03)^31 - 1 ≈ 1.50 (win payout per $1 stake)
     min_rolling_wr: 0           # disabled — collect data first
     rolling_window: 50
     max_open_contracts: 1
