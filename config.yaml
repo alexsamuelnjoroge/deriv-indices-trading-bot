@@ -1180,8 +1180,8 @@ symbols:
     symbol_type: jump
     use_binary: true
     jump_direction: up
-    spike_mult: 20.0
-    atr_period: 50
+    spike_mult: 3.0         # 20x on 50-tick ATR never fires: spikes inflate ATR → threshold unreachable
+    atr_period: 500         # 500-tick window spans ~6 jumps, dilutes spike inflation in ATR
     cooldown_ticks: 5
     loss_cooldown: 2
     min_spike_ratio: 0
