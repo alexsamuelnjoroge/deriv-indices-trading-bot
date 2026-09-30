@@ -1309,12 +1309,12 @@ symbols:
     blocked_hours_eat: []
 
   # ── R_75 ACCU (calm_accu) — Volatility 75 accumulator ───────────────────────
-  # Historical rolling-barrier backtest (60k ticks): EV=+2.22/trade, WR=97%, avg_ticks=28.7
-  # 8.2% of contracts reach max_ticks=85 → (1.03)^85-1 = 11.77x payout drives EV
-  # Barrier 0.04027% is ~2x typical R_75 tick move (vs CRASH/BOOM 0.0005% barrier which fails)
-  # No spike risk (smooth vol index). Unlike failed CRASH500/BOOM150N calm_accu attempts.
+  # DISABLED: EV model was wrong. Win condition = survive ALL 85 ticks (not any k>0).
+  # Correct EV: P(max_ticks=6.9%) × $11.33 - P(breach=93.1%) × $1 = -$0.15/trade (negative)
+  # Need P(max_ticks) > 8.1% to break even. Backtest shows 6.9% — just short.
+  # Possible fix: strict calm filter to push P(max_ticks) above 8.1% threshold.
   - symbol: R_75
-    enabled: true
+    enabled: false
     strategy_type: calm_accu
     long_atr_period: 50
     short_atr_period: 10
