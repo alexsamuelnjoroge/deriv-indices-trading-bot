@@ -1309,29 +1309,30 @@ symbols:
     blocked_hours_eat: []
 
   # ── R_75 ACCU (calm_accu) — Volatility 75 accumulator ───────────────────────
-  # DISABLED: EV model was wrong. Win condition = survive ALL 85 ticks (not any k>0).
-  # Correct EV: P(max_ticks=6.9%) × $11.33 - P(breach=93.1%) × $1 = -$0.15/trade (negative)
-  # Need P(max_ticks) > 8.1% to break even. Backtest shows 6.9% — just short.
-  # Possible fix: strict calm filter to push P(max_ticks) above 8.1% threshold.
+  # Win condition: survive ALL 85 ticks → +$11.34. Barrier breach at any tick → -$1.
+  # Break-even: P(max_ticks) > 8.11%. Backtest baseline: 7.0% (negative).
+  # With max_ratio<0.80 filter (max tick in last 20 < 80% barrier): P=8.6% → EV=+$0.059
+  # Filter passes 16.8% of potential entries. Commission = $0. Edge is borderline — needs 50 live trades to confirm.
+  # Monitor: track how many trades hit max_ticks. Need ≥5/50 (10%) to confirm edge.
   - symbol: R_75
-    enabled: false
+    enabled: true
     strategy_type: calm_accu
     long_atr_period: 50
     short_atr_period: 10
     fast_atr_period: 5
-    spike_mult: 6.0             # catch unusually large R_75 moves (not Crash/Boom spikes)
-    spike_cooldown: 5           # brief pause after volatile tick
-    max_ticks_since_spike: 0    # disabled — no overdue-spike gating on Volatility index
-    calm_atr_ratio: 1.5         # mild filter: enter when short ATR < 1.5x long ATR
+    spike_mult: 6.0             # catch unusually large R_75 moves
+    spike_cooldown: 5
+    max_ticks_since_spike: 0    # disabled
+    calm_atr_ratio: 2.0         # effectively disabled (ATR filter didn't help)
     vol_rising_mult: 0.0        # disabled
-    entry_cooldown: 5           # reopen 5 ticks after previous contract closes
+    entry_cooldown: 5
     loss_cooldown: 0            # disabled
-    barrier_pct: 0.0004027      # actual R_75 barrier at 3% growth (from API probe)
-    calm_barrier_mult: 0.9      # skip if any recent tick > 90% of barrier width
-    calm_lookback: 5
-    growth_rate: 0.03           # 3%/tick — best EV combo from 60k-tick backtest
-    hold_ticks: 85              # max_ticks at 3% growth (informational; early_sell_pct=0)
-    early_sell_pct: 0.0         # never close early — hold to barrier breach or max_ticks
+    barrier_pct: 0.0004027      # R_75 barrier at 3% growth (0.04027%)
+    calm_barrier_mult: 0.80     # KEY FILTER: skip if any of last 20 ticks > 80% of barrier
+    calm_lookback: 20           # look back 20 ticks — tightened from 5
+    growth_rate: 0.03
+    hold_ticks: 85              # max_ticks at 3% growth (informational)
+    early_sell_pct: 0.0         # never close early — only max_ticks counts as win
     contract_duration: 0
     contract_duration_unit: t
     multiplier: 0
@@ -1339,9 +1340,9 @@ symbols:
     max_stake: 1.0
     stake_percent: 1.0
     use_kelly: false
-    payout_pct: 11.77           # (1.03)^85 - 1 — informational for rolling WR guard
-    min_rolling_wr: 0           # disabled for now — monitor live first
-    rolling_window: 30
+    payout_pct: 11.34           # (1.03)^85 - 1 (correct value)
+    min_rolling_wr: 0           # disabled — collect data first
+    rolling_window: 50
     max_open_contracts: 1
     blocked_hours_eat: []
 
