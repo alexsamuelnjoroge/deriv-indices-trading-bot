@@ -47,6 +47,7 @@ class MTFPullbackStrategy(BaseProStrategy):
         self.macro_ema_period = config.get("macro_ema_period",     20)
         self.rsi_adaptive     = config.get("rsi_adaptive",        True)
         self.rsi_lookback     = config.get("rsi_lookback",          50)
+        self.rsi_min_cross    = config.get("rsi_min_cross",         2.0)
         self.use_4h_filter    = config.get("use_4h_filter",      False)
         self.ema_4h_period    = config.get("ema_4h_period",        20)
         self.swing_bars       = config.get("swing_bars",            5)
@@ -110,7 +111,7 @@ class MTFPullbackStrategy(BaseProStrategy):
             return self.rsi_entry
         recent = sorted(rsi_series[-self.rsi_lookback:])
         idx    = max(0, int(len(recent) * 0.20) - 1)
-        return max(self.rsi_entry, min(50.0, recent[idx]))
+        return max(self.rsi_entry, min(45.0, recent[idx]))
 
     def _evaluate(self) -> Signal:
         bars = self._bars
@@ -197,23 +198,25 @@ class MTFPullbackStrategy(BaseProStrategy):
         if swing == "up" and trend_down:
             allow_short = False
 
-        if trend_up and rsi_prev >= entry_thresh > rsi_now and allow_long:
+        cross_down = entry_thresh - rsi_now
+        if trend_up and rsi_prev >= entry_thresh > rsi_now and cross_down >= self.rsi_min_cross and allow_long:
             return Signal(
                 action="BUY",
                 reason=f"EMA up | RSI {rsi_now:.1f} cross {entry_thresh:.1f} | macro {'up' if self.macro_filter else 'off'}",
                 sl_pips=sl_dist,
                 tp_pips=tp_dist,
-                confidence=min(1.0, (entry_thresh - rsi_now) / 10),
+                confidence=min(1.0, cross_down / 10),
                 meta={"ema": round(ema_now, 5), "rsi": round(rsi_now, 1), "thresh": round(entry_thresh, 1)},
             )
 
-        if trend_down and rsi_prev <= ob < rsi_now and allow_short:
+        cross_up = rsi_now - ob
+        if trend_down and rsi_prev <= ob < rsi_now and cross_up >= self.rsi_min_cross and allow_short:
             return Signal(
                 action="SELL",
                 reason=f"EMA down | RSI {rsi_now:.1f} cross {ob:.1f} | macro {'down' if self.macro_filter else 'off'}",
                 sl_pips=sl_dist,
                 tp_pips=tp_dist,
-                confidence=min(1.0, (rsi_now - ob) / 10),
+                confidence=min(1.0, cross_up / 10),
                 meta={"ema": round(ema_now, 5), "rsi": round(rsi_now, 1)},
             )
 

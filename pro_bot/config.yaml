@@ -18,8 +18,9 @@ strategies:
     rsi_entry: 35.0
     rsi_adaptive: true         # 20th-pct of last rsi_lookback RSI values
     rsi_lookback: 30           # 30 bars â€” more responsive than 50
+    rsi_min_cross: 3.0         # RSI must cross threshold by >=3 pts to filter 1-pt noise
     tp_rr: 2.0
-    adx_min: 0
+    adx_min: 20                # skip choppy/ranging bars (backtest-proven: ADX>=25)
     atr_mult_sl: 2.0           # wider SL lets trades breathe past noise (was 1.5)
     use_4h_filter: true        # 4H EMA must agree with 1H trend before entry
     ema_4h_period: 20
