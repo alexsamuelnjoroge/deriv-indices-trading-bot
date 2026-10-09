@@ -368,8 +368,10 @@ class Trader:
                     "is_multiplier": False,
                 }
                 self.risk.on_contract_opened()
+                entry_spot = result.get("entry_spot") or result.get("spot", "")
                 logger.info(
-                    f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | Reason: {signal.reason}"
+                    f"Opened {contract_type} | ID: {contract_id} | Stake: {stake} | "
+                    f"Spot: {entry_spot} | Reason: {signal.reason}"
                 )
 
         except Exception as e:
@@ -421,7 +423,9 @@ class Trader:
             )
         else:
             outcome = "WIN" if profit > 0 else "LOSS"
-            extra = ""
+            entry_s = contract.get("entry_spot") or contract.get("entry_tick", "")
+            exit_s  = contract.get("exit_spot")  or contract.get("exit_tick", "")
+            extra = f" | entry_spot={entry_s} exit_spot={exit_s}"
             if meta["contract_type"] in ("DIGITOVER", "DIGITUNDER"):
                 # Dump full contract dict for the first few settlements to identify
                 # which field holds the actual settlement tick value in this API version.
