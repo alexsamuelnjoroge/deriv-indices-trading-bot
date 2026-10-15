@@ -1,0 +1,27 @@
+# Daily Donchian trend bot (separate process from main.py).
+# Research: pro_bot/backtest_trend_portfolio.py, pro_bot/robustness_trend_cmc.py
+
+# Sizing is based on this virtual capital plus this bot's own realised P&L,
+# not the account balance (the account is shared with main.py).
+capital: 1000.0
+risk_pct: 0.005          # 0.5% of capital lost if the stop is hit
+
+multiplier: 100          # Deriv minimum; stake is lost at a 1% adverse move
+sl_frac_of_stake: 0.90   # stop-loss at 90% of stake (~0.9% adverse move)
+
+entry_bars: 55
+exit_bars: 20
+
+# Reopen positions this many hours before the contract's expiry
+# (Deriv crypto multipliers expire after ~7.6 days).
+roll_hours_before_expiry: 24
+
+poll_seconds: 300
+state_file: data/trend_bot_state.json
+trades_csv: logs/trend_trades.csv
+
+symbols:
+  - frxXAUUSD
+  - frxXAGUSD
+  - cryBTCUSD
+  - cryETHUSD

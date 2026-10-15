@@ -34,7 +34,14 @@ class DerivClient:
         self._reconnect_callbacks: list[Callable] = []
         self._running = False
         self.account_info: dict = {}
+        self._account_type: str = ""
         self._subscribed_symbols: list[str] = []
+
+    @property
+    def is_virtual(self) -> bool:
+        if self._use_new_api:
+            return self._account_type == "demo"
+        return bool(self.account_info.get("is_virtual"))
 
     # ------------------------------------------------------------------ #
     #  Connection
@@ -77,6 +84,7 @@ class DerivClient:
                         f"Could not find account_id in accounts response: {accounts_raw}"
                     )
                 logger.info(f"Using account: {account_id}")
+                self._account_type = _extract_account_type(accounts_raw, account_id)
 
             # Step 2 — get OTP WebSocket URL
             async with session.post(
@@ -357,10 +365,13 @@ class DerivClient:
         stake: float,
         multiplier: int,
         sl_amount: float,
-        tp_amount: float,
+        tp_amount: float | None,
         currency: str = "USD",
     ) -> dict:
-        """Buy a Multiplier contract with fixed-dollar SL and TP."""
+        """Buy a Multiplier contract with fixed-dollar SL and optional TP."""
+        limit_order = {"stop_loss": round(sl_amount, 2)}
+        if tp_amount is not None:
+            limit_order["take_profit"] = round(tp_amount, 2)
         proposal_resp = await self._send({
             "proposal": 1,
             "amount": round(stake, 2),
@@ -369,23 +380,21 @@ class DerivClient:
             "currency": currency,
             "multiplier": multiplier,
             "underlying_symbol": symbol,
-            "limit_order": {
-                "stop_loss":   round(sl_amount, 2),
-                "take_profit": round(tp_amount, 2),
-            },
+            "limit_order": limit_order,
         })
 
         proposal_id = proposal_resp["proposal"]["id"]
+        tp_txt = f"${tp_amount:.2f}" if tp_amount is not None else "none"
         logger.debug(
             f"Multiplier proposal {proposal_id} | {contract_type} | "
-            f"Stake: {stake} | x{multiplier} | SL: {sl_amount:.2f} TP: {tp_amount:.2f}"
+            f"Stake: {stake} | x{multiplier} | SL: {sl_amount:.2f} TP: {tp_txt}"
         )
 
         buy_resp    = await self._send({"buy": proposal_id, "price": stake})
         contract_id = buy_resp["buy"]["contract_id"]
         logger.info(
             f"Multiplier bought: {contract_id} | {contract_type} | "
-            f"Stake: {stake} x{multiplier} | SL ${sl_amount:.2f} / TP ${tp_amount:.2f}"
+            f"Stake: {stake} x{multiplier} | SL ${sl_amount:.2f} / TP {tp_txt}"
         )
 
         await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
@@ -531,6 +540,14 @@ def _extract_account_id(data) -> str:
                 item = data[key][0]
                 return item.get("account_id") or item.get("id") or item.get("loginid") or ""
         return data.get("account_id") or data.get("id") or data.get("loginid") or ""
+    return ""
+
+
+def _extract_account_type(data, account_id: str) -> str:
+    items = data.get("data", []) if isinstance(data, dict) else data
+    for item in items if isinstance(items, list) else []:
+        if (item.get("account_id") or item.get("id") or item.get("loginid")) == account_id:
+            return item.get("account_type", "")
     return ""
 
 
