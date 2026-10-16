@@ -85,8 +85,8 @@ monitoring:
 #   TELEGRAM_BOT_TOKEN=<from @BotFather>
 #   TELEGRAM_CHAT_ID=<your chat id>
 telegram:
-  enabled: false
-  on_trade: true            # alert on every trade result
+  enabled: true
+  on_trade: false           # main bot trades hundreds of times a day — too noisy
   on_daily_summary: true    # alert once per day at midnight
   on_halt: true             # alert when circuit breaker fires
 
