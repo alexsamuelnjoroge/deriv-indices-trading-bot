@@ -201,7 +201,9 @@ class DerivClient:
 
                 elif msg_type == "proposal_open_contract":
                     contract = msg.get("proposal_open_contract", {})
-                    if contract.get("status") in ("sold", "won", "lost"):
+                    # Querying an already-settled contract (e.g. re-subscribing after a
+                    # reconnect) returns status=None with is_sold=1, so check both.
+                    if contract.get("status") in ("sold", "won", "lost") or contract.get("is_sold"):
                         for cb in self._contract_callbacks:
                             asyncio.create_task(cb(contract))
 
