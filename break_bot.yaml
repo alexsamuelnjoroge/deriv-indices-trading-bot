@@ -1,0 +1,17 @@
+# Gold daily-break drift bot (separate process). Research:
+#   pro_bot/research_xau_edges.py, research_xau_edges2.py, research_cross_market.py
+# Long gold from just before Deriv's daily break (21:00 UTC summer / 22:00 UTC
+# winter) to 2 hours after the reopen. Mon-Thu breaks only (Friday = weekend).
+
+symbol: frxXAUUSD
+capital: 1000.0
+stake_pct: 0.01          # stake = 1% of capital ($10 -> $1000 notional at x100)
+multiplier: 100
+sl_frac_of_stake: 0.90   # stop at ~0.9% adverse move (Deriv stake-out is 1%)
+
+entry_minutes_before_break: 5
+exit_minutes_after_reopen: 120
+
+poll_seconds: 20
+state_file: data/break_bot_state.json
+trades_csv: logs/break_trades.csv
