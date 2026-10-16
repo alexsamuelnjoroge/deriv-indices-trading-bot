@@ -254,7 +254,7 @@ symbols:
   # max_stake raised $1->$3 on 2026-08-24 (EV positive, SL confirmed live).
   # 2026-09-14: multiplier 100→80 (Deriv now only accepts 80,200,400,600,800)
   - symbol: frxXAUUSD
-    enabled: true
+    enabled: false  # 2026-10-16: loses every year 2018-2026 after Deriv commission (backtest_mtf_v5_oos.py)
     strategy_type: mtf_v5
     ema_period: 100
     slope_bars: 3
@@ -281,7 +281,7 @@ symbols:
   # max_stake raised $1->$3 on 2026-08-24.
   # 2026-09-14: multiplier 100→80 (Deriv now only accepts 80,200,400,600,800)
   - symbol: frxEURUSD
-    enabled: true
+    enabled: false  # 2026-10-16: loses every year 2018-2026 after Deriv commission (backtest_mtf_v5_oos.py)
     strategy_type: mtf_v5
     ema_period: 200
     slope_bars: 3
@@ -307,7 +307,7 @@ symbols:
   # max_stake raised $1->$3 on 2026-08-24.
   # 2026-09-14: multiplier 100→80 (Deriv now only accepts 80,200,400,600,800)
   - symbol: frxUSDJPY
-    enabled: true
+    enabled: false  # 2026-10-16: loses every year 2018-2026 after Deriv commission (backtest_mtf_v5_oos.py)
     strategy_type: mtf_v5
     ema_period: 100
     slope_bars: 3
