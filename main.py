@@ -156,6 +156,9 @@ async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
         all_stale = True
 
         for bot in bots:
+            await bot.trader.sweep_settled()
+
+        for bot in bots:
             epoch = bot.tick_store.latest_epoch
             if epoch is not None:
                 last_seen[bot.symbol] = max(last_seen.get(bot.symbol, 0), epoch)

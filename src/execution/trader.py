@@ -10,6 +10,8 @@ Multiplier signals carry sl_pct and tp_pct; binary signals do not.
 """
 
 import asyncio
+import time
+
 from loguru import logger
 
 from src.api.client import DerivClient
@@ -62,6 +64,7 @@ class Trader:
         self.under_barrier   = under_barrier   # DIGIT_PAIR: UNDER barrier (default 6)
         self._open: dict[str, dict] = {}
         self._open_accu: dict[str, int] = {}  # contract_id -> ticks remaining
+        self._first_seen: dict[str, float] = {}  # contract_id -> first sweep time
         self._placing: bool = False  # prevents concurrent buy_contract calls on same symbol
         self._digit_debug_dumps: int = 5  # dump full contract dict for first N settlements
         self._strategy = strategy
@@ -87,6 +90,25 @@ class Trader:
                 logger.info(f"[{self.symbol}] Re-subscribed to open contract {contract_id} after reconnect")
             except Exception as e:
                 logger.warning(f"[{self.symbol}] Could not re-subscribe to contract {contract_id}: {e}")
+
+    async def sweep_settled(self, min_age: float = 120.0) -> None:
+        """Re-query contracts open longer than min_age seconds.
+
+        Deriv can close a contract's update stream server-side (SubscriptionClosed)
+        without a reconnect, so its settlement message never arrives. The query
+        response passes through the client's contract callbacks, which settle it.
+        """
+        now = time.time()
+        for cid in list(self._first_seen):
+            if cid not in self._open:
+                del self._first_seen[cid]
+        for cid in list(self._open):
+            if now - self._first_seen.setdefault(cid, now) < min_age:
+                continue
+            try:
+                await self.client._send({"proposal_open_contract": 1, "contract_id": int(cid)})
+            except Exception as e:
+                logger.debug(f"[{self.symbol}] sweep query for {cid} failed: {e}")
 
     async def _tick_open_accus(self) -> None:
         """Decrement tick counters for open Accumulator contracts; sell when expired or profit target hit."""
