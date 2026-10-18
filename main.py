@@ -52,15 +52,17 @@ from src.monitoring.telegram_alerts import build_alerter
 load_dotenv()
 os.makedirs("logs", exist_ok=True)
 
-logger.remove()
-logger.add(
-    "logs/bot_{time:YYYY-MM-DD}.log",
-    rotation="00:00",
-    retention="7 days",
-    level="INFO",
-    format="{time:HH:mm:ss} | {level:<7} | {message}",
-)
-logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
+
+def setup_logging(log_name: str = "bot") -> None:
+    logger.remove()
+    logger.add(
+        f"logs/{log_name}_{{time:YYYY-MM-DD}}.log",
+        rotation="00:00",
+        retention="7 days",
+        level="INFO",
+        format="{time:HH:mm:ss} | {level:<7} | {message}",
+    )
+    logger.add(sys.stderr, level="ERROR", format="{time:HH:mm:ss} | {level} | {message}")
 
 
 def load_config(path: str = "config.yaml") -> dict:
@@ -201,17 +203,20 @@ async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
 
 # ── Main bot loop ───────────────────────────────────────────────────────
 
-async def run(watch_only: bool = False):
-    config        = load_config()
+async def run(watch_only: bool = False, config_path: str = "config.yaml",
+              token_env: str = "DERIV_API_TOKEN", account_type: str | None = None,
+              account_id: str | None = None, only: set[str] | None = None,
+              allow_real: bool = False):
+    config        = load_config(config_path)
     base_strategy = config["strategy"]
     risk_cfg      = config["risk"]
 
-    api_token = os.getenv("DERIV_API_TOKEN")
+    api_token = os.getenv(token_env)
     _raw_app_id = os.getenv("DERIV_APP_ID", "1089")
     app_id = _raw_app_id if _raw_app_id.isdigit() else "1089"
 
     if not api_token:
-        logger.error("DERIV_API_TOKEN not set in .env")
+        logger.error(f"{token_env} not set in .env")
         return
 
     # ── Telegram ─────────────────────────────────────────────────
@@ -220,15 +225,24 @@ async def run(watch_only: bool = False):
         logger.info("Telegram alerts enabled")
 
     # ── Connect ──────────────────────────────────────────────────
-    client = DerivClient(api_token=api_token, app_id=app_id)
+    client = DerivClient(api_token=api_token, app_id=app_id,
+                         account_type=account_type, account_id=account_id)
     await client.connect()
+    if not client.is_virtual and not allow_real:
+        logger.error(f"Account {client.account_info.get('loginid')} is a REAL-money account — "
+                     "refusing to trade. Pass --allow-real to override.")
+        await client.disconnect()
+        return
 
     total_balance = await client.get_balance()
-    logger.info(f"Account balance: {total_balance:.2f}")
+    account_label = (f"{client.account_info.get('loginid', '?')} "
+                     f"({'demo' if client.is_virtual else 'REAL'})")
+    logger.info(f"Account {account_label} balance: {total_balance:.2f}")
 
     # ── Build per-symbol bots ─────────────────────────────────────
     symbol_entries = config.get("symbols") or [{"symbol": "R_25", "enabled": True}]
-    active_entries = [e for e in symbol_entries if e.get("enabled", True)]
+    active_entries = [e for e in symbol_entries if e.get("enabled", True)
+                      and (not only or f"{e['symbol']}:{e.get('strategy_type', 'rsi_reversal')}" in only)]
 
     if not active_entries:
         logger.error("No symbols enabled in config.yaml")
@@ -500,11 +514,12 @@ async def run(watch_only: bool = False):
 
     mode_label    = "WATCH ONLY" if watch_only else "LIVE TRADING"
     symbols_label = ", ".join(b.symbol for b in bots)
-    logger.info(f"Bot started | Mode: {mode_label} | Symbols: {symbols_label}")
+    logger.info(f"Bot started | Mode: {mode_label} | Account: {account_label} | Symbols: {symbols_label}")
 
     if alerter:
         await alerter.send_message(
-            f"🤖 *Bot started*\nMode: {mode_label}\nSymbols: `{symbols_label}`\nBalance: `{total_balance:.2f} USD`"
+            f"🤖 *Bot started*\nMode: {mode_label}\nAccount: `{account_label}`\n"
+            f"Symbols: `{symbols_label}`\nBalance: `{total_balance:.2f} USD`"
         )
 
     dashboard.start()
@@ -568,9 +583,22 @@ if __name__ == "__main__":
         action="store_true",
         help="Watch-only mode: display prices and signals without placing trades",
     )
+    parser.add_argument("--config", default="config.yaml")
+    parser.add_argument("--token-env", default="DERIV_API_TOKEN",
+                        help="env var holding the Deriv API token for this instance")
+    parser.add_argument("--account-type", choices=["demo", "real"],
+                        help="PAT logins with several accounts: which one to trade")
+    parser.add_argument("--account-id", help="exact Deriv account id to trade (overrides --account-type)")
+    parser.add_argument("--only", nargs="+", metavar="SYMBOL:STRATEGY",
+                        help="trade only these config entries, e.g. R_75:calm_accu")
+    parser.add_argument("--log-name", default="bot", help="log file prefix (logs/<name>_YYYY-MM-DD.log)")
+    parser.add_argument("--allow-real", action="store_true", help="allow trading a real-money account")
     args = parser.parse_args()
+    setup_logging(args.log_name)
 
     try:
-        asyncio.run(run(watch_only=args.watch))
+        asyncio.run(run(watch_only=args.watch, config_path=args.config, token_env=args.token_env,
+                        account_type=args.account_type, account_id=args.account_id,
+                        only=set(args.only) if args.only else None, allow_real=args.allow_real))
     except KeyboardInterrupt:
         pass

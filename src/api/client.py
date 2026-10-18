@@ -21,9 +21,12 @@ class DerivClient:
     LEGACY_WS_URL = "wss://ws.derivws.com/websockets/v3?app_id={app_id}"
     NEW_REST_BASE  = "https://api.derivws.com"
 
-    def __init__(self, api_token: str, app_id: str = "1089"):
+    def __init__(self, api_token: str, app_id: str = "1089",
+                 account_type: str | None = None, account_id: str | None = None):
         self.api_token = api_token
         self.app_id = app_id
+        self.want_account_type = account_type   # PAT logins with several accounts: "demo" / "real"
+        self.want_account_id = account_id
         self._use_new_api = api_token.startswith("pat_")
         self._ws_url: str = ""           # resolved at connect time
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
@@ -78,7 +81,7 @@ class DerivClient:
                 import json as _json
                 accounts_raw = _json.loads(body)
 
-                account_id = _extract_account_id(accounts_raw)
+                account_id = _pick_account(accounts_raw, self.want_account_id, self.want_account_type)
                 if not account_id:
                     raise RuntimeError(
                         f"Could not find account_id in accounts response: {accounts_raw}"
@@ -543,6 +546,18 @@ def _extract_account_id(data) -> str:
                 return item.get("account_id") or item.get("id") or item.get("loginid") or ""
         return data.get("account_id") or data.get("id") or data.get("loginid") or ""
     return ""
+
+
+def _pick_account(data, want_id: str | None, want_type: str | None) -> str:
+    """Account id matching want_id or want_type; first account when neither is given."""
+    if not want_id and not want_type:
+        return _extract_account_id(data)
+    items = data.get("data", data.get("accounts", [])) if isinstance(data, dict) else data
+    for item in items if isinstance(items, list) else []:
+        aid = item.get("account_id") or item.get("id") or item.get("loginid") or ""
+        if (want_id and aid == want_id) or (not want_id and item.get("account_type") == want_type):
+            return aid
+    raise RuntimeError(f"No account matching id={want_id!r} type={want_type!r} in accounts response")
 
 
 def _extract_account_type(data, account_id: str) -> str:
