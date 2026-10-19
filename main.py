@@ -96,7 +96,8 @@ def build_risk_config(symbol_entry: dict, base_risk: dict) -> dict:
     cfg = dict(base_risk)
     risk_keys = {"max_stake", "min_stake", "stake_percent", "use_kelly",
                  "daily_loss_limit", "payout_pct", "max_open_contracts",
-                 "blocked_hours_eat", "rolling_window", "min_rolling_wr"}
+                 "blocked_hours_eat", "rolling_window", "min_rolling_wr",
+                 "recovery_mode", "recovery_wins", "recovery_max_stake", "recovery_max_deficit"}
     for k in risk_keys:
         if k in symbol_entry:
             cfg[k] = symbol_entry[k]

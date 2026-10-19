@@ -47,6 +47,18 @@ class RiskManager:
         self.kelly_min_trades: int  = config.get("kelly_min_trades", 20)
         self.payout_pct: float      = config.get("payout_pct", 0.87)
 
+        # ── Loss recovery staking (opt-in) ────────────────────────────
+        # "spread": raise stakes so the outstanding loss is won back over
+        # recovery_wins winning trades; "full": win it back on the next win.
+        # Stakes capped at recovery_max_stake; a deficit above
+        # recovery_max_deficit is abandoned (accepted) and staking resets.
+        self.recovery_mode: str          = config.get("recovery_mode", "off")
+        self.recovery_wins: int          = config.get("recovery_wins", 5)
+        self.recovery_max_stake: float   = config.get("recovery_max_stake", 50.0)
+        self.recovery_max_deficit: float = config.get("recovery_max_deficit", 100.0)
+        self.recovery_deficit: float     = 0.0
+        self._recovery_per_win: float    = 0.0   # fixed at each loss so recovery ends in N wins
+
         # ── Rolling performance monitor ───────────────────────────────
         self.rolling_window: int    = config.get("rolling_window", 30)
         self.min_rolling_wr: float  = config.get("min_rolling_wr", 48.0)
@@ -177,6 +189,10 @@ class RiskManager:
 
         stake = min(stake, self.max_stake)
         stake = max(stake, self.min_stake)
+
+        if self.recovery_mode != "off" and self.recovery_deficit > 0 and self.payout_pct > 0:
+            stake += min(self.recovery_deficit, self._recovery_per_win) / self.payout_pct
+            stake = min(stake, self.recovery_max_stake)
         return round(stake, 2)
 
     # ------------------------------------------------------------------ #
@@ -201,6 +217,19 @@ class RiskManager:
         else:
             self.losses += 1
             logger.info(f"{tag}LOSS | Loss:   -{result.stake:.2f} | Balance: {self.current_balance:.2f}")
+
+        if self.recovery_mode != "off":
+            self.recovery_deficit = max(0.0, self.recovery_deficit - result.profit)
+            if not won:
+                wins_to_recover = 1 if self.recovery_mode == "full" else max(1, self.recovery_wins)
+                self._recovery_per_win = self.recovery_deficit / wins_to_recover
+            if self.recovery_deficit > self.recovery_max_deficit:
+                logger.warning(f"{tag}RECOVERY ABANDONED | deficit {self.recovery_deficit:.2f} > "
+                               f"{self.recovery_max_deficit:.2f} — accepting the loss, stakes reset")
+                self.recovery_deficit = 0.0
+            elif self.recovery_deficit > 0:
+                logger.info(f"{tag}RECOVERY | outstanding {self.recovery_deficit:.2f} | "
+                            f"next stake {self.calculate_stake():.2f}")
 
     def update_balance(self, balance: float):
         self.current_balance = balance

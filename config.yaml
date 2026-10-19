@@ -1341,6 +1341,12 @@ symbols:
     stake_percent: 1.0
     use_kelly: false
     payout_pct: 0.03            # 1.03^1 - 1 (win payout per $1 stake)
+    # 2026-10-19 EXPERIMENT (user request): recovery staking. Replay of 1,999 live
+    # trades: same ~0c per $ staked as flat, but worst drawdown ~$1,000 vs $17.
+    recovery_mode: spread       # win back an outstanding loss over the next 5 wins
+    recovery_wins: 5
+    recovery_max_stake: 50.0    # never stake more than $50
+    recovery_max_deficit: 100.0 # give up (accept the loss) once more than $100 is outstanding
     min_rolling_wr: 0           # disabled — collect data first
     rolling_window: 50
     max_open_contracts: 1
