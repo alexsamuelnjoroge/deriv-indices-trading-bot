@@ -1,0 +1,185 @@
+====================================================================================================
+FX CARRY BATTERY  (run 2026-10-21 13:45 )
+====================================================================================================
+
+--- DATA ---
+  EUR: spot H10 1999-01-04 + Yahoo 2003-12-01      yahoo spikes cleaned   3 | rate 3m to 2026-09-01
+  JPY: spot H10 1971-01-04 + Yahoo 1996-10-30      yahoo spikes cleaned   2 | rate 3m to 2026-08-01, call-money fill 40 m
+  GBP: spot H10 1971-01-04 + Yahoo 2003-12-01      yahoo spikes cleaned   0 | rate 3m to 2026-01-01, call-money fill 8 m
+  CHF: spot H10 1971-01-04 + Yahoo 2003-09-17      yahoo spikes cleaned   1 | rate 3m to 2026-09-01, call-money fill 6 m
+  AUD: spot H10 1971-01-04 + Yahoo 2006-05-16      yahoo spikes cleaned   0 | rate 3m to 2026-08-01, call-money fill 1 m
+  NZD: spot H10 1971-01-04 + Yahoo 2003-12-01      yahoo spikes cleaned   0 | rate 3m to 2026-09-01
+  CAD: spot H10 1971-01-04 + Yahoo 2003-09-17      yahoo spikes cleaned   0 | rate 3m to 2026-09-01
+  NOK: spot H10 1971-01-04 + Yahoo 2001-07-16      yahoo spikes cleaned   2 | rate 3m to 2026-09-01
+  SEK: spot H10 1971-01-04 + Yahoo 2001-07-16      yahoo spikes cleaned   0 | rate 3m to 2026-09-01
+  MXN: spot H10 1993-11-08 + Yahoo 2003-12-01      yahoo spikes cleaned   0 | rate 3m to 2026-09-01
+  ZAR: spot H10 1980-01-02 + Yahoo 2003-12-01      yahoo spikes cleaned   3 | rate 3m to 2026-09-01
+  TRY: spot Yahoo 2005-01-03                       yahoo spikes cleaned   0 | rate 3m to 2008-04-01, call-money fill 245 m
+  PLN: spot Yahoo 2003-12-01                       yahoo spikes cleaned   0 | rate 3m to 2026-09-01
+  HUF: spot Yahoo 2003-12-01                       yahoo spikes cleaned   0 | rate 3m to 2026-08-01, call-money fill 28 m
+  CZK: spot Yahoo 2003-12-01                       yahoo spikes cleaned   0 | rate 3m to 2026-08-01
+  USD: rate 3m to 2026-09-01, call-money fill 1 m
+  last monthly rates (%): {'USD': 3.94, 'EUR': 2.64, 'JPY': 1.04, 'GBP': 3.73, 'CHF': -0.04, 'AUD': 4.35, 'NZD': 3.13, 'CAD': 2.33, 'NOK': 4.8, 'SEK': 1.94, 'MXN': 6.81, 'ZAR': 6.85, 'TRY': 35.5, 'PLN': 3.84, 'HUF': 5.39, 'CZK': 3.84}
+
+--- MT5 SWAP vs THEORY (% p.a., long-the-currency perspective; spreads median M15 last ~6 weeks) ---
+        sym  r_ccy  r_usd  theory  swapL  swapS    mid  offset  half_spread  m_long  m_short  markup  spread_bp  cost_bp
+ccy                                                                                                                     
+EUR  EURUSD   2.64   3.94   -1.30  -2.61   0.44  -1.53   -0.22         1.09    1.31     0.87    1.31       0.00     0.35
+JPY  USDJPY   1.04   3.94   -2.90  -3.93   1.90  -2.92   -0.02         1.01    1.03     0.99    1.03       0.00     0.35
+GBP  GBPUSD   3.73   3.94   -0.21  -1.34  -0.84  -0.25   -0.04         1.09    1.13     1.05    1.13       0.07     0.39
+CHF  USDCHF  -0.04   3.94   -3.98  -5.79   2.72  -4.26   -0.28         1.53    1.81     1.26    1.81       0.00     0.35
+AUD  AUDUSD   4.35   3.94    0.41  -1.24  -2.39   0.57    0.16         1.81    1.65     1.98    1.98       0.00     0.35
+NZD  NZDUSD   3.13   3.94   -0.81  -2.64   0.13  -1.38   -0.57         1.26    1.83     0.68    1.83       0.00     0.35
+CAD  USDCAD   2.33   3.94   -1.61  -2.83   0.83  -1.83   -0.22         1.00    1.22     0.78    1.22       0.07     0.39
+NOK  USDNOK   4.80   3.94    0.86  -0.04  -1.23   0.60   -0.26         0.64    0.90     0.37    0.90       4.80     2.75
+SEK  USDSEK   1.94   3.94   -2.00  -2.77   1.16  -1.96    0.03         0.81    0.77     0.84    0.84       4.46     2.58
+MXN  USDMXN   6.81   3.94    2.87   1.07  -4.81   2.94    0.07         1.87    1.80     1.94    1.94       1.16     0.93
+ZAR  USDZAR   6.85   3.94    2.91   1.86  -5.21   3.53    0.62         1.68    1.05     2.30    2.30       3.72     2.21
+TRY  USDTRY  35.50   3.94   31.56  25.53 -32.20  28.87   -2.69         3.33    6.03     0.64    6.03       2.30     1.50
+PLN  USDPLN   3.84   3.94   -0.10  -0.88  -0.51  -0.18   -0.08         0.69    0.78     0.61    0.78       3.99     2.34
+HUF  USDHUF   5.39   3.94    1.45   0.90  -2.35   1.62    0.17         0.72    0.56     0.89    0.89       4.24     2.47
+CZK  USDCZK   3.84   3.94   -0.10  -1.54  -0.87  -0.33   -0.23         1.21    1.44     0.97    1.44       4.30     2.50
+  median half swap-spread 1.09%  median markup used 1.31%  (G10 1.22%, EM 1.69%)
+
+--- VARIANTS (2000->now; theory = no broker costs; net = MT5 markup x1 + spread x1) ---
+  a  CS carry k3 M           THEORY ann   3.82%  vol 10.19%  SR  0.38  t  1.98  maxDD  -37.1%
+                             NET    ann  -1.05%  vol 10.17%  SR -0.10  t -0.54  maxDD -102.2%  | carry 11.55% markup 4.81% spread 0.06% gross 2.33x
+  b3 a+trend63               THEORY ann   4.22%  vol 10.71%  SR  0.39  t  2.08  maxDD  -46.3%
+                             NET    ann   1.69%  vol 10.71%  SR  0.16  t  0.83  maxDD  -62.6%  | carry  4.65% markup 2.40% spread 0.13% gross 1.42x
+  b6 a+trend126              THEORY ann   1.81%  vol 10.88%  SR  0.17  t  0.88  maxDD  -44.9%
+                             NET    ann  -0.58%  vol 10.88%  SR -0.05  t -0.28  maxDD  -81.4%  | carry  4.51% markup 2.29% spread 0.11% gross 1.39x
+  c_med a+VIX>med flat       THEORY ann   0.60%  vol  6.63%  SR  0.09  t  0.48  maxDD  -56.2%
+                             NET    ann  -2.66%  vol  6.62%  SR -0.40  t -2.11  maxDD -109.7%  | carry  6.21% markup 2.71% spread 0.55% gross 1.32x
+  c_p75 a+VIX>p75 flat       THEORY ann   1.52%  vol  7.99%  SR  0.19  t  1.00  maxDD  -54.7%
+                             NET    ann  -2.64%  vol  7.97%  SR -0.33  t -1.75  maxDD -112.1%  | carry  8.77% markup 3.70% spread 0.46% gross 1.79x
+  c_spx a+SPXvol>med flat    THEORY ann   0.68%  vol  6.64%  SR  0.10  t  0.54  maxDD  -51.1%
+                             NET    ann  -2.20%  vol  6.63%  SR -0.33  t -1.75  maxDD -102.9%  | carry  6.01% markup 2.58% spread 0.29% gross 1.25x
+  d  AUD,NZD vs JPY,CHF      THEORY ann   2.85%  vol 10.71%  SR  0.27  t  1.40  maxDD  -37.3%
+                             NET    ann  -0.48%  vol 10.71%  SR -0.04  t -0.23  maxDD  -76.1%  | carry  3.60% markup 3.32% spread 0.01% gross 2.09x
+
+  best NET Sharpe (in-sample choice, see test 7/10): b3 a+trend63
+
+--- TEST 1: SOURCES AGREE ---
+  (MT5 history not used: terminal blocks on copy_rates; second source = FRED H.10 noon NY rates)
+  EUR: | Yahoo~H10 n=5704 monthly 0.978 quarterly 0.992
+  JPY: | Yahoo~H10 n=7470 monthly 0.974 quarterly 0.997
+  GBP: | Yahoo~H10 n=5717 monthly 0.975 quarterly 0.993
+  CHF: | Yahoo~H10 n=5767 monthly 0.975 quarterly 0.989
+  AUD: | Yahoo~H10 n=5102 monthly 0.981 quarterly 0.992
+  NZD: | Yahoo~H10 n=5708 monthly 0.980 quarterly 0.992
+  CAD: | Yahoo~H10 n=5769 monthly 0.976 quarterly 0.991
+  NOK: | Yahoo~H10 n=6147 monthly 0.975 quarterly 0.992
+  SEK: | Yahoo~H10 n=6147 monthly 0.975 quarterly 0.993
+  MXN: | Yahoo~H10 n=5725 monthly 0.982 quarterly 0.995
+  ZAR: | Yahoo~H10 n=5718 monthly 0.969 quarterly 0.991
+  TRY: | SINGLE SOURCE (no H.10 series)
+  PLN: | SINGLE SOURCE (no H.10 series)
+  HUF: | SINGLE SOURCE (no H.10 series)
+  CZK: | SINGLE SOURCE (no H.10 series)
+  strategy a on 11 H10 ccys NET:    H10 data ann   0.19%  vol 10.38%  SR  0.02  t  0.10  maxDD  -67.1%
+  strategy a on 11 H10 ccys NET:    Yahoo    ann   0.14%  vol 10.66%  SR  0.01  t  0.07  maxDD  -53.7%  monthly corr 0.956
+  strategy a on 11 H10 ccys THEORY: H10 SR 0.40 vs Yahoo SR 0.37
+  TEST 1 PASS (quarterly-return corr >0.97 every pair/source; strategy monthly corr >0.9, |dSR|<0.15; TRY/PLN/HUF/CZK single-source; monthly-close corr depressed by Yahoo-vs-noon-NY close-time mismatch)
+
+--- TEST 2: PARAMETER SURFACE (NET Sharpe, 2000->now) ---
+trend    0                     63                    126                
+gate       - vix_med vix_p75     - vix_med vix_p75     - vix_med vix_p75
+k freq                                                                  
+2 M    -0.05   -0.29   -0.26  0.01   -0.21   -0.13 -0.17   -0.34   -0.19
+  Q    -0.04   -0.32   -0.26 -0.05   -0.24   -0.08 -0.20   -0.46   -0.29
+3 M    -0.10   -0.40   -0.33  0.16   -0.01    0.09 -0.05   -0.19   -0.06
+  Q    -0.20   -0.54   -0.46  0.03   -0.13   -0.00 -0.12   -0.28   -0.16
+4 M    -0.17   -0.49   -0.38  0.15    0.02    0.12 -0.05   -0.15   -0.00
+  Q    -0.24   -0.58   -0.46 -0.07   -0.17   -0.02 -0.17   -0.32   -0.17
+  cells 54: SR>0 13%, SR>0.3 0%, median SR -0.17, min -0.58, max 0.16
+  by filter (median SR): {(0, '-'): -0.14, (0, 'vix_med'): -0.45, (0, 'vix_p75'): -0.36, (63, '-'): 0.02, (63, 'vix_med'): -0.15, (63, 'vix_p75'): -0.01, (126, '-'): -0.15, (126, 'vix_med'): -0.3, (126, 'vix_p75'): -0.16}
+  TEST 2 FAIL (need >=80% cells SR>0 and median SR>0.3)
+
+--- TEST 3: OUT-OF-SAMPLE BY TIME (NET) ---
+  a  CS carry k3 M           DEV 2000-09: SR -0.01 ann  -0.1% | VAL 2010-19: SR -0.34 ann  -3.3% | RECENT 2020-: SR  0.09 ann   0.9% | +yrs 48%
+  b3 a+trend63               DEV 2000-09: SR  0.36 ann   4.1% | VAL 2010-19: SR -0.16 ann  -1.5% | RECENT 2020-: SR  0.27 ann   2.9% | +yrs 56%
+  b6 a+trend126              DEV 2000-09: SR  0.10 ann   1.2% | VAL 2010-19: SR -0.13 ann  -1.3% | RECENT 2020-: SR -0.18 ann  -2.1% | +yrs 48%
+  c_med a+VIX>med flat       DEV 2000-09: SR -0.14 ann  -1.0% | VAL 2010-19: SR -0.96 ann  -6.4% | RECENT 2020-: SR  0.05 ann   0.3% | +yrs 33%
+  c_p75 a+VIX>p75 flat       DEV 2000-09: SR -0.07 ann  -0.6% | VAL 2010-19: SR -0.77 ann  -6.2% | RECENT 2020-: SR -0.06 ann  -0.4% | +yrs 52%
+  c_spx a+SPXvol>med flat    DEV 2000-09: SR -0.18 ann  -1.3% | VAL 2010-19: SR -0.81 ann  -5.4% | RECENT 2020-: SR  0.17 ann   1.1% | +yrs 37%
+  d  AUD,NZD vs JPY,CHF      DEV 2000-09: SR  0.23 ann   2.5% | VAL 2010-19: SR -0.24 ann  -2.6% | RECENT 2020-: SR -0.17 ann  -1.8% | +yrs 52%
+  b3 a+trend63 yearly NET %: {2000: 8.6, 2001: 8.3, 2002: 14.3, 2003: 7.7, 2004: -5.3, 2005: 18.9, 2006: -17.5, 2007: 0.3, 2008: -0.5, 2009: 7.5, 2010: -0.0, 2011: -9.3, 2012: -3.5, 2013: 4.9, 2014: 13.7, 2015: -2.3, 2016: 5.3, 2017: -3.0, 2018: -14.5, 2019: -7.2, 2020: -18.2, 2021: -8.9, 2022: 22.7, 2023: 9.4, 2024: 5.9, 2025: 8.4, 2026: 1.4}
+  TEST 3 FAIL (best variant: SR>0 in all 3 periods and >=60% positive years)
+
+--- TEST 4: REGIMES / CRISES (NET, % of capital at ~10% vol) ---
+  a  CS carry k3 M           risk-on (VIX<=med) ann   5.43% SR  0.62 | risk-off ann  -9.71% SR -0.82
+  b3 a+trend63               risk-on (VIX<=med) ann   5.46% SR  0.59 | risk-off ann  -3.35% SR -0.27
+  b6 a+trend126              risk-on (VIX<=med) ann   3.37% SR  0.36 | risk-off ann  -5.87% SR -0.46
+  c_med a+VIX>med flat       risk-on (VIX<=med) ann   1.82% SR  0.23 | risk-off ann  -8.64% SR -2.20
+  c_p75 a+VIX>p75 flat       risk-on (VIX<=med) ann   5.04% SR  0.59 | risk-off ann -12.92% SR -1.85
+  c_spx a+SPXvol>med flat    risk-on (VIX<=med) ann   1.67% SR  0.22 | risk-off ann  -7.38% SR -1.39
+  d  AUD,NZD vs JPY,CHF      risk-on (VIX<=med) ann   8.48% SR  0.99 | risk-off ann -12.45% SR -0.96
+  2008 Q4           a: tot   -9.6% dd  -14.5% |    b3: tot    2.0% dd  -10.3% | c_med: tot   -0.6% dd   -2.5% |     d: tot  -19.4% dd  -20.1% |    b3: tot    2.0% dd  -10.3% |
+  2011 Aug-Sep      a: tot   -8.7% dd  -10.0% |    b3: tot   -2.5% dd   -8.2% | c_med: tot   -0.8% dd   -0.5% |     d: tot   -6.1% dd  -10.1% |    b3: tot   -2.5% dd   -8.2% |
+  2015 Jan CHF      a: tot   -6.3% dd   -9.0% |    b3: tot   -2.9% dd   -9.6% | c_med: tot    0.0% dd    0.0% |     d: tot  -16.4% dd  -18.3% |    b3: tot   -2.9% dd   -9.6% |
+  2015 Aug CNY      a: tot   -7.3% dd   -8.6% |    b3: tot   -1.1% dd   -4.6% | c_med: tot   -2.7% dd   -3.8% |     d: tot   -4.6% dd   -6.9% |    b3: tot   -1.1% dd   -4.6% |
+  2018 TRY          a: tot   -7.5% dd   -9.1% |    b3: tot   -2.7% dd   -4.2% | c_med: tot   -9.2% dd   -9.2% |     d: tot   -7.0% dd   -8.3% |    b3: tot   -2.7% dd   -4.2% |
+  2020 Mar          a: tot  -19.1% dd  -19.7% |    b3: tot  -18.5% dd  -20.5% | c_med: tot    0.6% dd   -0.2% |     d: tot  -10.6% dd  -18.9% |    b3: tot  -18.5% dd  -20.5% |
+  2022              a: tot    9.7% dd   -6.5% |    b3: tot   22.7% dd  -11.4% | c_med: tot   -3.0% dd   -4.1% |     d: tot    2.7% dd  -12.0% |    b3: tot   22.7% dd  -11.4% |
+  2024 Aug yen      a: tot   -6.5% dd  -10.4% |    b3: tot   -6.5% dd   -8.9% | c_med: tot   -2.4% dd   -2.5% |     d: tot  -13.7% dd  -17.6% |    b3: tot   -6.5% dd   -8.9% |
+  best variant worst 21-day loss -22.5%, worst day -9.60% (2015-01-16), skew -1.01, monthly skew -1.21
+  TEST 4 FAIL (best variant: no crisis window worse than -15% at ~10% vol)
+
+--- TEST 5: PLACEBO (random long/short baskets, same machinery/filters) ---
+  a  CS carry k3 M: actual SR -0.10; placebo mean -0.57 sd 0.18 95th -0.30; p = 0.0050
+  b3 a+trend63: actual SR 0.16; placebo mean -0.17 sd 0.12 95th 0.01; p = 0.0050
+  block-bootstrap (63d) p-value mean<=0 for b3 a+trend63: 0.1879
+  TEST 5 FAIL
+
+--- TEST 6: COSTS (NET SR / ann%) ---
+  a  CS carry k3 M           s1m0: 0.37/3.8% s1mhs: 0.02/0.2% s1m1: -0.10/-1.0% s1m2: -0.58/-5.9%
+                             s2m0: 0.36/3.7% s2mhs: 0.01/0.1% s2m1: -0.11/-1.1% s2m2: -0.58/-5.9%
+                             s3m0: 0.36/3.6% s3mhs: 0.01/0.1% s3m1: -0.11/-1.2% s3m2: -0.59/-6.0%
+  b3 a+trend63               s1m0: 0.38/4.1% s1mhs: 0.20/2.2% s1m1: 0.16/1.7% s1m2: -0.07/-0.7%
+                             s2m0: 0.37/4.0% s2mhs: 0.19/2.0% s2m1: 0.15/1.6% s2m2: -0.08/-0.8%
+                             s3m0: 0.36/3.8% s3mhs: 0.18/1.9% s3m1: 0.13/1.4% s3m2: -0.09/-1.0%
+  TEST 6 FAIL (best: SR>0.3 at spread x2 and markup x2)
+
+--- TEST 7: WALK-FORWARD VARIANT SELECTION (expanding window, >=3y history, yearly) ---
+  picks: {2003: 'b3', 2004: 'b3', 2005: 'b6', 2006: 'b3', 2007: 'd', 2008: 'd', 2009: 'b3', 2010: 'b3', 2011: 'b3', 2012: 'b3', 2013: 'b3', 2014: 'b3', 2015: 'b3', 2016: 'b3', 2017: 'b3', 2018: 'b3', 2019: 'b3', 2020: 'b3', 2021: 'b3', 2022: 'b3', 2023: 'b3', 2024: 'b3', 2025: 'b3', 2026: 'b3'}
+  WF ann  -0.55%  vol 10.95%  SR -0.05  t -0.25  maxDD  -81.8%
+  equal-weight all variants 2003-> ann  -1.67%  vol  6.94%  SR -0.24  t -1.20  maxDD  -81.0%
+  TEST 7 FAIL (WF SR>0.3)
+
+--- TEST 8: MECHANISM ---
+  a  CS carry k3 M           spot  -7.72%  carry 11.55%  -markup 4.81%  -spread 0.06%  = net -1.05%/yr
+  b3 a+trend63               spot  -0.43%  carry  4.65%  -markup 2.40%  -spread 0.13%  = net  1.69%/yr
+  b6 a+trend126              spot  -2.70%  carry  4.51%  -markup 2.29%  -spread 0.11%  = net -0.58%/yr
+  c_med a+VIX>med flat       spot  -5.61%  carry  6.21%  -markup 2.71%  -spread 0.55%  = net -2.66%/yr
+  c_p75 a+VIX>p75 flat       spot  -7.25%  carry  8.77%  -markup 3.70%  -spread 0.46%  = net -2.64%/yr
+  c_spx a+SPXvol>med flat    spot  -5.33%  carry  6.01%  -markup 2.58%  -spread 0.29%  = net -2.20%/yr
+  d  AUD,NZD vs JPY,CHF      spot  -0.75%  carry  3.60%  -markup 3.32%  -spread 0.01%  = net -0.48%/yr
+  G10 only k3  gate None     ann  -0.14%  vol 10.42%  SR -0.01  t -0.07  maxDD  -80.7% | spot -0.48% carry  4.33% markup 3.96%
+  EM only k2   gate None     ann  -1.66%  vol  8.95%  SR -0.19  t -0.98  maxDD -127.3% | spot -7.04% carry  9.49% markup 4.04%
+  ex-TRY k3    gate None     ann   0.75%  vol 10.59%  SR  0.07  t  0.37  maxDD  -56.8% | spot -2.54% carry  7.11% markup 3.76%
+  G10 only k2  gate None     ann  -0.04%  vol 11.10%  SR -0.00  t -0.02  maxDD  -84.0% | spot -0.86% carry  4.32% markup 3.46%
+  TEST 8 FAIL (ungated carry positive in BOTH G10 and EM subsets)
+
+--- TEST 9: MONTE CARLO (63d block bootstrap of NET daily returns, rescaled to 10% vol, 10y paths) ---
+  a  CS carry k3 M: hist (10% vol) ann -1.03% maxDD -100.4% | MC annual ret median -0.7% p5 -17.9% p1 -25.9%; P(losing yr) 53%; 10y maxDD median -40.3% p95 -79.0% p99 -98.0%; worst-month p99 -16.4%
+  b3 a+trend63: hist (10% vol) ann 1.58% maxDD -58.5% | MC annual ret median 1.9% p5 -15.8% p1 -26.1%; P(losing yr) 42%; 10y maxDD median -30.5% p95 -62.0% p99 -83.8%; worst-month p99 -21.7%
+  TEST 9 FAIL (net ann > 3% at 10% vol)
+
+--- TEST 10: MULTIPLE TESTING ---
+  configurations evaluated: 65 (+400 placebo runs not counted as candidates)
+  best (b3 a+trend63) t = 0.83, one-sided p 2.02e-01, Bonferroni x65 -> 1.000
+  pre-registered base (a) t = -0.54, p 7.06e-01 (no adjustment needed: fixed upfront)
+  TEST 10 FAIL (Bonferroni-adjusted p<0.05; Harvey-Liu-Zhu hurdle t>3: False)
+
+--- SUMMARY for b3 a+trend63 ---
+   1. sources            PASS
+   2. surface            FAIL
+   3. OOS time           FAIL
+   4. regimes/crises     FAIL
+   5. placebo            FAIL
+   6. costs              FAIL
+   7. walk-forward       FAIL
+   8. mechanism          FAIL
+   9. MC >3%             FAIL
+  10. multiple testing   FAIL
+  realistic NET at 10% vol: ann 1.58%  maxDD -58.5%

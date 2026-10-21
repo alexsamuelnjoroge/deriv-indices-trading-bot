@@ -1,0 +1,464 @@
+
+==============================================================================================================
+COSTS: MT5 IC Markets symbol_info (read-only) + H1 spread history
+==============================================================================================================
+live symbol_info read OK
+US500  px~   7722.5 spread@open  0.30pt @close  0.50pt -> RT 0.88bp (close) 0.70bp (open/close) | swap long -2.064/night = 2.67bp/night ( 9.8%/yr incl. triple) markup 1.50bp implied rate 4.22%/yr | div credit 1.4%/yr=0.38bp/night | mode=2 triple-day=5
+USTEC  px~  29621.4 spread@open  0.90pt @close  1.00pt -> RT 0.50bp (close) 0.47bp (open/close) | swap long -7.925/night = 2.68bp/night ( 9.8%/yr incl. triple) markup 1.50bp implied rate 4.22%/yr | div credit 0.7%/yr=0.19bp/night | mode=3 triple-day=5
+US30   px~  52472.3 spread@open  0.70pt @close  0.90pt -> RT 0.21bp (close) 0.19bp (open/close) | swap long -13.944/night = 2.66bp/night ( 9.7%/yr incl. triple) markup 1.49bp implied rate 4.19%/yr | div credit 1.8%/yr=0.49bp/night | mode=3 triple-day=5
+DE40   px~  25357.5 spread@open  0.50pt @close  0.50pt -> RT 0.26bp (close) 0.26bp (open/close) | swap long -5.738/night = 2.26bp/night ( 8.3%/yr incl. triple) markup 1.52bp implied rate 2.68%/yr | div credit 0.0%/yr=0.00bp/night | mode=3 triple-day=5
+UK100  px~  10725.3 spread@open  0.90pt @close  0.90pt -> RT 1.07bp (close) 1.07bp (open/close) | swap long -2.864/night = 2.67bp/night ( 9.7%/yr incl. triple) markup 1.53bp implied rate 4.12%/yr | div credit 3.5%/yr=0.96bp/night | mode=3 triple-day=5
+JP225  px~  64460.0 spread@open  3.00pt @close  3.00pt -> RT 0.78bp (close) 0.78bp (open/close) | swap long -12.359/night = 1.92bp/night ( 7.0%/yr incl. triple) markup 1.53bp implied rate 1.38%/yr | div credit 1.8%/yr=0.49bp/night | mode=3 triple-day=5
+Assumptions: 1 contract = 1 x index; P&L on bid bars, one full spread charged per round trip at the hour used;
+ swap charged per calendar night held (triple-Friday => calendar days); CFD longs receive dividend adjustments
+ (Yahoo/MT5 prices are price indices except DAX = total-return index -> no div credit). For US indices the
+ historical swap is modelled as markup + ^IRX T-bill rate; non-US use today's live swap (flag: their rates differ).
+
+==============================================================================================================
+DATA + ARTIFACT CHECK (Yahoo open == previous close / open == close)
+==============================================================================================================
+US500  ^GSPC   1990-01-02..2026-10-20 n=9268 | stale-open years (>5% of days): [1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2011, 2012, 2013] -> excluded from ON/ID
+       MT5 CFD 2016-01-26..2026-10-14 n=2671 (open 10:00 / close 16:00 America/New_York)
+USTEC  ^NDX    1990-01-02..2026-10-20 n=9268 | stale-open years (>5% of days): [1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000] -> excluded from ON/ID
+       MT5 CFD 2016-01-29..2026-10-14 n=2668 (open 10:00 / close 16:00 America/New_York)
+US30   ^DJI    1992-01-03..2026-10-20 n=8761 | stale-open years (>5% of days): [1992, 1993, 1994, 1995, 1997, 1998, 1999, 2005, 2006, 2007, 2013, 2015] -> excluded from ON/ID
+       MT5 CFD 2016-01-27..2026-10-14 n=2670 (open 10:00 / close 16:00 America/New_York)
+DE40   ^GDAXI  1990-01-02..2026-10-20 n=9312 | stale-open years (>5% of days): [1987, 1988, 1989, 1990, 1991, 1992, 1993] -> excluded from ON/ID
+       MT5 CFD 2016-01-26..2026-10-14 n=2720 (open 9:00 / close 17:00 Europe/Berlin)
+UK100  ^FTSE   1990-01-02..2026-10-20 n=9296 | stale-open years (>5% of days): [1985, 1986, 1987, 1988, 1989, 1990, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026] -> excluded from ON/ID
+       MT5 CFD 2023-05-04..2026-10-20 n=871 (open 8:00 / close 16:00 Europe/London)
+JP225  ^N225   1990-01-04..2026-10-20 n=9028 | stale-open years (>5% of days): [1985, 1986, 1987, 1988] -> excluded from ON/ID
+       MT5 CFD 2016-01-29..2026-10-15 n=2593 (open 9:00 / close 15:00 Asia/Tokyo)
+
+==============================================================================================================
+SUB-STRATEGY a) TURN-OF-MONTH (k=entry close of day -k, x=exit close of day +x)  grid=20 configs  core=(2, 3)
+==============================================================================================================
+-- core config per index (Yahoo cash, net of MT5 spread + swap - div credit):
+  US500  ann  +2.05%  SR +0.27  per-inv-day  +4.26bp t=+1.62 exp=19.1%  yrs+  57% (37) | alpha vs gross index +0.22%/yr (NW t=+0.19) b=0.18 | vs net CFD B&H +1.47%/yr (t=+1.33)
+         DEV 1990-2009: ann +1.91% SR +0.24 | VAL 2010-2019: ann +1.64% SR +0.24 | RECENT 2020+: ann +3.04% SR +0.38  | gross per-inv-day +7.32bp
+  USTEC  ann  +4.11%  SR +0.35  per-inv-day  +8.56bp t=+2.10 exp=19.1%  yrs+  70% (37) | alpha vs gross index +0.71%/yr (NW t=+0.42) b=0.20 | vs net CFD B&H +2.25%/yr (t=+1.33)
+         DEV 1990-2009: ann +4.46% SR +0.32 | VAL 2010-2019: ann +3.08% SR +0.40 | RECENT 2020+: ann +4.62% SR +0.44  | gross per-inv-day +11.82bp
+  US30   ann  +1.71%  SR +0.23  per-inv-day  +3.55bp t=+1.38 exp=19.1%  yrs+  57% (35) | alpha vs gross index +0.02%/yr (NW t=+0.02) b=0.18 | vs net CFD B&H +1.11%/yr (t=+1.03)
+         DEV 1990-2009: ann +1.82% SR +0.24 | VAL 2010-2019: ann +0.74% SR +0.12 | RECENT 2020+: ann +2.83% SR +0.37  | gross per-inv-day +6.17bp
+  DE40   ann  +3.39%  SR +0.35  per-inv-day  +7.07bp t=+2.11 exp=19.0%  yrs+  62% (37) | alpha vs gross index +1.45%/yr (NW t=+0.99) b=0.20 | vs net CFD B&H +3.12%/yr (t=+2.15)
+         DEV 1990-2009: ann +6.51% SR +0.62 | VAL 2010-2019: ann -1.48% SR -0.16 | RECENT 2020+: ann +1.38% SR +0.16  | gross per-inv-day +10.60bp
+  UK100  ann  +2.70%  SR +0.36  per-inv-day  +5.63bp t=+2.20 exp=19.0%  yrs+  68% (37) | alpha vs gross index +1.64%/yr (NW t=+1.51) b=0.19 | vs net CFD B&H +2.84%/yr (t=+2.63)
+         DEV 1990-2009: ann +4.62% SR +0.59 | VAL 2010-2019: ann -0.42% SR -0.06 | RECENT 2020+: ann +1.63% SR +0.24  | gross per-inv-day +8.48bp
+  JP225  ann  +0.57%  SR +0.05  per-inv-day  +1.16bp t=+0.31 exp=19.6%  yrs+  51% (37) | alpha vs gross index -0.32%/yr (NW t=-0.19) b=0.21 | vs net CFD B&H +0.82%/yr (t=+0.50)
+         DEV 1990-2009: ann +2.94% SR +0.26 | VAL 2010-2019: ann -3.31% SR -0.36 | RECENT 2020+: ann -0.75% SR -0.06  | gross per-inv-day +3.70bp
+-- parameter surface: net SR (Yahoo full) per index; row = config
+        US500  USTEC  US30  DE40  UK100  JP225  mean
+(1, 1)   0.41   0.36  0.48  0.37   0.42   0.09  0.36
+(1, 2)   0.42   0.35  0.47  0.33   0.44   0.21  0.37
+(1, 3)   0.36   0.39  0.49  0.41   0.47   0.06  0.36
+(1, 4)   0.28   0.33  0.40  0.25   0.30   0.02  0.26
+(1, 5)   0.23   0.30  0.40  0.25   0.29  -0.05  0.24
+(2, 1)   0.24   0.26  0.10  0.26   0.25   0.06  0.20
+(2, 2)   0.30   0.30  0.17  0.26   0.31   0.17  0.25
+(2, 3)   0.27   0.35  0.23  0.35   0.36   0.05  0.27
+(2, 4)   0.21   0.30  0.19  0.21   0.22   0.02  0.19
+(2, 5)   0.17   0.28  0.21  0.21   0.23  -0.05  0.17
+(3, 1)   0.36   0.36  0.24  0.25   0.27   0.08  0.26
+(3, 2)   0.40   0.38  0.29  0.26   0.33   0.18  0.30
+(3, 3)   0.36   0.42  0.33  0.34   0.38   0.07  0.32
+(3, 4)   0.30   0.37  0.29  0.21   0.25   0.04  0.24
+(3, 5)   0.26   0.35  0.30  0.22   0.25  -0.02  0.23
+(4, 1)   0.37   0.30  0.24  0.30   0.38   0.10  0.28
+(4, 2)   0.41   0.33  0.28  0.31   0.42   0.19  0.32
+(4, 3)   0.38   0.37  0.33  0.38   0.46   0.09  0.33
+(4, 4)   0.32   0.33  0.29  0.26   0.34   0.05  0.27
+(4, 5)   0.29   0.32  0.30  0.26   0.34  -0.01  0.25
+  share of (config,index) cells with net SR>0: 97%  (cells>0.3: 44%)
+-- cross-source 2016+ (MT5 CFD vs Yahoo cash), core config:
+  US500  MT5 ann  +2.23%  SR +0.30  per-inv-day  +4.54bp t=+0.97 exp=19.5%  yrs+  64% (11)
+         YH same span ann +2.18% SR +0.29 | per-day corr 1.00 (n=503) | MT5 cost x1/x2/x3 x1:+2.23% x2:+2.12% x3:+2.01% | MT5 B&H net +8.45%
+  USTEC  MT5 ann  +3.81%  SR +0.40  per-inv-day  +7.80bp t=+1.29 exp=19.4%  yrs+  64% (11)
+         YH same span ann +3.66% SR +0.38 | per-day corr 1.00 (n=503) | MT5 cost x1/x2/x3 x1:+3.81% x2:+3.75% x3:+3.68% | MT5 B&H net +13.89%
+  US30   MT5 ann  +1.66%  SR +0.23  per-inv-day  +3.39bp t=+0.75 exp=19.4%  yrs+  64% (11)
+         YH same span ann +1.92% SR +0.27 | per-day corr 1.00 (n=503) | MT5 cost x1/x2/x3 x1:+1.66% x2:+1.63% x3:+1.61% | MT5 B&H net +6.42%
+  DE40   MT5 ann  +0.55%  SR +0.07  per-inv-day  +1.15bp t=+0.23 exp=19.1%  yrs+  64% (11)
+         YH same span ann +0.21% SR +0.03 | per-day corr 0.96 (n=515) | MT5 cost x1/x2/x3 x1:+0.55% x2:+0.52% x3:+0.49% | MT5 B&H net +2.30%
+  UK100  MT5 ann  -0.48%  SR -0.08  per-inv-day  -0.98bp t=-0.16 exp=19.3%  yrs+  50% (4)
+         YH same span ann -0.53% SR -0.11 | per-day corr 0.96 (n=163) | MT5 cost x1/x2/x3 x1:-0.48% x2:-0.61% x3:-0.74% | MT5 B&H net +3.71%
+  JP225  MT5 ann  -1.98%  SR -0.18  per-inv-day  -3.94bp t=-0.57 exp=19.9%  yrs+  45% (11)
+         YH same span ann -1.83% SR -0.17 | per-day corr 0.99 (n=513) | MT5 cost x1/x2/x3 x1:-1.98% x2:-2.08% x3:-2.17% | MT5 B&H net +9.88%
+-- regimes (Yahoo, core, gross per invested day vs B&H mean day in same regime):
+  US500  bull  +5.39 vs +3.72 (n=1352) | bear +13.58 vs +4.73 (n=416) | hiVol +13.45 vs +4.74 (n=892) | loVol  +1.08 vs +3.19 (n=876)
+  USTEC  bull  +8.89 vs +6.78 (n=1352) | bear +21.33 vs +6.21 (n=416) | hiVol +20.68 vs +7.83 (n=877) | loVol  +3.10 vs +5.46 (n=891)
+  US30   bull  +3.90 vs +2.77 (n=1237) | bear +12.64 vs +6.70 (n=435) | hiVol  +8.53 vs +5.01 (n=843) | loVol  +3.78 vs +2.60 (n=829)
+  DE40   bull +11.86 vs +4.47 (n=1233) | bear  +7.70 vs +2.21 (n=535) | hiVol +12.75 vs +4.68 (n=892) | loVol  +8.40 vs +2.89 (n=876)
+  UK100  bull  +7.33 vs +0.95 (n=1209) | bear +10.98 vs +4.67 (n=559) | hiVol +10.71 vs +3.81 (n=877) | loVol  +6.30 vs +0.54 (n=891)
+  JP225  bull  +5.22 vs +2.69 (n=972) | bear  +1.84 vs +0.44 (n=796) | hiVol  +6.88 vs +3.57 (n=873) | loVol  +0.60 vs -0.24 (n=895)
+-- placebo (same blocks at random days, 1000 reps; gross bp per invested day) and B&H:
+  US500  actual  +7.32 placebo mean  +3.98 p=0.084 | strat SR +0.27 vs B&H net SR +0.18 (B&H +3.15%/yr, +3.97bp/day)
+  USTEC  actual +11.82 placebo mean  +6.60 p=0.064 | strat SR +0.35 vs B&H net SR +0.35 (B&H +9.18%/yr, +6.64bp/day)
+  US30   actual  +6.17 placebo mean  +3.77 p=0.148 | strat SR +0.23 vs B&H net SR +0.19 (B&H +3.37%/yr, +3.80bp/day)
+  DE40   actual +10.60 placebo mean  +3.68 p=0.010 | strat SR +0.35 vs B&H net SR +0.06 (B&H +1.31%/yr, +3.79bp/day)
+  UK100  actual  +8.48 placebo mean  +2.17 p=0.004 | strat SR +0.36 vs B&H net SR -0.04 (B&H -0.76%/yr, +2.18bp/day)
+  JP225  actual  +3.70 placebo mean  +1.71 p=0.269 | strat SR +0.05 vs B&H net SR -0.05 (B&H -1.15%/yr, +1.66bp/day)
+-- walk-forward (expanding window, choose config by past net SR, min 10y history):
+  US500  WF OOS ann  +1.20%  SR +0.26  yrs+  70% (27) | last pick (1, 2) | distinct picks 2
+  USTEC  WF OOS ann  +2.33%  SR +0.18  yrs+  70% (27) | last pick (3, 3) | distinct picks 3
+  US30   WF OOS ann  +1.12%  SR +0.25  yrs+  64% (25) | last pick (1, 1) | distinct picks 2
+  DE40   WF OOS ann  +1.28%  SR +0.13  yrs+  56% (27) | last pick (1, 3) | distinct picks 4
+  UK100  WF OOS ann  +1.60%  SR +0.18  yrs+  63% (27) | last pick (1, 3) | distinct picks 8
+  JP225  WF OOS ann  +0.38%  SR +0.04  yrs+  48% (27) | last pick (1, 2) | distinct picks 4
+
+==============================================================================================================
+PRE-HOLIDAY calendar sanity: inferred scheduled holidays per year (weekday non-trading days)
+==============================================================================================================
+  US500  median/yr 9 min 7 max 10 (years with >15: [])
+  USTEC  median/yr 9 min 7 max 10 (years with >15: [])
+  US30   median/yr 9 min 7 max 10 (years with >15: [])
+  DE40   median/yr 8 min 3 max 13 (years with >15: [])
+  UK100  median/yr 8 min 6 max 10 (years with >15: [])
+  JP225  median/yr 15 min 11 max 20 (years with >15: [1999, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2019, 2020, 2021, 2022, 2024, 2025, 2026])
+
+==============================================================================================================
+SUB-STRATEGY b) PRE-HOLIDAY  grid=3 configs  core=D-1
+==============================================================================================================
+-- core config per index (Yahoo cash, net of MT5 spread + swap - div credit):
+  US500  ann  +0.60%  SR +0.23  per-inv-day  +6.88bp t=+1.38 exp= 3.5%  yrs+  59% (37) | alpha vs gross index +0.38%/yr (NW t=+0.91) b=0.02 | vs net CFD B&H +0.53%/yr (t=+1.25)
+         DEV 1990-2009: ann +0.27% SR +0.09 | VAL 2010-2019: ann +0.49% SR +0.20 | RECENT 2020+: ann +1.73% SR +0.84  | gross per-inv-day +9.81bp
+  USTEC  ann  +0.50%  SR +0.12  per-inv-day  +5.71bp t=+0.71 exp= 3.5%  yrs+  57% (37) | alpha vs gross index +0.06%/yr (NW t=+0.09) b=0.03 | vs net CFD B&H +0.26%/yr (t=+0.38)
+         DEV 1990-2009: ann -0.08% SR -0.01 | VAL 2010-2019: ann +0.52% SR +0.20 | RECENT 2020+: ann +2.18% SR +0.70  | gross per-inv-day +8.47bp
+  US30   ann  +0.41%  SR +0.17  per-inv-day  +4.66bp t=+0.98 exp= 3.5%  yrs+  63% (35) | alpha vs gross index +0.21%/yr (NW t=+0.53) b=0.02 | vs net CFD B&H +0.34%/yr (t=+0.83)
+         DEV 1990-2009: ann +0.18% SR +0.07 | VAL 2010-2019: ann +0.59% SR +0.24 | RECENT 2020+: ann +0.76% SR +0.44  | gross per-inv-day +6.71bp
+  DE40   ann  +1.12%  SR +0.47  per-inv-day +21.83bp t=+2.94 exp= 2.0%  yrs+  68% (37) | alpha vs gross index +1.00%/yr (NW t=+2.68) b=0.01 | vs net CFD B&H +1.10%/yr (t=+2.88)
+         DEV 1990-2009: ann +2.07% SR +0.79 | VAL 2010-2019: ann -0.37% SR -0.17 | RECENT 2020+: ann +0.50% SR +0.28  | gross per-inv-day +24.85bp
+  UK100  ann  +0.77%  SR +0.40  per-inv-day +12.64bp t=+2.45 exp= 2.4%  yrs+  76% (37) | alpha vs gross index +0.70%/yr (NW t=+2.18) b=0.01 | vs net CFD B&H +0.78%/yr (t=+2.40)
+         DEV 1990-2009: ann +1.15% SR +0.54 | VAL 2010-2019: ann +0.07% SR +0.05 | RECENT 2020+: ann +0.71% SR +0.37  | gross per-inv-day +15.58bp
+  JP225  ann  -0.24%  SR -0.05  per-inv-day  -1.95bp t=-0.29 exp= 4.8%  yrs+  51% (37) | alpha vs gross index -0.41%/yr (NW t=-0.51) b=0.04 | vs net CFD B&H -0.19%/yr (t=-0.24)
+         DEV 1990-2009: ann +0.15% SR +0.03 | VAL 2010-2019: ann -0.57% SR -0.13 | RECENT 2020+: ann -0.91% SR -0.21  | gross per-inv-day +0.61bp
+-- parameter surface: net SR (Yahoo full) per index; row = config
+          US500  USTEC  US30  DE40  UK100  JP225  mean
+D-1        0.23   0.12  0.17  0.47   0.40  -0.05  0.22
+D-2..D-1   0.20   0.25  0.08  0.52   0.45   0.08  0.27
+D-1,D+1    0.05   0.08  0.05  0.54   0.41   0.25  0.23
+  share of (config,index) cells with net SR>0: 94%  (cells>0.3: 33%)
+-- cross-source 2016+ (MT5 CFD vs Yahoo cash), core config:
+  US500  MT5 ann  +1.42%  SR +0.70  per-inv-day +15.16bp t=+2.32 exp= 3.7%  yrs+  82% (11)
+         YH same span ann +1.59% SR +0.75 | per-day corr 1.00 (n=85) | MT5 cost x1/x2/x3 x1:+1.42% x2:+1.33% x3:+1.25% | MT5 B&H net +8.45%
+  USTEC  MT5 ann  +1.56%  SR +0.54  per-inv-day +16.69bp t=+1.78 exp= 3.7%  yrs+  91% (11)
+         YH same span ann +1.66% SR +0.58 | per-day corr 1.00 (n=85) | MT5 cost x1/x2/x3 x1:+1.56% x2:+1.51% x3:+1.47% | MT5 B&H net +13.89%
+  US30   MT5 ann  +0.85%  SR +0.46  per-inv-day  +9.05bp t=+1.52 exp= 3.7%  yrs+  64% (11)
+         YH same span ann +1.04% SR +0.51 | per-day corr 1.00 (n=85) | MT5 cost x1/x2/x3 x1:+0.85% x2:+0.83% x3:+0.81% | MT5 B&H net +6.42%
+  DE40   MT5 ann  +0.54%  SR +0.25  per-inv-day +12.06bp t=+0.82 exp= 1.8%  yrs+  64% (11)
+         YH same span ann +0.39% SR +0.20 | per-day corr 0.93 (n=48) | MT5 cost x1/x2/x3 x1:+0.54% x2:+0.53% x3:+0.51% | MT5 B&H net +2.30%
+  UK100  MT5 ann  +1.70%  SR +1.21  per-inv-day +28.02bp t=+2.51 exp= 2.4%  yrs+ 100% (4)
+         YH same span ann +1.52% SR +1.33 | per-day corr 0.90 (n=15) | MT5 cost x1/x2/x3 x1:+1.70% x2:+1.64% x3:+1.57% | MT5 B&H net +3.71%
+  JP225  MT5 ann  -1.37%  SR -0.31  per-inv-day -10.58bp t=-1.01 exp= 5.1%  yrs+  45% (11)
+         YH same span ann -1.37% SR -0.32 | per-day corr 0.99 (n=133) | MT5 cost x1/x2/x3 x1:-1.37% x2:-1.47% x3:-1.56% | MT5 B&H net +9.88%
+-- regimes (Yahoo, core, gross per invested day vs B&H mean day in same regime):
+  US500  bull +11.74 vs +3.72 (n=243) | bear  +3.89 vs +4.73 (n=79) | hiVol +15.12 vs +4.74 (n=160) | loVol  +4.57 vs +3.19 (n=162)
+  USTEC  bull  +9.64 vs +6.78 (n=239) | bear  +5.11 vs +6.21 (n=83) | hiVol  +6.84 vs +7.83 (n=162) | loVol +10.12 vs +5.46 (n=160)
+  US30   bull  +7.39 vs +2.77 (n=229) | bear  +4.69 vs +6.70 (n=77) | hiVol  +7.15 vs +5.01 (n=151) | loVol  +6.29 vs +2.60 (n=155)
+  DE40   bull +17.72 vs +4.47 (n=135) | bear +42.68 vs +2.21 (n=54) | hiVol +41.47 vs +4.68 (n=90) | loVol  +9.74 vs +2.89 (n=99)
+  UK100  bull  +8.88 vs +0.95 (n=157) | bear +30.83 vs +4.67 (n=69) | hiVol +16.42 vs +3.81 (n=114) | loVol +14.73 vs +0.54 (n=112)
+  JP225  bull  +1.39 vs +2.69 (n=236) | bear  -0.31 vs +0.44 (n=199) | hiVol  -3.04 vs +3.57 (n=219) | loVol  +4.32 vs -0.24 (n=216)
+-- placebo (same blocks at random days, 1000 reps; gross bp per invested day) and B&H:
+  US500  actual  +9.81 placebo mean  +4.01 p=0.201 | strat SR +0.23 vs B&H net SR +0.18 (B&H +3.15%/yr, +3.97bp/day)
+  USTEC  actual  +8.47 placebo mean  +6.55 p=0.413 | strat SR +0.12 vs B&H net SR +0.35 (B&H +9.18%/yr, +6.64bp/day)
+  US30   actual  +6.71 placebo mean  +3.90 p=0.321 | strat SR +0.17 vs B&H net SR +0.19 (B&H +3.37%/yr, +3.80bp/day)
+  DE40   actual +24.85 placebo mean  +3.83 p=0.019 | strat SR +0.47 vs B&H net SR +0.06 (B&H +1.31%/yr, +3.79bp/day)
+  UK100  actual +15.58 placebo mean  +2.36 p=0.043 | strat SR +0.40 vs B&H net SR -0.04 (B&H -0.76%/yr, +2.18bp/day)
+  JP225  actual  +0.61 placebo mean  +1.78 p=0.572 | strat SR -0.05 vs B&H net SR -0.05 (B&H -1.15%/yr, +1.66bp/day)
+-- walk-forward (expanding window, choose config by past net SR, min 10y history):
+  US500  WF OOS ann  +0.58%  SR +0.19  yrs+  67% (27) | last pick D-1 | distinct picks 2
+  USTEC  WF OOS ann  +1.58%  SR +0.26  yrs+  59% (27) | last pick D-2..D-1 | distinct picks 1
+  US30   WF OOS ann  +0.68%  SR +0.17  yrs+  48% (25) | last pick D-1 | distinct picks 2
+  DE40   WF OOS ann  +1.23%  SR +0.33  yrs+  67% (27) | last pick D-1,D+1 | distinct picks 3
+  UK100  WF OOS ann  +0.88%  SR +0.28  yrs+  63% (27) | last pick D-2..D-1 | distinct picks 2
+  JP225  WF OOS ann  +1.87%  SR +0.23  yrs+  52% (27) | last pick D-1,D+1 | distinct picks 2
+
+==============================================================================================================
+SUB-STRATEGY e) SHORT-TERM REVERSAL (k x sd20 drop, hold h days, trend filter)  grid=24 configs  core=(2.0, 3, True)
+==============================================================================================================
+-- core config per index (Yahoo cash, net of MT5 spread + swap - div credit):
+  US500  ann  +1.08%  SR +0.24  per-inv-day  +5.99bp t=+1.47 exp= 7.1%  yrs+  62% (37) | alpha vs gross index +0.46%/yr (NW t=+0.67) b=0.06 | vs net CFD B&H +0.88%/yr (t=+1.32)
+         DEV 1990-2009: ann +0.33% SR +0.09 | VAL 2010-2019: ann +1.18% SR +0.22 | RECENT 2020+: ann +3.14% SR +0.64  | gross per-inv-day +8.86bp
+  USTEC  ann  +2.02%  SR +0.28  per-inv-day +10.58bp t=+1.69 exp= 7.6%  yrs+  65% (37) | alpha vs gross index +0.76%/yr (NW t=+0.72) b=0.08 | vs net CFD B&H +1.33%/yr (t=+1.28)
+         DEV 1990-2009: ann +1.81% SR +0.24 | VAL 2010-2019: ann +2.23% SR +0.34 | RECENT 2020+: ann +2.32% SR +0.34  | gross per-inv-day +13.56bp
+  US30   ann  +0.19%  SR +0.04  per-inv-day  +1.11bp t=+0.25 exp= 6.8%  yrs+  49% (35) | alpha vs gross index -0.44%/yr (NW t=-0.61) b=0.07 | vs net CFD B&H -0.03%/yr (t=-0.05)
+         DEV 1990-2009: ann -0.17% SR -0.04 | VAL 2010-2019: ann +0.05% SR +0.01 | RECENT 2020+: ann +1.35% SR +0.28  | gross per-inv-day +3.58bp
+  DE40   ann  -1.23%  SR -0.23  per-inv-day  -7.34bp t=-1.42 exp= 6.7%  yrs+  43% (37) | alpha vs gross index -1.80%/yr (NW t=-2.14) b=0.06 | vs net CFD B&H -1.31%/yr (t=-1.60)
+         DEV 1990-2009: ann -1.82% SR -0.38 | VAL 2010-2019: ann -1.30% SR -0.24 | RECENT 2020+: ann +0.56% SR +0.09  | gross per-inv-day -4.08bp
+  UK100  ann  -0.53%  SR -0.14  per-inv-day  -3.90bp t=-0.88 exp= 5.4%  yrs+  35% (37) | alpha vs gross index -0.78%/yr (NW t=-1.30) b=0.05 | vs net CFD B&H -0.50%/yr (t=-0.84)
+         DEV 1990-2009: ann -0.75% SR -0.21 | VAL 2010-2019: ann -1.15% SR -0.35 | RECENT 2020+: ann +1.01% SR +0.22  | gross per-inv-day -1.10bp
+  JP225  ann  -0.15%  SR -0.03  per-inv-day  -1.29bp t=-0.18 exp= 4.7%  yrs+  41% (37) | alpha vs gross index -0.35%/yr (NW t=-0.46) b=0.05 | vs net CFD B&H -0.10%/yr (t=-0.13)
+         DEV 1990-2009: ann +0.17% SR +0.04 | VAL 2010-2019: ann -1.76% SR -0.32 | RECENT 2020+: ann +1.27% SR +0.19  | gross per-inv-day +1.06bp
+-- parameter surface: net SR (Yahoo full) per index; row = config
+                 US500  USTEC  US30  DE40  UK100  JP225  mean
+(1.5, 1, True)    0.32   0.37 -0.06  0.04  -0.31   0.17  0.09
+(1.5, 2, True)    0.14   0.35 -0.10  0.21  -0.21  -0.10  0.05
+(1.5, 3, True)    0.27   0.30 -0.06  0.19  -0.08  -0.14  0.08
+(1.5, 5, True)    0.40   0.38  0.11  0.21   0.01  -0.07  0.18
+(2.0, 1, True)    0.28   0.41  0.11 -0.18  -0.20   0.09  0.09
+(2.0, 2, True)    0.23   0.32 -0.02 -0.09  -0.13  -0.09  0.04
+(2.0, 3, True)    0.24   0.28  0.04 -0.23  -0.14  -0.03  0.03
+(2.0, 5, True)    0.37   0.29  0.21 -0.11  -0.11  -0.04  0.10
+(2.5, 1, True)    0.27   0.51  0.17 -0.13  -0.17   0.00  0.11
+(2.5, 2, True)    0.37   0.35  0.16 -0.12  -0.15  -0.24  0.06
+(2.5, 3, True)    0.45   0.27  0.13 -0.23  -0.13  -0.11  0.06
+(2.5, 5, True)    0.71   0.42  0.28 -0.17  -0.07  -0.18  0.17
+(1.5, 1, False)   0.34   0.42  0.26  0.07  -0.25   0.24  0.18
+(1.5, 2, False)   0.09   0.37  0.03  0.15  -0.11   0.09  0.10
+(1.5, 3, False)   0.18   0.34  0.09  0.10   0.09  -0.00  0.13
+(1.5, 5, False)   0.19   0.29  0.06  0.13  -0.03  -0.02  0.10
+(2.0, 1, False)   0.31   0.47  0.29 -0.05  -0.02   0.21  0.20
+(2.0, 2, False)   0.07   0.29  0.01 -0.23   0.06   0.15  0.06
+(2.0, 3, False)   0.07   0.26  0.06 -0.33   0.08   0.19  0.06
+(2.0, 5, False)   0.14   0.25  0.07 -0.35  -0.04   0.11  0.03
+(2.5, 1, False)   0.44   0.52  0.30  0.11   0.04   0.29  0.28
+(2.5, 2, False)   0.16   0.26 -0.05 -0.07   0.00   0.21  0.09
+(2.5, 3, False)   0.19   0.19  0.01 -0.20   0.02   0.18  0.06
+(2.5, 5, False)   0.32   0.28  0.12 -0.19   0.05   0.08  0.11
+  share of (config,index) cells with net SR>0: 67%  (cells>0.3: 17%)
+-- cross-source 2016+ (MT5 CFD vs Yahoo cash), core config:
+  US500  MT5 ann  +1.64%  SR +0.33  per-inv-day  +8.50bp t=+1.07 exp= 7.6%  yrs+  55% (11)
+         YH same span ann +2.42% SR +0.47 | per-day corr 1.00 (n=196) | MT5 cost x1/x2/x3 x1:+1.64% x2:+1.59% x3:+1.54% | MT5 B&H net +8.45%
+  USTEC  MT5 ann  +1.59%  SR +0.25  per-inv-day  +8.43bp t=+0.81 exp= 7.5%  yrs+  64% (11)
+         YH same span ann +1.81% SR +0.28 | per-day corr 1.00 (n=194) | MT5 cost x1/x2/x3 x1:+1.59% x2:+1.56% x3:+1.54% | MT5 B&H net +13.89%
+  US30   MT5 ann  -0.13%  SR -0.03  per-inv-day  -0.76bp t=-0.08 exp= 6.8%  yrs+  36% (11)
+         YH same span ann +0.65% SR +0.13 | per-day corr 1.00 (n=173) | MT5 cost x1/x2/x3 x1:-0.13% x2:-0.14% x3:-0.15% | MT5 B&H net +6.42%
+  DE40   MT5 ann  -0.42%  SR -0.08  per-inv-day  -1.92bp t=-0.25 exp= 8.7%  yrs+  27% (11)
+         YH same span ann -0.24% SR -0.04 | per-day corr 0.97 (n=181) | MT5 cost x1/x2/x3 x1:-0.42% x2:-0.44% x3:-0.45% | MT5 B&H net +2.30%
+  UK100  MT5 ann  -2.46%  SR -0.59  per-inv-day -20.21bp t=-1.09 exp= 4.8%  yrs+  25% (4)
+         YH same span ann -1.90% SR -0.39 | per-day corr 0.95 (n=31) | MT5 cost x1/x2/x3 x1:-2.46% x2:-2.50% x3:-2.54% | MT5 B&H net +3.71%
+  JP225  MT5 ann  +0.83%  SR +0.14  per-inv-day  +5.91bp t=+0.45 exp= 5.6%  yrs+  45% (11)
+         YH same span ann +0.72% SR +0.12 | per-day corr 1.00 (n=129) | MT5 cost x1/x2/x3 x1:+0.83% x2:+0.80% x3:+0.77% | MT5 B&H net +9.88%
+-- regimes (Yahoo, core, gross per invested day vs B&H mean day in same regime):
+  US500  bull  +8.63 vs +3.72 (n=649) | bear +20.34 vs +4.73 (n=13) | hiVol  -1.99 vs +4.74 (n=246) | loVol +15.28 vs +3.19 (n=416)
+  USTEC  bull +13.24 vs +6.78 (n=692) | bear +36.14 vs +6.21 (n=10) | hiVol  +7.14 vs +7.83 (n=256) | loVol +17.25 vs +5.46 (n=446)
+  US30   bull  +4.19 vs +2.77 (n=574) | bear -15.81 vs +6.70 (n=18) | hiVol  +3.12 vs +5.01 (n=250) | loVol  +3.92 vs +2.60 (n=342)
+  DE40   bull  -5.17 vs +4.47 (n=601) | bear +28.63 vs +2.21 (n=20) | hiVol -15.55 vs +4.68 (n=223) | loVol  +2.35 vs +2.89 (n=398)
+  UK100  bull  -0.62 vs +0.95 (n=483) | bear -14.07 vs +4.67 (n=18) | hiVol  -3.58 vs +3.81 (n=183) | loVol  +0.32 vs +0.54 (n=318)
+  JP225  bull  +2.52 vs +2.69 (n=404) | bear -29.89 vs +0.44 (n=19) | hiVol +13.51 vs +3.57 (n=146) | loVol  -5.50 vs -0.24 (n=277)
+-- placebo (same blocks at random days, 1000 reps; gross bp per invested day) and B&H:
+  US500  actual  +8.86 placebo mean  +5.51 p=0.135 | strat SR +0.24 vs B&H net SR +0.18 (B&H +3.15%/yr, +3.97bp/day)
+  USTEC  actual +13.56 placebo mean  +9.19 p=0.178 | strat SR +0.28 vs B&H net SR +0.35 (B&H +9.18%/yr, +6.64bp/day)
+  US30   actual  +3.58 placebo mean  +4.90 p=0.670 | strat SR +0.04 vs B&H net SR +0.19 (B&H +3.37%/yr, +3.80bp/day)
+  DE40   actual  -4.08 placebo mean  +6.13 p=0.996 | strat SR -0.23 vs B&H net SR +0.06 (B&H +1.31%/yr, +3.79bp/day)
+  UK100  actual  -1.10 placebo mean  +3.31 p=0.906 | strat SR -0.14 vs B&H net SR -0.04 (B&H -0.76%/yr, +2.18bp/day)
+  JP225  actual  +1.06 placebo mean  +5.56 p=0.793 | strat SR -0.03 vs B&H net SR -0.05 (B&H -1.15%/yr, +1.66bp/day)
+-- walk-forward (expanding window, choose config by past net SR, min 10y history):
+  US500  WF OOS ann  +2.98%  SR +0.66  yrs+  70% (27) | last pick (2.5, 5, True) | distinct picks 1
+  USTEC  WF OOS ann  +1.25%  SR +0.22  yrs+  44% (27) | last pick (2.5, 1, False) | distinct picks 4
+  US30   WF OOS ann  +1.23%  SR +0.26  yrs+  60% (25) | last pick (2.5, 1, False) | distinct picks 2
+  DE40   WF OOS ann  -0.57%  SR -0.07  yrs+  44% (27) | last pick (1.5, 5, True) | distinct picks 6
+  UK100  WF OOS ann  -0.99%  SR -0.20  yrs+  41% (27) | last pick (1.5, 3, False) | distinct picks 7
+  JP225  WF OOS ann  +0.81%  SR +0.11  yrs+  56% (27) | last pick (2.5, 1, False) | distinct picks 3
+
+==============================================================================================================
+SUB-STRATEGY c) OVERNIGHT (close->open) vs INTRADAY (open->close)
+==============================================================================================================
+Yahoo cash (years with stale opens excluded), gross bp/day, and long-overnight-only on CFD net:
+  US500  DEV 1990-2009: ON -2.07bp t=-1.76 | ID -1.19bp t=-0.13 | CC -3.04 (n=505)
+  US500  VAL 2010-2019: ON +2.03bp t=+3.23 | ID +2.16bp t=+1.16 | CC +4.24 (n=1762)
+  US500  RECENT 2020+: ON +3.44bp t=+2.29 | ID +2.31bp t=+0.99 | CC +5.90 (n=1709)
+  USTEC  DEV 1990-2009: ON +1.94bp t=+0.94 | ID -0.89bp t=-0.24 | CC +1.02 (n=2263)
+  USTEC  VAL 2010-2019: ON +3.87bp t=+2.93 | ID +2.89bp t=+1.64 | CC +6.74 (n=2516)
+  USTEC  RECENT 2020+: ON +4.41bp t=+1.88 | ID +3.92bp t=+1.33 | CC +8.37 (n=1709)
+  US30   DEV 1990-2009: ON -0.97bp t=-8.60 | ID +1.61bp t=+0.51 | CC +0.65 (n=2015)
+  US30   VAL 2010-2019: ON +1.08bp t=+2.24 | ID +3.25bp t=+1.72 | CC +4.35 (n=2012)
+  US30   RECENT 2020+: ON +2.20bp t=+1.59 | ID +1.96bp t=+0.87 | CC +4.32 (n=1709)
+  DE40   DEV 1990-2009: ON +3.90bp t=+5.08 | ID -0.35bp t=-0.16 | CC +3.60 (n=4049)
+  DE40   VAL 2010-2019: ON +4.59bp t=+3.54 | ID -0.72bp t=-0.37 | CC +3.87 (n=2531)
+  DE40   RECENT 2020+: ON +3.67bp t=+1.78 | ID +0.86bp t=+0.39 | CC +4.52 (n=1733)
+  UK100  DEV 1990-2009: ON +2.28bp t=+2.37 | ID +3.11bp t=+1.79 | CC +5.38 (n=2021)
+  JP225  DEV 1990-2009: ON +2.87bp t=+4.12 | ID -4.46bp t=-2.28 | CC -1.40 (n=4922)
+  JP225  VAL 2010-2019: ON +5.19bp t=+3.20 | ID -1.15bp t=-0.62 | CC +4.15 (n=2448)
+  JP225  RECENT 2020+: ON +5.25bp t=+2.79 | ID +1.59bp t=+0.62 | CC +7.09 (n=1658)
+
+MT5 CFD 2016+ decomposition (open = local open-hour bar; costs: 1 RT spread/day + swap per night held):
+  US500  ON gross +4.12bp t=+2.86 | ID gross +1.77 t=+1.15 | carry/night-held avg 2.57bp RT 0.70bp -> ON net  +2.13%/yr SR +0.18 | ID net  +2.70%/yr SR +0.21 | B&H net +8.45% | ON to 9:00 gross +2.82
+         ON net by period: VAL 2010-2019: ann +3.01% SR +0.37 | RECENT 2020+: ann +1.63% SR +0.12
+  USTEC  ON gross +6.22bp t=+3.52 | ID gross +2.07 t=+1.08 | carry/night-held avg 2.85bp RT 0.47bp -> ON net  +7.28%/yr SR +0.50 | ID net  +4.03%/yr SR +0.26 | B&H net +13.89% | ON to 9:00 gross +4.50
+         ON net by period: VAL 2010-2019: ann +8.42% SR +0.80 | RECENT 2020+: ann +6.62% SR +0.41
+  US30   ON gross +3.55bp t=+2.45 | ID gross +1.37 t=+0.94 | carry/night-held avg 2.39bp RT 0.19bp -> ON net  +2.43%/yr SR +0.20 | ID net  +2.96%/yr SR +0.25 | B&H net +6.42% | ON to 9:00 gross +2.47
+         ON net by period: VAL 2010-2019: ann +6.81% SR +0.81 | RECENT 2020+: ann -0.11% SR -0.01
+  DE40   ON gross +4.71bp t=+3.03 | ID gross -0.50 t=-0.31 | carry/night-held avg 3.26bp RT 0.26bp -> ON net  +3.02%/yr SR +0.23 | ID net  -1.91%/yr SR -0.14 | B&H net +2.30% | ON to 8:00 gross +2.69
+         ON net by period: VAL 2010-2019: ann +4.86% SR +0.46 | RECENT 2020+: ann +1.96% SR +0.14
+  UK100  ON gross +1.17bp t=+0.67 | ID gross +2.81 t=+1.48 | carry/night-held avg 2.49bp RT 1.07bp -> ON net  -6.02%/yr SR -0.74 | ID net  +4.39%/yr SR +0.49 | B&H net +3.71% | ON to 7:00 gross +1.47
+         ON net by period: RECENT 2020+: ann -6.02% SR -0.74
+  JP225  ON gross +6.44bp t=+3.03 | ID gross -0.36 t=-0.22 | carry/night-held avg 2.15bp RT 0.78bp -> ON net  +8.86%/yr SR +0.52 | ID net  -2.87%/yr SR -0.21 | B&H net +9.88% | ON to 8:00 gross +6.28
+         ON net by period: VAL 2010-2019: ann +4.92% SR +0.36 | RECENT 2020+: ann +11.15% SR +0.59
+
+==============================================================================================================
+SUB-STRATEGY d1) DAY-OF-WEEK (close-close, gross bp)
+==============================================================================================================
+  US500  DEV Mon +5.0 Tue +5.1 Wed +3.6 Thu +0.8 Fri +0.4 || VAL Mon +0.2 Tue +7.7 Wed +5.8 Thu +5.5 Fri +3.7 || RECENT Mon+11.6 Tue +6.8 Wed +7.6 Thu -1.5 Fri +5.4 || rank-corr DEV vs 2010+: +0.80
+  USTEC  DEV Mon +1.8 Tue +3.7 Wed+17.0 Thu +8.9 Fri -1.8 || VAL Mon +4.3 Tue+12.3 Wed+10.2 Thu +4.9 Fri +1.7 || RECENT Mon+20.8 Tue +7.9 Wed+12.1 Thu +0.1 Fri +1.8 || rank-corr DEV vs 2010+: +0.60
+  US30   DEV Mon +9.5 Tue +6.5 Wed +1.7 Thu -0.2 Fri -0.8 || VAL Mon +1.2 Tue +6.6 Wed +4.6 Thu +5.5 Fri +3.8 || RECENT Mon +9.2 Tue +4.9 Wed +4.7 Thu -2.8 Fri +5.9 || rank-corr DEV vs 2010+: +0.00
+  DE40   DEV Mon+11.1 Tue +3.7 Wed -3.5 Thu +2.2 Fri +4.2 || VAL Mon +0.2 Tue +6.9 Wed +8.2 Thu +2.2 Fri +1.8 || RECENT Mon +5.4 Tue+12.7 Wed+11.3 Thu -3.6 Fri -3.4 || rank-corr DEV vs 2010+: -0.50
+  UK100  DEV Mon +2.1 Tue +3.9 Wed -2.3 Thu +2.4 Fri +5.2 || VAL Mon -3.1 Tue +7.1 Wed +1.8 Thu -0.6 Fri +3.2 || RECENT Mon +5.5 Tue+10.0 Wed+13.2 Thu-12.5 Fri -3.2 || rank-corr DEV vs 2010+: +0.10
+  JP225  DEV Mon -9.9 Tue +4.1 Wed -0.9 Thu +4.5 Fri -5.4 || VAL Mon +3.1 Tue -0.9 Wed +9.4 Thu +5.6 Fri +3.5 || RECENT Mon +0.4 Tue+22.5 Wed +5.8 Thu +7.6 Fri -1.3 || rank-corr DEV vs 2010+: +0.60
+
+==============================================================================================================
+SUB-STRATEGY d2) FOMC ANNOUNCEMENT DAY (close-close, US indices meaningful; others = placebo-ish)  grid=2 configs  core=D0
+==============================================================================================================
+-- core config per index (Yahoo cash, net of MT5 spread + swap - div credit):
+  US500  ann  +1.47%  SR +0.47  per-inv-day +20.67bp t=+2.88 exp= 2.8%  yrs+  62% (37) | alpha vs gross index +1.16%/yr (NW t=+2.35) b=0.03 | vs net CFD B&H +1.37%/yr (t=+2.71)
+         DEV 1990-2009: ann +2.11% SR +0.68 | VAL 2010-2019: ann +0.76% SR +0.27 | RECENT 2020+: ann +0.60% SR +0.17  | gross per-inv-day +23.35bp
+  USTEC  ann  +2.43%  SR +0.54  per-inv-day +34.27bp t=+3.35 exp= 2.8%  yrs+  73% (37) | alpha vs gross index +1.95%/yr (NW t=+2.70) b=0.03 | vs net CFD B&H +2.17%/yr (t=+2.99)
+         DEV 1990-2009: ann +3.05% SR +0.62 | VAL 2010-2019: ann +1.15% SR +0.38 | RECENT 2020+: ann +2.50% SR +0.51  | gross per-inv-day +36.77bp
+  US30   ann  +1.14%  SR +0.39  per-inv-day +15.23bp t=+2.35 exp= 3.0%  yrs+  60% (35) | alpha vs gross index +0.88%/yr (NW t=+1.84) b=0.03 | vs net CFD B&H +1.05%/yr (t=+2.17)
+         DEV 1990-2009: ann +1.97% SR +0.66 | VAL 2010-2019: ann +0.72% SR +0.28 | RECENT 2020+: ann -0.42% SR -0.14  | gross per-inv-day +17.13bp
+  DE40   ann  +2.40%  SR +0.79  per-inv-day +34.44bp t=+5.03 exp= 2.8%  yrs+  62% (37) | alpha vs gross index +2.21%/yr (NW t=+4.62) b=0.02 | vs net CFD B&H +2.37%/yr (t=+4.84)
+         DEV 1990-2009: ann +3.62% SR +1.09 | VAL 2010-2019: ann +0.01% SR +0.00 | RECENT 2020+: ann +2.33% SR +0.84  | gross per-inv-day +37.01bp
+  UK100  ann  +1.51%  SR +0.56  per-inv-day +21.36bp t=+3.45 exp= 2.8%  yrs+  65% (37) | alpha vs gross index +1.37%/yr (NW t=+3.25) b=0.03 | vs net CFD B&H +1.53%/yr (t=+3.45)
+         DEV 1990-2009: ann +2.26% SR +0.71 | VAL 2010-2019: ann +0.44% SR +0.22 | RECENT 2020+: ann +0.87% SR +0.43  | gross per-inv-day +24.22bp
+  JP225  ann  +0.97%  SR +0.25  per-inv-day +14.28bp t=+1.50 exp= 2.7%  yrs+  62% (37) | alpha vs gross index +0.86%/yr (NW t=+1.33) b=0.03 | vs net CFD B&H +1.00%/yr (t=+1.58)
+         DEV 1990-2009: ann +0.81% SR +0.22 | VAL 2010-2019: ann +0.86% SR +0.18 | RECENT 2020+: ann +1.59% SR +0.59  | gross per-inv-day +16.76bp
+-- parameter surface: net SR (Yahoo full) per index; row = config
+         US500  USTEC  US30  DE40  UK100  JP225  mean
+D0        0.47   0.54  0.39  0.79   0.56   0.25  0.50
+D-1..D0   0.47   0.43  0.48  0.50   0.36   0.07  0.38
+  share of (config,index) cells with net SR>0: 100%  (cells>0.3: 83%)
+-- cross-source 2016+ (MT5 CFD vs Yahoo cash), core config:
+  US500  MT5 ann  -0.08%  SR -0.02  per-inv-day  -0.95bp t=-0.08 exp= 3.2%  yrs+  45% (11)
+         YH same span ann +0.00% SR +0.00 | per-day corr 1.00 (n=85) | MT5 cost x1/x2/x3 x1:-0.08% x2:-0.15% x3:-0.22% | MT5 B&H net +8.45%
+  USTEC  MT5 ann  +1.51%  SR +0.36  per-inv-day +19.00bp t=+1.18 exp= 3.1%  yrs+  73% (11)
+         YH same span ann +1.59% SR +0.38 | per-day corr 1.00 (n=84) | MT5 cost x1/x2/x3 x1:+1.51% x2:+1.47% x3:+1.43% | MT5 B&H net +13.89%
+  US30   MT5 ann  -0.56%  SR -0.20  per-inv-day  -6.95bp t=-0.66 exp= 3.2%  yrs+  36% (11)
+         YH same span ann -0.50% SR -0.18 | per-day corr 1.00 (n=85) | MT5 cost x1/x2/x3 x1:-0.56% x2:-0.57% x3:-0.59% | MT5 B&H net +6.42%
+  DE40   MT5 ann  +1.93%  SR +0.74  per-inv-day +25.04bp t=+2.52 exp= 3.1%  yrs+  73% (11)
+         YH same span ann +1.87% SR +0.75 | per-day corr 0.97 (n=83) | MT5 cost x1/x2/x3 x1:+1.93% x2:+1.91% x3:+1.89% | MT5 B&H net +2.30%
+  UK100  MT5 ann  -0.31%  SR -0.21  per-inv-day  -4.02bp t=-0.39 exp= 3.1%  yrs+  50% (4)
+         YH same span ann -0.08% SR -0.06 | per-day corr 0.94 (n=27) | MT5 cost x1/x2/x3 x1:-0.31% x2:-0.40% x3:-0.48% | MT5 B&H net +3.71%
+  JP225  MT5 ann  +1.34%  SR +0.51  per-inv-day +18.38bp t=+1.67 exp= 2.9%  yrs+  73% (11)
+         YH same span ann +1.42% SR +0.54 | per-day corr 0.99 (n=75) | MT5 cost x1/x2/x3 x1:+1.34% x2:+1.28% x3:+1.23% | MT5 B&H net +9.88%
+-- regimes (Yahoo, core, gross per invested day vs B&H mean day in same regime):
+  US500  bull +13.53 vs +3.72 (n=198) | bear +54.24 vs +4.73 (n=63) | hiVol +35.84 vs +4.74 (n=137) | loVol  +9.55 vs +3.19 (n=124)
+  USTEC  bull +33.08 vs +6.78 (n=204) | bear +49.98 vs +6.21 (n=57) | hiVol +61.02 vs +7.83 (n=130) | loVol +12.70 vs +5.46 (n=131)
+  US30   bull  +6.53 vs +2.77 (n=200) | bear +51.90 vs +6.70 (n=61) | hiVol +26.27 vs +5.01 (n=137) | loVol  +7.04 vs +2.60 (n=124)
+  DE40   bull +27.95 vs +4.47 (n=181) | bear +58.57 vs +2.21 (n=76) | hiVol +54.48 vs +4.68 (n=131) | loVol +18.84 vs +2.89 (n=126)
+  UK100  bull  +8.32 vs +0.95 (n=180) | bear +59.55 vs +4.67 (n=81) | hiVol +42.01 vs +3.81 (n=139) | loVol  +3.94 vs +0.54 (n=122)
+  JP225  bull +18.70 vs +2.69 (n=137) | bear +14.24 vs +0.44 (n=106) | hiVol +25.25 vs +3.57 (n=118) | loVol  +8.74 vs -0.24 (n=125)
+-- placebo (same blocks at random days, 1000 reps; gross bp per invested day) and B&H:
+  US500  actual +23.35 placebo mean  +4.08 p=0.004 | strat SR +0.47 vs B&H net SR +0.18 (B&H +3.15%/yr, +3.97bp/day)
+  USTEC  actual +36.77 placebo mean  +6.27 p=0.000 | strat SR +0.54 vs B&H net SR +0.35 (B&H +9.18%/yr, +6.64bp/day)
+  US30   actual +17.13 placebo mean  +3.85 p=0.028 | strat SR +0.39 vs B&H net SR +0.19 (B&H +3.37%/yr, +3.80bp/day)
+  DE40   actual +37.01 placebo mean  +3.49 p=0.000 | strat SR +0.79 vs B&H net SR +0.06 (B&H +1.31%/yr, +3.79bp/day)
+  UK100  actual +24.22 placebo mean  +1.95 p=0.001 | strat SR +0.56 vs B&H net SR -0.04 (B&H -0.76%/yr, +2.18bp/day)
+  JP225  actual +16.76 placebo mean  +1.62 p=0.064 | strat SR +0.25 vs B&H net SR -0.05 (B&H -1.15%/yr, +1.66bp/day)
+-- walk-forward (expanding window, choose config by past net SR, min 10y history):
+  US500  WF OOS ann  +1.87%  SR +0.40  yrs+  67% (27) | last pick D0 | distinct picks 2
+  USTEC  WF OOS ann  +1.80%  SR +0.36  yrs+  78% (27) | last pick D0 | distinct picks 2
+  US30   WF OOS ann  +1.33%  SR +0.28  yrs+  68% (25) | last pick D-1..D0 | distinct picks 2
+  DE40   WF OOS ann  +2.47%  SR +0.74  yrs+  67% (27) | last pick D0 | distinct picks 2
+  UK100  WF OOS ann  +1.68%  SR +0.57  yrs+  70% (27) | last pick D0 | distinct picks 1
+  JP225  WF OOS ann  +1.23%  SR +0.29  yrs+  74% (27) | last pick D0 | distinct picks 1
+
+==============================================================================================================
+FOMC pre-announcement drift on MT5 CFD: prior 16:00 ET close -> 14:00 ET (announcement time), 2016+
+==============================================================================================================
+  US500  FOMC days n=85 mean +16.71bp median  +3.86 t=+2.44 hit  53% | non-FOMC same window +5.08bp | net of ~3.17bp cost: +13.55bp/event => +1.08%/yr | by year: 16:-2 17:-2 18:+23 19:-1 20:+90 21:-26 22:+81 23:+2 24:+30 25:+8 26:-18
+  USTEC  FOMC days n=84 mean +30.01bp median +19.62 t=+3.11 hit  65% | non-FOMC same window +6.65bp | net of ~2.98bp cost: +27.03bp/event => +2.16%/yr | by year: 16:-9 17:+0 18:+30 19:+21 20:+113 21:-31 22:+128 23:+13 24:+47 25:+4 26:+15
+  US30   FOMC days n=85 mean +13.49bp median  +8.79 t=+2.20 hit  66% | non-FOMC same window +4.12bp | net of ~2.38bp cost: +11.11bp/event => +0.89%/yr | by year: 16:+6 17:+13 18:+31 19:+2 20:+72 21:-26 22:+50 23:-8 24:+18 25:+26 26:-42
+  DE40   FOMC days n=82 mean +25.00bp median +18.18 t=+2.74 hit  61% | non-FOMC same window +3.87bp | net of ~2.52bp cost: +22.48bp/event => +1.80%/yr | by year: 16:+10 17:+30 18:-16 19:-10 20:+100 21:-5 22:+91 23:+14 24:+52 25:+2 26:+4
+  UK100  FOMC days n=28 mean  +6.11bp median  +5.04 t=+0.69 hit  61% | non-FOMC same window +5.07bp | net of ~2.78bp cost:  +3.33bp/event => +0.27%/yr | by year: 23:+20 24:+7 25:+19 26:-26
+  JP225  FOMC days n=84 mean +18.82bp median  +2.16 t=+2.25 hit  52% | non-FOMC same window +4.24bp | net of ~2.20bp cost: +16.62bp/event => +1.33%/yr | by year: 16:+14 17:+22 18:+7 19:-2 20:+46 21:-4 22:+41 23:-6 24:+13 25:+21 26:+73
+
+==============================================================================================================
+MULTIPLE TESTING
+==============================================================================================================
+configs x indices x sources evaluated (incl. descriptive DOW/FOMC cells): 366
+  FOMC   DE40   net SR +0.79 t=+4.81 p=1.5e-06 Bonferroni p=0.001 | DSR prob=0.751 (SR0 ann 0.70)
+  FOMC   UK100  net SR +0.56 t=+3.38 p=7.2e-04 Bonferroni p=0.263 | DSR prob=0.155 (SR0 ann 0.70)
+  FOMC   USTEC  net SR +0.54 t=+3.29 p=9.9e-04 Bonferroni p=0.363 | DSR prob=0.175 (SR0 ann 0.70)
+  PREHOL DE40   net SR +0.47 t=+2.88 p=4.0e-03 Bonferroni p=1.000 | DSR prob=0.071 (SR0 ann 0.70)
+  FOMC   US500  net SR +0.47 t=+2.84 p=4.5e-03 Bonferroni p=1.000 | DSR prob=0.069 (SR0 ann 0.70)
+  PREHOL UK100  net SR +0.40 t=+2.43 p=1.5e-02 Bonferroni p=1.000 | DSR prob=0.029 (SR0 ann 0.70)
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: TOM core (k=2,x=3), all 6 indices, Yahoo net of MT5 costs (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +2.33%  SR +0.35  yrs+  68% (37)
+  DEV 1990-2009: ann +3.56% SR +0.51 | VAL 2010-2019: ann +0.05% SR +0.01 | RECENT 2020+: ann +2.06% SR +0.32
+  year-by-year %: 90:+5.4 91:+3.6 92:-0.4 93:+6.3 94:+1.5 95:+8.6 96:+4.5 97:+11.9 98:-11.4 99:+15.6 00:+10.6 01:+6.0 02:-16.8 03:+19.2 04:+3.0 05:+6.9 06:+0.4 07:+0.4 08:-8.5 09:+6.9 10:+9.6 11:-3.2 12:+4.1 13:+2.6 14:-2.8 15:-2.6 16:-9.8 17:+5.6 18:-3.4 19:+0.6 20:+10.0 21:+2.3 22:-3.7 23:+4.4 24:-8.1 25:-1.2 26:+10.8
+  bootstrap (21d blocks) annual return: mean +2.24% median +2.49% 5th pct -9.65% | P(losing year) 37% | 10y maxDD median 17.9% 95th 36.8%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: TOM core, MT5 CFD 2016+ actual (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +0.99%  SR +0.18  yrs+  55% (11)
+  VAL 2010-2019: ann -0.30% SR -0.06 | RECENT 2020+: ann +1.73% SR +0.29
+  year-by-year %: 16:-5.1 17:+4.6 18:-1.5 19:+0.8 20:+10.6 21:+1.0 22:-3.1 23:+3.2 24:-9.1 25:-0.6 26:+10.1
+  bootstrap (21d blocks) annual return: mean +0.99% median +1.22% 5th pct -9.13% | P(losing year) 42% | 10y maxDD median 16.8% 95th 35.7%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: TOM walk-forward picks (all 6) (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +1.26%  SR +0.23  yrs+  63% (27)
+  DEV 1990-2009: ann +2.54% SR +0.37 | VAL 2010-2019: ann +0.37% SR +0.08 | RECENT 2020+: ann +0.69% SR +0.14
+  year-by-year %: 00:+6.1 01:-0.1 02:-10.6 03:+17.2 04:+5.0 05:+6.7 06:+3.4 07:+1.0 08:-5.5 09:+3.0 10:+6.1 11:-4.2 12:+2.9 13:+5.3 14:-4.9 15:-1.3 16:-3.9 17:+3.8 18:-1.1 19:+1.1 20:+0.0 21:+3.4 22:+0.1 23:+3.7 24:-5.7 25:-2.9 26:+6.2
+  bootstrap (21d blocks) annual return: mean +1.41% median +1.51% 5th pct -8.42% | P(losing year) 40% | 10y maxDD median 16.2% 95th 31.7%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: Reversal core (k=2,h=3,trend), all 6, Yahoo net (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +0.22%  SR +0.08  yrs+  54% (37)
+  DEV 1990-2009: ann -0.07% SR -0.03 | VAL 2010-2019: ann -0.12% SR -0.04 | RECENT 2020+: ann +1.55% SR +0.48
+  year-by-year %: 90:-3.3 91:+1.2 92:+1.1 93:-0.2 94:-3.0 95:+3.7 96:+0.4 97:-2.3 98:-2.5 99:+3.8 00:+0.7 01:+0.0 02:-0.5 03:+0.9 04:-1.1 05:+1.3 06:-2.4 07:-3.6 08:-0.9 09:+5.1 10:-4.1 11:+1.8 12:+1.1 13:+1.4 14:-0.4 15:-0.6 16:+1.5 17:+2.9 18:-5.5 19:+0.7 20:-3.6 21:+8.1 22:-0.6 23:+2.1 24:+2.7 25:+0.1 26:+2.1
+  bootstrap (21d blocks) annual return: mean +0.25% median +0.47% 5th pct -4.54% | P(losing year) 42% | 10y maxDD median 8.4% 95th 17.5%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: Reversal core, MT5 CFD 2016+ (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +0.43%  SR +0.15  yrs+  55% (11)
+  VAL 2010-2019: ann -0.57% SR -0.22 | RECENT 2020+: ann +1.01% SR +0.33
+  year-by-year %: 16:-0.0 17:+2.3 18:-5.3 19:+0.7 20:-3.2 21:+4.0 22:-1.5 23:+2.6 24:+3.0 25:-1.4 26:+3.5
+  bootstrap (21d blocks) annual return: mean +0.38% median +0.76% 5th pct -5.08% | P(losing year) 39% | 10y maxDD median 8.6% 95th 18.3%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: Pre-holiday D-1, US indices, Yahoo net (equal 1x notional split across 3 indices)
+==============================================================================================================
+  ann  +0.50%  SR +0.17  yrs+  54% (37)
+  DEV 1990-2009: ann +0.12% SR +0.04 | VAL 2010-2019: ann +0.53% SR +0.22 | RECENT 2020+: ann +1.56% SR +0.74
+  year-by-year %: 90:-0.3 91:+1.1 92:-2.1 93:-2.2 94:-0.3 95:-0.7 96:-2.6 97:-1.5 98:-0.2 99:+9.9 00:-0.9 01:-5.1 02:-1.7 03:+1.6 04:-0.8 05:+0.1 06:+0.7 07:+1.1 08:+4.4 09:+1.9 10:+0.6 11:-0.9 12:+2.2 13:+1.3 14:+0.9 15:-1.0 16:-0.4 17:-1.0 18:-0.4 19:+3.9 20:+1.9 21:+2.5 22:+1.3 23:+2.0 24:+1.3 25:+0.3 26:+1.2
+  bootstrap (21d blocks) annual return: mean +0.46% median +0.47% 5th pct -4.15% | P(losing year) 43% | 10y maxDD median 7.4% 95th 15.5%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: FOMC D0 (prior close -> FOMC-day close), all 6, Yahoo net (1994+ meaningful) (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +1.59%  SR +0.69  yrs+  65% (37)
+  DEV 1990-2009: ann +2.20% SR +0.91 | VAL 2010-2019: ann +0.63% SR +0.31 | RECENT 2020+: ann +1.20% SR +0.51
+  year-by-year %: 90:+0.0 91:+0.0 92:+0.0 93:+0.0 94:-0.4 95:+4.3 96:+0.8 97:+1.8 98:+4.5 99:+2.1 00:+3.4 01:-0.0 02:-2.5 03:+6.0 04:+1.7 05:+0.9 06:+1.9 07:+3.6 08:+9.7 09:+7.6 10:-1.6 11:-1.4 12:+4.1 13:+1.5 14:+1.2 15:+2.2 16:+0.4 17:+1.4 18:-1.4 19:+0.1 20:+4.4 21:-0.4 22:+4.1 23:+1.6 24:-0.0 25:+1.3 26:-2.6
+  bootstrap (21d blocks) annual return: mean +1.56% median +1.48% 5th pct -2.01% | P(losing year) 24% | 10y maxDD median 3.4% 95th 6.7%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: FOMC D0, all 6, Yahoo net, 1994+ only (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +1.78%  SR +0.73  yrs+  73% (33)
+  DEV 1990-2009: ann +2.75% SR +1.02 | VAL 2010-2019: ann +0.63% SR +0.31 | RECENT 2020+: ann +1.20% SR +0.51
+  year-by-year %: 94:-0.4 95:+4.3 96:+0.8 97:+1.8 98:+4.5 99:+2.1 00:+3.4 01:-0.0 02:-2.5 03:+6.0 04:+1.7 05:+0.9 06:+1.9 07:+3.6 08:+9.7 09:+7.6 10:-1.6 11:-1.4 12:+4.1 13:+1.5 14:+1.2 15:+2.2 16:+0.4 17:+1.4 18:-1.4 19:+0.1 20:+4.4 21:-0.4 22:+4.1 23:+1.6 24:-0.0 25:+1.3 26:-2.6
+  bootstrap (21d blocks) annual return: mean +1.79% median +1.72% 5th pct -2.01% | P(losing year) 22% | 10y maxDD median 3.4% 95th 7.2%
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: FOMC D0, MT5 CFD 2016+ (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +0.65%  SR +0.34  yrs+  64% (11)
+  VAL 2010-2019: ann +0.07% SR +0.06 | RECENT 2020+: ann +0.98% SR +0.44
+  year-by-year %: 16:+0.1 17:+1.3 18:-1.3 19:+0.1 20:+3.7 21:-0.1 22:+3.5 23:+1.5 24:-0.1 25:+1.1 26:-2.8
+  bootstrap (21d blocks) annual return: mean +0.66% median +0.58% 5th pct -2.30% | P(losing year) 37% | 10y maxDD median 4.0% 95th 8.3%
+
+==============================================================================================================
+FOMC D0 event-level robustness (Yahoo gross bp per event, 1994+)
+==============================================================================================================
+  US500  n=261 mean +23.35 median  +8.19 5%-trim +20.16 hit  54% | ex-2008/20/22 +16.41 | 1994-2011 +34.10 (t=+3.33) 2012+ +10.12 (t=+1.03) | boot P(mean<=0) 0.0006
+  USTEC  n=261 mean +36.77 median +35.07 5%-trim +36.95 hit  64% | ex-2008/20/22 +27.26 | 1994-2011 +46.96 (t=+3.04) 2012+ +24.23 (t=+1.93) | boot P(mean<=0) 0.0000
+  US30   n=261 mean +17.13 median +12.22 5%-trim +15.57 hit  57% | ex-2008/20/22 +11.56 | 1994-2011 +28.72 (t=+3.09) 2012+  +2.88 (t=+0.33) | boot P(mean<=0) 0.0028
+  DE40   n=257 mean +37.01 median +26.81 5%-trim +33.74 hit  65% | ex-2008/20/22 +31.68 | 1994-2011 +49.01 (t=+4.73) 2012+ +21.95 (t=+2.69) | boot P(mean<=0) 0.0000
+  UK100  n=261 mean +24.22 median +16.23 5%-trim +19.63 hit  60% | ex-2008/20/22 +18.86 | 1994-2011 +33.62 (t=+3.37) 2012+ +12.65 (t=+2.03) | boot P(mean<=0) 0.0000
+  JP225  n=243 mean +16.76 median +14.58 5%-trim +18.56 hit  57% | ex-2008/20/22 +17.02 | 1994-2011  +0.48 (t=+0.03) 2012+ +37.80 (t=+3.82) | boot P(mean<=0) 0.0428
+
+==============================================================================================================
+BEST-CANDIDATE PORTFOLIO: REFERENCE buy & hold CFD (net swap, div credit), all 6 (equal 1x notional split across 6 indices)
+==============================================================================================================
+  ann  +2.41%  SR +0.16  yrs+  70% (37)
+  DEV 1990-2009: ann -0.26% SR -0.02 | VAL 2010-2019: ann +4.88% SR +0.39 | RECENT 2020+: ann +6.63% SR +0.43
+  year-by-year %: 90:-22.4 91:+11.0 92:-6.0 93:+8.9 94:-7.1 95:+13.1 96:+11.4 97:+11.7 98:+15.7 99:+26.6 00:-22.5 01:-23.2 02:-34.1 03:+22.1 04:+2.2 05:+6.6 06:+5.1 07:+0.3 08:-45.9 09:+21.3 10:+6.3 11:-8.0 12:+10.2 13:+22.6 14:+2.5 15:-0.7 16:+4.2 17:+12.0 18:-14.7 19:+15.9 20:+10.5 21:+12.0 22:-19.1 23:+13.9 24:+9.3 25:+12.6 26:+7.5
+  bootstrap (21d blocks) annual return: mean +2.25% median +2.86% 5th pct -23.92% | P(losing year) 42% | 10y maxDD median 46.3% 95th 97.8%
+
+Total trials counted: 366
