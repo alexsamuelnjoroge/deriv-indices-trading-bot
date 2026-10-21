@@ -207,7 +207,7 @@ async def tick_watchdog(bots: list[SymbolBot], client, stale_secs: int = 600):
 async def run(watch_only: bool = False, config_path: str = "config.yaml",
               token_env: str = "DERIV_API_TOKEN", account_type: str | None = None,
               account_id: str | None = None, only: set[str] | None = None,
-              allow_real: bool = False):
+              allow_real: bool = False, instance: str | None = None):
     config        = load_config(config_path)
     base_strategy = config["strategy"]
     risk_cfg      = config["risk"]
@@ -242,8 +242,17 @@ async def run(watch_only: bool = False, config_path: str = "config.yaml",
 
     # ── Build per-symbol bots ─────────────────────────────────────
     symbol_entries = config.get("symbols") or [{"symbol": "R_25", "enabled": True}]
-    active_entries = [e for e in symbol_entries if e.get("enabled", True)
-                      and (not only or f"{e['symbol']}:{e.get('strategy_type', 'rsi_reversal')}" in only)]
+    # Entries tagged `instance: X` run only in the process started with --instance X;
+    # untagged entries run in the default instance (or when listed in --only).
+    def _selected(e: dict) -> bool:
+        key = f"{e['symbol']}:{e.get('strategy_type', 'rsi_reversal')}"
+        if only and key in only:
+            return True
+        if instance:
+            return e.get("instance") == instance
+        return not only and "instance" not in e
+
+    active_entries = [e for e in symbol_entries if e.get("enabled", True) and _selected(e)]
 
     if not active_entries:
         logger.error("No symbols enabled in config.yaml")
@@ -592,6 +601,7 @@ if __name__ == "__main__":
     parser.add_argument("--account-id", help="exact Deriv account id to trade (overrides --account-type)")
     parser.add_argument("--only", nargs="+", metavar="SYMBOL:STRATEGY",
                         help="trade only these config entries, e.g. R_75:calm_accu")
+    parser.add_argument("--instance", help="also trade config entries tagged `instance: <name>`")
     parser.add_argument("--log-name", default="bot", help="log file prefix (logs/<name>_YYYY-MM-DD.log)")
     parser.add_argument("--allow-real", action="store_true", help="allow trading a real-money account")
     args = parser.parse_args()
@@ -600,6 +610,7 @@ if __name__ == "__main__":
     try:
         asyncio.run(run(watch_only=args.watch, config_path=args.config, token_env=args.token_env,
                         account_type=args.account_type, account_id=args.account_id,
-                        only=set(args.only) if args.only else None, allow_real=args.allow_real))
+                        only=set(args.only) if args.only else None, allow_real=args.allow_real,
+                        instance=args.instance))
     except KeyboardInterrupt:
         pass
