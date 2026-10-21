@@ -132,13 +132,18 @@ class Trader:
                     )
 
             if sell:
-                del self._open_accu[cid]
+                del self._open_accu[cid]   # removed before the await so concurrent ticks don't double-sell
                 if cid in self._open:   # still open (not knocked out by barrier)
                     try:
                         await self.client.sell_contract(cid)
                     except Exception as e:
                         if "BetExpired" in str(e) or "ContractNotFound" in str(e):
                             logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv before sell — normal race condition")
+                        elif "RateLimit" in str(e) and cid in self._open:
+                            # Deriv throttles sells per account; retry on the next tick instead of
+                            # leaving the contract running until it is knocked out.
+                            self._open_accu[cid] = -1
+                            logger.warning(f"[{self.symbol}] ACCU {cid} sell rate-limited — retrying next tick")
                         else:
                             logger.error(f"[{self.symbol}] Failed to close ACCU {cid}: {e}")
 
@@ -153,6 +158,9 @@ class Trader:
                 except Exception as e:
                     if "BetExpired" in str(e) or "ContractNotFound" in str(e):
                         logger.info(f"[{self.symbol}] ACCU {cid} already settled by Deriv ({reason}) — normal race condition")
+                    elif "RateLimit" in str(e) and cid in self._open:
+                        self._open_accu[cid] = -1
+                        logger.warning(f"[{self.symbol}] ACCU {cid} sell rate-limited ({reason}) — retrying next tick")
                     else:
                         logger.error(f"[{self.symbol}] Failed to sell ACCU {cid} ({reason}): {e}")
 
