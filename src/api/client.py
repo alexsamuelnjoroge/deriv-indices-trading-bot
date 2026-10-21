@@ -402,7 +402,7 @@ class DerivClient:
             f"Stake: {stake} x{multiplier} | SL ${sl_amount:.2f} / TP {tp_txt}"
         )
 
-        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        await self._subscribe_contract(contract_id)
         return buy_resp["buy"]
 
     async def propose_contract(
@@ -438,7 +438,7 @@ class DerivClient:
         buy_resp    = await self._send({"buy": proposal_id, "price": stake})
         contract_id = buy_resp["buy"]["contract_id"]
         logger.info(f"Contract bought (pre-proposal): {contract_id} | stake={stake}")
-        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        await self._subscribe_contract(contract_id)
         return buy_resp["buy"]
 
     async def buy_contract(
@@ -473,7 +473,7 @@ class DerivClient:
         contract_id = buy_resp["buy"]["contract_id"]
         logger.info(f"Contract bought: {contract_id} | {contract_type} | Stake: {stake}")
 
-        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        await self._subscribe_contract(contract_id)
         return buy_resp["buy"]
 
     async def buy_accumulator(
@@ -524,8 +524,17 @@ class DerivClient:
             f"ACCU bought: {contract_id} | {symbol} | "
             f"growth={growth_rate * 100:.0f}%/tick | stake={stake}"
         )
-        await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        await self._subscribe_contract(contract_id)
         return buy_resp["buy"]
+
+    async def _subscribe_contract(self, contract_id) -> None:
+        """Best-effort live updates for a just-bought contract. If the connection drops
+        here the buy has still happened, so don't raise — callers must keep tracking the
+        contract (the trader's periodic sweep settles it later)."""
+        try:
+            await self._send({"proposal_open_contract": 1, "contract_id": contract_id, "subscribe": 1})
+        except (Exception, asyncio.CancelledError) as e:   # reconnect cancels pending requests
+            logger.warning(f"Could not subscribe to contract {contract_id} ({type(e).__name__}: {e}) — will be swept")
 
     async def sell_contract(self, contract_id: str) -> dict:
         """Manually close an open contract (Accumulator sell-at-market)."""
