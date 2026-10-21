@@ -482,11 +482,13 @@ class DerivClient:
         growth_rate: float,  # e.g. 0.03 = 3% per tick
         stake: float,
         currency: str = "USD",
+        take_profit: float | None = None,
     ) -> dict:
         """Buy an Accumulator contract. Grows by growth_rate each tick price stays within barrier.
 
         ACCU proposals expire within 1-2 ticks (price is always moving), so the buy
         is retried once with a fresh proposal if the first attempt gets InvalidContractProposal.
+        take_profit (dollars) makes Deriv close the contract server-side once reached.
         """
         params = {
             "proposal": 1,
@@ -497,6 +499,8 @@ class DerivClient:
             "growth_rate": growth_rate,
             "underlying_symbol": symbol,
         }
+        if take_profit is not None:
+            params["limit_order"] = {"take_profit": take_profit}
         for attempt in range(2):
             proposal_resp = await self._send(params)
             proposal_id   = proposal_resp["proposal"]["id"]

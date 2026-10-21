@@ -10,6 +10,7 @@ Multiplier signals carry sl_pct and tp_pct; binary signals do not.
 """
 
 import asyncio
+import math
 import time
 
 from loguru import logger
@@ -203,10 +204,15 @@ class Trader:
 
         try:
             if signal.action == "BUY_ACCU":
+                # Server-side take-profit at the value reached after hold_ticks growth ticks
+                # (floored to cents), so Deriv closes it without a sell request — sells are
+                # rate-limited per account. The tick timer below remains a fallback.
+                tp = math.floor(stake * ((1 + self.growth_rate) ** self.hold_ticks - 1) * 100) / 100
                 result = await self.client.buy_accumulator(
                     symbol=self.symbol,
                     growth_rate=self.growth_rate,
                     stake=stake,
+                    take_profit=tp if tp >= 0.01 else None,
                 )
                 contract_id = str(result["contract_id"])
                 self._open[contract_id] = {
@@ -217,7 +223,8 @@ class Trader:
                     "is_multiplier": False,
                     "is_accumulator": True,
                 }
-                self._open_accu[contract_id] = self.hold_ticks
+                # with a take-profit set, the manual sell is only a backstop two ticks later
+                self._open_accu[contract_id] = self.hold_ticks + (2 if tp >= 0.01 else 0)
                 self.risk.on_contract_opened()
                 logger.warning(
                     f"[{self.symbol}] ACCU opened | ID: {contract_id} | "
