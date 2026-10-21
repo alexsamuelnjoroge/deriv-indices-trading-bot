@@ -1,0 +1,224 @@
+
+==============================================================================================================
+DATA / ALIGNMENT CHECKS (Dukascopy 5m index CFDs)
+==============================================================================================================
+US500: 2018-01-02 07:05:00+00:00 -> 2026-10-20 23:55:00+00:00  bars=594769  trading days=2194  S1&T1 complete 100.0%
+   open-jump volume ratio (bar after/before cash open) by year: 18:8.4 19:9.8 20:7.5 21:7.4 22:4.2 23:6.2 24:10.7 25:9.0 26:4.0
+   close volume ratio (bar after/before cash close) by year: 18:0.72 19:0.91 20:0.60 21:0.50 22:0.47 23:0.28 24:0.17 25:0.32 26:0.58
+   open-jump ratio in DST-gap weeks: 6.5 vs other weeks 7.1
+USTEC: 2018-01-02 07:05:00+00:00 -> 2026-10-20 23:55:00+00:00  bars=595291  trading days=2194  S1&T1 complete 100.0%
+   open-jump volume ratio (bar after/before cash open) by year: 18:4.2 19:4.4 20:3.4 21:2.7 22:1.9 23:2.4 24:2.6 25:2.3 26:1.9
+   close volume ratio (bar after/before cash close) by year: 18:0.81 19:0.96 20:0.73 21:0.70 22:0.76 23:0.70 24:0.78 25:0.78 26:0.26
+   open-jump ratio in DST-gap weeks: 2.4 vs other weeks 2.6
+US30: 2018-01-02 07:05:00+00:00 -> 2026-10-20 23:55:00+00:00  bars=595572  trading days=2194  S1&T1 complete 100.0%
+   open-jump volume ratio (bar after/before cash open) by year: 18:3.8 19:4.4 20:3.8 21:4.5 22:2.9 23:4.3 24:7.1 25:6.1 26:4.4
+   close volume ratio (bar after/before cash close) by year: 18:0.86 19:1.01 20:0.71 21:0.58 22:0.60 23:0.58 24:0.66 25:0.59 26:0.22
+   open-jump ratio in DST-gap weeks: 3.8 vs other weeks 4.4
+DE40: 2018-01-02 07:05:00+00:00 -> 2026-10-20 23:55:00+00:00  bars=594820  trading days=2236  S1&T1 complete 99.7%
+   open-jump volume ratio (bar after/before cash open) by year: 18:3.6 19:4.5 20:3.6 21:5.8 22:3.7 23:5.9 24:5.3 25:5.2 26:4.1
+   close volume ratio (bar after/before cash close) by year: 18:1.18 19:1.19 20:1.22 21:1.26 22:1.20 23:1.05 24:1.18 25:1.16 26:1.20
+   open-jump ratio in DST-gap weeks: 4.0 vs other weeks 4.6
+
+==============================================================================================================
+0. CORE (S1 prior-close->open+30 signal, T1 last half-hour, all days) -- predictive regression & net P&L
+==============================================================================================================
+US500  corr(S1,T1)=+0.033 beta=+0.0140 | gross n=2193 mean  -0.31bp t=-0.43 hit 49% | net n=2192 mean  -0.96bp t=-1.34 hit 48% | sd(T1)=33.5bp
+USTEC  corr(S1,T1)=+0.062 beta=+0.0242 | gross n=2193 mean  -0.17bp t=-0.21 hit 50% | net n=2193 mean  -0.51bp t=-0.63 hit 50% | sd(T1)=38.1bp
+US30   corr(S1,T1)=+0.056 beta=+0.0226 | gross n=2193 mean  -1.18bp t=-1.70 hit 48% | net n=2192 mean  -1.41bp t=-2.03 hit 47% | sd(T1)=32.5bp
+DE40   corr(S1,T1)=+0.145 beta=+0.0354 | gross n=2229 mean  +0.85bp t=+1.94 hit 51% | net n=2227 mean  +0.65bp t=+1.48 hit 50% | sd(T1)=20.8bp
+
+==============================================================================================================
+1. TWO SOURCES
+==============================================================================================================
+(a) Dukascopy vs MT5 IC Markets H1, comparable variant: signal prev close->10:00, trade 15:00->16:00 (T2)
+  US500  n=2181 (sig 10:00 trade 15:00-16:00) corr signal 1.000 corr trade 0.999 sign agree 99.0% | net Duka -0.55bp (t=-0.63)  MT5 -0.56bp (t=-0.63)
+  USTEC  n=2181 (sig 10:00 trade 15:00-16:00) corr signal 1.000 corr trade 0.999 sign agree 99.6% | net Duka +0.41bp (t=+0.40)  MT5 +0.48bp (t=+0.47)
+  US30   n=2181 (sig 10:00 trade 15:00-16:00) corr signal 1.000 corr trade 0.999 sign agree 99.0% | net Duka -1.40bp (t=-1.65)  MT5 -1.78bp (t=-2.11)
+  DE40   n=2222 (sig 10:00 trade 16:00-17:00) corr signal 1.000 corr trade 0.999 sign agree 99.2% | net Duka +0.50bp (t=+0.73)  MT5 +0.60bp (t=+0.86)
+(b) Dukascopy vs yfinance ETF 5m (last ~60 days): 15:30->16:00 return and S1 signal
+  US500  vs SPY: n=59 corr T1 0.999 corr S1 0.998 sign agree 98% | gross core: ETF -0.51bp Duka -0.06bp
+  USTEC  vs QQQ: n=59 corr T1 0.998 corr S1 1.000 sign agree 100% | gross core: ETF +1.68bp Duka +1.55bp
+  US30   vs DIA: n=59 corr T1 0.996 corr S1 0.998 sign agree 98% | gross core: ETF -0.13bp Duka -0.23bp
+  VERDICT 1: PASS (sources agree on data; sign of comparable-variant net mean agrees in 4/4 markets)
+
+==============================================================================================================
+2. PARAMETER SURFACE (net bp per trade, x1 cost, full sample 2018+)
+==============================================================================================================
+-- US500
+   S1/T1/all        n=2192 mean  -0.96bp t=-1.34 hit 48% <-- CORE
+   S1/T1/strong     n=1030 mean  -2.12bp t=-1.66 hit 48%
+   S1/T2/all        n=2192 mean  -0.54bp t=-0.62 hit 48%
+   S1/T2/strong     n=1030 mean  -1.60bp t=-1.04 hit 47%
+   S1/T3/all        n=2192 mean  -0.69bp t=-1.20 hit 47%
+   S1/T3/strong     n=1030 mean  -1.63bp t=-1.56 hit 46%
+   S2/T1/all        n=2188 mean  -1.37bp t=-2.13 hit 47%
+   S2/T1/strong     n=1036 mean  -2.55bp t=-2.45 hit 46%
+   S2/T2/all        n=2188 mean  -1.43bp t=-1.77 hit 47%
+   S2/T2/strong     n=1036 mean  -2.57bp t=-1.98 hit 45%
+   S2/T3/all        n=2188 mean  -1.20bp t=-2.39 hit 46%
+   S2/T3/strong     n=1036 mean  -1.65bp t=-2.00 hit 45%
+   S3/T1/all        n=2181 mean  +0.37bp t=+0.51 hit 50%
+   S3/T1/strong     n=1001 mean  +1.25bp t=+0.91 hit 50%
+   S3/T3/all        n=2181 mean  +0.31bp t=+0.54 hit 49%
+   S3/T3/strong     n=1001 mean  +0.99bp t=+0.89 hit 50%
+   S13/T1/all       n=1112 mean  +0.02bp t=+0.02 hit 49%
+   S13/T1/strong    n= 535 mean  -0.82bp t=-0.42 hit 50%
+   S13/T3/all       n=1112 mean  +0.25bp t=+0.27 hit 48%
+   S13/T3/strong    n= 535 mean  -0.53bp t=-0.32 hit 46%
+-- USTEC
+   S1/T1/all        n=2193 mean  -0.51bp t=-0.63 hit 50% <-- CORE
+   S1/T1/strong     n=1058 mean  -0.28bp t=-0.20 hit 48%
+   S1/T2/all        n=2193 mean  +0.43bp t=+0.42 hit 50%
+   S1/T2/strong     n=1058 mean  +1.63bp t=+0.92 hit 50%
+   S1/T3/all        n=2193 mean  -0.41bp t=-0.62 hit 48%
+   S1/T3/strong     n=1058 mean  -0.60bp t=-0.51 hit 46%
+   S2/T1/all        n=2188 mean  -0.57bp t=-0.78 hit 49%
+   S2/T1/strong     n=1036 mean  -0.40bp t=-0.33 hit 48%
+   S2/T2/all        n=2188 mean  +0.03bp t=+0.04 hit 50%
+   S2/T2/strong     n=1036 mean  +0.43bp t=+0.27 hit 50%
+   S2/T3/all        n=2188 mean  -1.05bp t=-1.82 hit 48%
+   S2/T3/strong     n=1036 mean  -0.56bp t=-0.58 hit 47%
+   S3/T1/all        n=2191 mean  +0.49bp t=+0.60 hit 49%
+   S3/T1/strong     n=1025 mean  +1.79bp t=+1.18 hit 50%
+   S3/T3/all        n=2191 mean  +0.74bp t=+1.11 hit 49%
+   S3/T3/strong     n=1025 mean  +2.40bp t=+1.93 hit 52%
+   S13/T1/all       n=1147 mean  +0.29bp t=+0.24 hit 49%
+   S13/T1/strong    n= 570 mean  +0.69bp t=+0.32 hit 48%
+   S13/T3/all       n=1147 mean  +0.63bp t=+0.62 hit 48%
+   S13/T3/strong    n= 570 mean  +0.70bp t=+0.39 hit 45%
+-- US30
+   S1/T1/all        n=2192 mean  -1.41bp t=-2.03 hit 47% <-- CORE
+   S1/T1/strong     n=1011 mean  -1.85bp t=-1.44 hit 46%
+   S1/T2/all        n=2192 mean  -1.37bp t=-1.63 hit 48%
+   S1/T2/strong     n=1011 mean  -1.84bp t=-1.20 hit 47%
+   S1/T3/all        n=2192 mean  -0.73bp t=-1.30 hit 47%
+   S1/T3/strong     n=1011 mean  -0.78bp t=-0.74 hit 47%
+   S2/T1/all        n=2188 mean  -0.73bp t=-1.18 hit 48%
+   S2/T1/strong     n=1026 mean  -1.16bp t=-1.10 hit 47%
+   S2/T2/all        n=2188 mean  -0.78bp t=-1.02 hit 48%
+   S2/T2/strong     n=1026 mean  -1.95bp t=-1.56 hit 47%
+   S2/T3/all        n=2188 mean  -0.71bp t=-1.48 hit 48%
+   S2/T3/strong     n=1026 mean  -0.69bp t=-0.84 hit 47%
+   S3/T1/all        n=2189 mean  +0.84bp t=+1.21 hit 50%
+   S3/T1/strong     n= 999 mean  +0.93bp t=+0.70 hit 50%
+   S3/T3/all        n=2189 mean  +0.48bp t=+0.86 hit 50%
+   S3/T3/strong     n= 999 mean  +0.60bp t=+0.55 hit 49%
+   S13/T1/all       n=1101 mean  -0.37bp t=-0.35 hit 48%
+   S13/T1/strong    n= 505 mean  -0.58bp t=-0.29 hit 49%
+   S13/T3/all       n=1101 mean  -0.04bp t=-0.05 hit 48%
+   S13/T3/strong    n= 505 mean  -0.04bp t=-0.03 hit 48%
+-- DE40
+   S1/T1/all        n=2227 mean  +0.65bp t=+1.48 hit 50% <-- CORE
+   S1/T1/strong     n=1034 mean  +1.53bp t=+2.06 hit 53%
+   S1/T2/all        n=2228 mean  +0.99bp t=+1.55 hit 52%
+   S1/T2/strong     n=1034 mean  +2.17bp t=+2.02 hit 53%
+   S1/T3/all        n=2228 mean  +0.65bp t=+2.01 hit 53%
+   S1/T3/strong     n=1034 mean  +1.59bp t=+2.78 hit 56%
+   S2/T1/all        n=2228 mean  +0.51bp t=+1.16 hit 50%
+   S2/T1/strong     n=1058 mean  +0.48bp t=+0.70 hit 51%
+   S2/T2/all        n=2229 mean  +1.31bp t=+2.07 hit 52%
+   S2/T2/strong     n=1059 mean  +1.57bp t=+1.55 hit 51%
+   S2/T3/all        n=2229 mean  +0.84bp t=+2.58 hit 52%
+   S2/T3/strong     n=1059 mean  +1.23bp t=+2.29 hit 54%
+   S3/T1/all        n=2231 mean  -0.26bp t=-0.58 hit 50%
+   S3/T1/strong     n=1037 mean  -0.00bp t=-0.00 hit 50%
+   S3/T3/all        n=2231 mean  +0.13bp t=+0.41 hit 50%
+   S3/T3/strong     n=1037 mean  +0.46bp t=+0.80 hit 51%
+   S13/T1/all       n=1137 mean  +0.58bp t=+0.92 hit 51%
+   S13/T1/strong    n= 535 mean  +0.85bp t=+0.81 hit 52%
+   S13/T3/all       n=1137 mean  +0.94bp t=+2.00 hit 54%
+   S13/T3/strong    n= 535 mean  +1.43bp t=+1.71 hit 56%
+  US500: 30% of 20 variants net-positive, 0% with t>2
+  USTEC: 60% of 20 variants net-positive, 0% with t>2
+  US30: 20% of 20 variants net-positive, 0% with t>2
+  DE40: 90% of 20 variants net-positive, 35% with t>2
+  VERDICT 2: FAIL (US: 37% of variants net-positive; need >=75% broad)
+
+==============================================================================================================
+3. OUT-OF-SAMPLE BY TIME (core S1/T1/all, net)
+==============================================================================================================
+  US500  DEV 2018-2020: -0.45bp t=-0.27 | VAL 2021-2023: -1.70bp t=-1.66 | RECENT 2024+: -0.70bp t=-0.85
+         year-by-year bp: 18:-2.4 19:-0.8 20:+1.9 21:-3.8 22:-2.5 23:+1.2 24:-0.9 25:-0.6 26:-0.6
+         year-by-year t : 18:-1.2 19:-0.7 20:+0.4 21:-2.6 22:-1.1 23:+0.9 24:-0.6 25:-0.4 26:-0.6
+  USTEC  DEV 2018-2020: +1.91bp t=+1.04 | VAL 2021-2023: -2.98bp t=-2.55 | RECENT 2024+: -0.45bp t=-0.44
+         year-by-year bp: 18:+1.0 19:-0.7 20:+5.3 21:-3.7 22:-3.7 23:-1.5 24:-0.6 25:-1.6 26:+1.2
+         year-by-year t : 18:+0.4 19:-0.5 20:+1.1 21:-2.4 22:-1.4 23:-1.0 24:-0.3 25:-0.9 26:+0.7
+  US30   DEV 2018-2020: -1.79bp t=-1.05 | VAL 2021-2023: -1.24bp t=-1.36 | RECENT 2024+: -1.18bp t=-1.68
+         year-by-year bp: 18:-2.4 19:-1.2 20:-1.8 21:-2.0 22:-2.1 23:+0.5 24:-1.0 25:-1.6 26:-0.8
+         year-by-year t : 18:-1.1 19:-1.0 20:-0.4 21:-1.6 22:-1.0 23:+0.4 24:-0.8 25:-1.2 26:-0.9
+  DE40   DEV 2018-2020: +2.07bp t=+2.20 | VAL 2021-2023: -0.33bp t=-0.51 | RECENT 2024+: +0.21bp t=+0.33
+         year-by-year bp: 18:+3.1 19:-1.7 20:+4.8 21:+0.8 22:-2.2 23:+0.4 24:+0.3 25:+1.0 26:-0.9
+         year-by-year t : 18:+2.1 19:-1.8 20:+2.2 21:+0.9 22:-1.4 23:+0.5 24:+0.4 25:+0.8 26:-0.7
+  VERDICT 3: FAIL (US markets positive in 1/9 period cells)
+
+==============================================================================================================
+4. REGIMES (core, net bp)
+==============================================================================================================
+  US500  VIX hi -0.77 (t=-0.6, n=1120) | VIX lo -1.16 (t=-2.0, n=1072) | up-day(o->15:30>0) -1.68 (t=-2.0, n=1192) | down-day -0.76 (t=-0.8, n=994) | long signal -1.30 (t=-1.6, n=1228) | short signal -0.53 (t=-0.4, n=964) | |S1| top tercile -2.24 (t=-1.3, n=731)
+  USTEC  VIX hi +0.34 (t=+0.2, n=1120) | VIX lo -1.40 (t=-2.1, n=1073) | up-day(o->15:30>0) -1.65 (t=-1.7, n=1208) | down-day +0.10 (t=+0.1, n=980) | long signal -0.58 (t=-0.6, n=1221) | short signal -0.42 (t=-0.3, n=972) | |S1| top tercile -1.28 (t=-0.7, n=731)
+  US30   VIX hi -1.84 (t=-1.5, n=1120) | VIX lo -0.95 (t=-1.8, n=1072) | up-day(o->15:30>0) -2.49 (t=-3.1, n=1190) | down-day -0.89 (t=-0.9, n=996) | long signal -1.74 (t=-2.0, n=1190) | short signal -1.01 (t=-0.9, n=1002) | |S1| top tercile -1.10 (t=-0.7, n=731)
+  DE40   VIX hi +1.19 (t=+1.5, n=1101) | VIX lo +0.13 (t=+0.3, n=1126) | up-day(o->15:30>0) +0.65 (t=+1.1, n=1179) | down-day +0.66 (t=+1.0, n=1048) | long signal +1.35 (t=+2.3, n=1209) | short signal -0.17 (t=-0.3, n=1018) | |S1| top tercile +2.23 (t=+2.2, n=742)
+  VERDICT 4: FAIL (US VIX-hi and VIX-lo both positive in 1/6)
+
+==============================================================================================================
+5. PLACEBO
+==============================================================================================================
+  US500  real gross -0.31bp | random-direction p=0.648 (sims mean -0.03, 95th +1.16) | yesterday's S1 -0.69bp
+         other half-hours as signal (gross bp): H2:-0.49 H3:-0.56 H4:+0.39 H5:+1.56 H6:-1.11 H7:+0.45 H8:-0.63 H9:-0.54 H10:-0.32 H11:+0.53  -> share >= real: 40%
+  USTEC  real gross -0.17bp | random-direction p=0.574 (sims mean -0.01, 95th +1.34) | yesterday's S1 -0.30bp
+         other half-hours as signal (gross bp): H2:+0.02 H3:-0.84 H4:+0.49 H5:+2.10 H6:-0.81 H7:+0.62 H8:+0.39 H9:-0.73 H10:+0.24 H11:+0.92  -> share >= real: 70%
+  US30   real gross -1.18bp | random-direction p=0.956 (sims mean -0.01, 95th +1.11) | yesterday's S1 -1.32bp
+         other half-hours as signal (gross bp): H2:-0.40 H3:-0.65 H4:-0.37 H5:+0.99 H6:-0.69 H7:+0.97 H8:-0.70 H9:-1.09 H10:-0.16 H11:+0.81  -> share >= real: 100%
+  DE40   real gross +0.85bp | random-direction p=0.021 (sims mean +0.01, 95th +0.72) | yesterday's S1 -0.94bp
+         other half-hours as signal (gross bp): H2:+0.31 H3:+0.60 H4:+0.70 H5:+0.75 H6:-0.31 H7:-0.09 H8:+0.66 H9:+0.24 H10:+0.06 H11:-0.00 H12:-0.23 H13:+0.35 H14:+0.27 H15:+0.49  -> share >= real: 0%
+  VERDICT 5: FAIL (US markets beating placebos: 0/3)
+
+==============================================================================================================
+6. COSTS x1/x2/x3 and 5-minute execution delay (5m data; stricter than the 1-2 min asked)
+==============================================================================================================
+  US500  x1 -0.96bp t=-1.34 | x2 -1.61bp t=-2.25 | x3 -2.26bp t=-3.16 | delay5m x1 -0.59bp t=-0.87 | delay5m x2 -1.24bp
+  USTEC  x1 -0.51bp t=-0.63 | x2 -0.85bp t=-1.04 | x3 -1.19bp t=-1.46 | delay5m x1 -0.13bp t=-0.17 | delay5m x2 -0.47bp
+  US30   x1 -1.41bp t=-2.03 | x2 -1.64bp t=-2.36 | x3 -1.87bp t=-2.69 | delay5m x1 -1.09bp t=-1.63 | delay5m x2 -1.32bp
+  DE40   x1 +0.65bp t=+1.48 | x2 +0.45bp t=+1.03 | x3 +0.25bp t=+0.58 | delay5m x1 +0.95bp t=+2.32 | delay5m x2 +0.75bp
+  VERDICT 6: FAIL (0/3 US markets positive at x3 and delay+x2)
+
+==============================================================================================================
+7. WALK-FORWARD VARIANT CHOICE (expanding window, pick best net t-stat in past years, trade next year)
+==============================================================================================================
+  US500  WF net n= 894 mean  -0.66bp t=-0.47 hit 49% | picks 19:S3/T1/strong 20:S3/T1/strong 21:S13/T3/strong 22:S3/T3/strong 23:S3/T1/strong 24:S3/T1/strong 25:S3/T1/strong 26:S3/T3/strong
+  USTEC  WF net n=1081 mean  +1.20bp t=+1.00 hit 51% | picks 19:S13/T1/all 20:S1/T3/all 21:S2/T3/strong 22:S3/T3/strong 23:S3/T3/strong 24:S3/T3/strong 25:S3/T3/strong 26:S3/T3/strong
+  US30   WF net n=1728 mean  -0.11bp t=-0.14 hit 49% | picks 19:S3/T1/all 20:S3/T1/all 21:S13/T3/strong 22:S3/T3/all 23:S3/T1/all 24:S3/T1/all 25:S3/T1/all 26:S3/T1/all
+  DE40   WF net n=1477 mean  +0.71bp t=+1.49 hit 53% | picks 19:S2/T2/all 20:S2/T3/all 21:S2/T3/all 22:S2/T3/all 23:S1/T3/strong 24:S1/T3/strong 25:S1/T3/strong 26:S1/T3/strong
+  VERDICT 7: FAIL (1/3 US markets WF mean>0 & t>1)
+
+==============================================================================================================
+8. CROSS-MARKET (core)
+==============================================================================================================
+  US500  n=2192 mean  -0.96bp t=-1.34 hit 48%
+  USTEC  n=2193 mean  -0.51bp t=-0.63 hit 50%
+  US30   n=2192 mean  -1.41bp t=-2.03 hit 47%
+  DE40   n=2227 mean  +0.65bp t=+1.48 hit 50%
+  VERDICT 8: FAIL (net-positive in 1/4 incl. DE40 mechanism check)
+
+==============================================================================================================
+9. MONTE CARLO / BLOCK BOOTSTRAP (daily returns, 21-day blocks, 252-day years, 1x notional)
+==============================================================================================================
+  US500 core             1x: hist ann -2.42% | boot ann mean -2.50% 5th -11.68% | P(losing yr) 70% | 10y maxDD median 34.6% 95th 59.6% | yrs+ 22%
+  US500 core             2x: hist ann -4.83% | boot ann mean -4.57% 5th -22.52% | P(losing yr) 69% | 10y maxDD median 70.7% 95th 120.8% | yrs+ 22%
+  USTEC core             1x: hist ann -1.28% | boot ann mean -1.16% 5th -10.87% | P(losing yr) 62% | 10y maxDD median 29.6% 95th 54.8% | yrs+ 33%
+  USTEC core             2x: hist ann -2.57% | boot ann mean -2.62% 5th -21.98% | P(losing yr) 64% | 10y maxDD median 58.0% 95th 107.0% | yrs+ 33%
+  US3 equal-split core   1x: hist ann -2.41% | boot ann mean -2.44% 5th -10.32% | P(losing yr) 72% | 10y maxDD median 33.3% 95th 55.5% | yrs+ 22%
+  US3 equal-split core   2x: hist ann -4.83% | boot ann mean -4.77% 5th -20.78% | P(losing yr) 71% | 10y maxDD median 66.8% 95th 111.0% | yrs+ 22%
+  DE40 core              1x: hist ann +1.64% | boot ann mean +1.61% 5th -4.35% | P(losing yr) 35% | 10y maxDD median 8.6% 95th 15.9% | yrs+ 67%
+  DE40 core              2x: hist ann +3.28% | boot ann mean +3.26% 5th -8.66% | P(losing yr) 35% | 10y maxDD median 17.0% 95th 31.6% | yrs+ 67%
+  US3 equal-split year-by-year (1x, %): 18:-3.1 19:-2.2 20:+4.5 21:-8.0 22:-6.9 23:+0.1 24:-2.0 25:-3.2 26:-0.2
+  VERDICT 9: FAIL (US3 1x P(losing year) 70%)
+
+==============================================================================================================
+10. MULTIPLE-TESTING CORRECTION
+==============================================================================================================
+  trials counted: 80 (4 markets x 20 variants); Bonferroni 5% two-sided t threshold 3.42; Harvey-Liu-Zhu t>3.0
+  top t-stats: DE40 ('S1', 'T3', 'strong') t=+2.78; DE40 ('S2', 'T3', 'all') t=+2.58; DE40 ('S2', 'T3', 'strong') t=+2.29; DE40 ('S2', 'T2', 'all') t=+2.07; DE40 ('S1', 'T1', 'strong') t=+2.06; DE40 ('S1', 'T2', 'strong') t=+2.02; DE40 ('S1', 'T3', 'all') t=+2.01; DE40 ('S13', 'T3', 'all') t=+2.00
+  core t-stats (pre-registered, 1 test per market): US500:-1.34 USTEC:-0.63 US30:-2.03 DE40:+1.48
+  US3 portfolio t (days traded) -1.47; survivors of Bonferroni: 0
+  VERDICT 10: FAIL

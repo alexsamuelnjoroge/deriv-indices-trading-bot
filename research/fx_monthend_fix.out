@@ -1,0 +1,328 @@
+====================================================================================================
+FX MONTH-END 4PM LONDON FIX battery   (run 2026-10-21 16:38 )
+====================================================================================================
+  EURUSD: Dukascopy M5 2012-01-11 -> 2026-10-15  bars=1,088,848  days=3843  years=2012-2026 (missing: [])
+  GBPUSD: Dukascopy M5 2012-01-11 -> 2026-10-20  bars=1,089,341  days=3845  years=2012-2026 (missing: [])
+  USDJPY: Dukascopy M5 2011-03-18 -> 2026-10-15  bars=1,089,409  days=3845  years=2011-2026 (missing: [])
+  AUDUSD: Dukascopy M5 2010-01-01 -> 2026-10-20  bars=1,151,137  days=4062  years=2010-2026 (missing: [])
+  USDCAD: Dukascopy M5 2012-01-11 -> 2026-10-20  bars=1,089,303  days=3845  years=2012-2026 (missing: [])
+  USDCHF: Dukascopy M5 2012-01-11 -> 2026-10-20  bars=1,089,101  days=3844  years=2012-2026 (missing: [])
+  common calendar 2012-01-11 -> 2026-10-15: 3833 days, month-end events 177
+  events that are NOT the calendar last weekday (holiday/data gap): 0 -> []
+  signal SPY-EFA MTD (to t-1): mean +0.36%  |sig| median 1.63%  frac US-outperf 0.60; corr with sig_loc 0.90
+  round-trip cost x1 (bp): EURUSD 0.78  GBPUSD 0.91  USDJPY 0.87  AUDUSD 0.95  USDCAD 1.01  USDCHF 1.12
+
+====================================================================================================
+A) SIGNAL TRADE  (sig = MTD SPY - MTD EFA through t-1; long USD if foreign outperformed)
+====================================================================================================
+ primary 10:00->15:55, per pair (gross | net x1):
+   EURUSD  gross n=177 mean= -3.77bp t=-1.46 hit=0.44  |  net n=177 mean= -4.55bp t=-1.76 hit=0.42
+   GBPUSD  gross n=177 mean= -0.97bp t=-0.35 hit=0.51  |  net n=177 mean= -1.89bp t=-0.68 hit=0.50
+   USDJPY  gross n=177 mean= +0.69bp t=+0.27 hit=0.51  |  net n=177 mean= -0.18bp t=-0.07 hit=0.50
+   AUDUSD  gross n=177 mean= -1.56bp t=-0.57 hit=0.48  |  net n=177 mean= -2.51bp t=-0.91 hit=0.47
+   USDCAD  gross n=177 mean= -1.87bp t=-0.75 hit=0.50  |  net n=177 mean= -2.88bp t=-1.15 hit=0.48
+   USDCHF  gross n=177 mean= -2.86bp t=-1.10 hit=0.48  |  net n=177 mean= -3.98bp t=-1.53 hit=0.46
+   BASKET  gross n=177 mean= -1.72bp t=-0.86 hit=0.49  |  net n=177 mean= -2.66bp t=-1.33 hit=0.47
+  alt signal sig_loc (^GSPC vs STOXX/FTSE/N225 in USD): basket net n=177 mean= -1.63bp t=-0.81 hit=0.47
+  alt signal pair-specific ETF (VGK/EWU/EWJ/EWA/EWC/EWL): basket net n=177 mean= -1.63bp t=-0.98 hit=0.44  per pair: EURUSD:-3.0 GBPUSD:-2.9 USDJPY:+1.1 AUDUSD:-1.1 USDCAD:+0.5 USDCHF:-4.4
+  magnitude-weighted (|w| scaled by trailing mean |sig|, cap 3): basket net n=171 mean= -2.50bp t=-0.92 hit=0.47
+
+====================================================================================================
+B) UNCONDITIONAL USD-LONG on month-end days (gross bp; t vs zero) and vs all other days
+====================================================================================================
+  10:00->15:55: month-end basket  -1.21bp t=-0.61 (n=177)  | other days +0.79bp t=+1.84 | per pair ME: EUR:+1.3 GBP:-4.5 JPY:+1.0 AUD:+2.0 CAD:-3.7 CHF:-3.4
+  14:00->16:00: month-end basket  -3.04bp t=-2.08 (n=177)  | other days -0.04bp t=-0.15 | per pair ME: EUR:+0.5 GBP:-5.9 JPY:-1.6 AUD:-3.7 CAD:-3.9 CHF:-3.7
+      quarter-end: basket  -1.52bp t=-0.64 n=59
+      year-end   : basket  +0.25bp t=+0.06 n=14
+  15:00->16:00: month-end basket  -3.35bp t=-2.55 (n=177)  | other days +0.17bp t=+0.80 | per pair ME: EUR:-0.7 GBP:-6.8 JPY:-1.2 AUD:-4.5 CAD:-3.7 CHF:-3.2
+  15:30->16:00: month-end basket  -1.91bp t=-1.87 (n=177)  | other days +0.13bp t=+0.95 | per pair ME: EUR:-0.0 GBP:-3.9 JPY:-0.2 AUD:-3.3 CAD:-1.8 CHF:-2.2
+  16:00->17:00: month-end basket  +2.96bp t=+3.56 (n=177)  | other days -0.18bp t=-1.18 | per pair ME: EUR:+3.1 GBP:+3.0 JPY:+2.7 AUD:+3.8 CAD:+1.4 CHF:+3.8
+  16:05->18:00: month-end basket  +2.49bp t=+2.78 (n=177)  | other days -0.12bp t=-0.65 | per pair ME: EUR:+2.7 GBP:+2.7 JPY:+1.5 AUD:+3.5 CAD:+1.1 CHF:+3.5
+  signal-conditioned USD move (side*ret, gross): 
+     10:00->14:00: n=177 mean= -1.93bp t=-1.37 hit=0.44
+     14:00->15:55: n=177 mean= +0.20bp t=+0.16 hit=0.53
+     15:55->16:05: n=177 mean= -1.12bp t=-1.90 hit=0.47
+     16:05->17:00: n=177 mean= -0.37bp t=-0.50 hit=0.44
+     16:05->18:00: n=177 mean= -1.09bp t=-1.20 hit=0.47
+  FIX WINDOW 15:55->16:05, signal-conditioned (predicted-direction USD move), by pair / era / placebo days:
+     gross per pair: EURUSD:-1.70(t-2.3) GBPUSD:-1.06(t-1.0) USDJPY:-1.16(t-1.5) AUDUSD:-0.81(t-0.9) USDCAD:-0.21(t-0.3) USDCHF:-1.79(t-1.8)
+     2010-16: n= 60 mean= -1.49bp t=-1.17 hit=0.45
+     2017-21: n= 60 mean= -1.04bp t=-1.07 hit=0.47
+     2022+: n= 57 mean= -0.81bp t=-1.11 hit=0.49
+     net x3 cost: n=177 mean= -3.95bp t=-6.69 hit=0.24  (sign-flipped strategy net x3: -1.70bp)
+     placebo 2-last BD: n=177 mean= +0.05bp t=+0.13 hit=0.51
+     placebo 3-last BD: n=177 mean= -0.57bp t=-1.34 hit=0.46
+     mean |move| 15:55->16:05 month-end 8.38bp vs other days 4.72bp
+
+====================================================================================================
+C) POST-FIX REVERSAL: fade sign of 15:00->16:00 move, hold 16:05 -> 17:00 / 18:00 (net x1)
+====================================================================================================
+  exit 17:00: month-end n=177 mean= -0.02bp t=-0.03 hit=0.45 | other days n=3656 mean= -0.99bp t=-8.92 hit=0.42
+     per pair ME: EURUSD:-0.9(t-0.9) GBPUSD:+0.8(t+0.9) USDJPY:-1.2(t-1.6) AUDUSD:+0.9(t+0.9) USDCAD:-2.0(t-2.1) USDCHF:+2.3(t+2.2)
+     quarter-ends: n= 59 mean= +0.24bp t=+0.27 hit=0.49  non-QE: n=118 mean= -0.15bp t=-0.21 hit=0.43
+  exit 18:00: month-end n=177 mean= +0.99bp t=+1.44 hit=0.51 | other days n=3656 mean= -0.94bp t=-6.48 hit=0.44
+     per pair ME: EURUSD:+0.2(t+0.2) GBPUSD:+1.5(t+1.3) USDJPY:-0.2(t-0.2) AUDUSD:+1.7(t+1.2) USDCAD:-0.6(t-0.5) USDCHF:+3.3(t+2.7)
+     quarter-ends: n= 59 mean= +1.59bp t=+1.41 hit=0.53  non-QE: n=118 mean= +0.68bp t=+0.79 hit=0.51
+
+====================================================================================================
+BATTERY on (a) primary: SPY-EFA signal, 10:00->15:55, basket of 6 USD pairs, net x1
+====================================================================================================
+
+[1] TWO SOURCES: Dukascopy M5 vs MT5 H1 (hourly: entry H:00 -> exit 16:00, prices = H1 open/close)
+   EURUSD 10:00->16:00 n=177 corr(duka,mt5)=0.964  signal-trade net duka -5.49bp vs mt5 -4.01bp
+   EURUSD 14:00->16:00 n=177 corr(duka,mt5)=0.950  signal-trade net duka -2.83bp vs mt5 -2.29bp
+      timezone check EURUSD 13:00 bar corr vs duka shifted: off-1:-0.01 off+0:0.83 off+1:0.19
+   GBPUSD 10:00->16:00 n=177 corr(duka,mt5)=0.986  signal-trade net duka -1.68bp vs mt5 -0.68bp
+   GBPUSD 14:00->16:00 n=177 corr(duka,mt5)=0.958  signal-trade net duka -0.59bp vs mt5 +0.40bp
+      timezone check GBPUSD 13:00 bar corr vs duka shifted: off-1:-0.01 off+0:0.88 off+1:0.10
+   USDJPY 10:00->16:00 n=177 corr(duka,mt5)=0.983  signal-trade net duka -1.23bp vs mt5 -1.06bp
+   USDJPY 14:00->16:00 n=177 corr(duka,mt5)=0.941  signal-trade net duka -1.01bp vs mt5 -0.76bp
+      timezone check USDJPY 13:00 bar corr vs duka shifted: off-1:0.03 off+0:0.86 off+1:0.17
+   AUDUSD 10:00->16:00 n=177 corr(duka,mt5)=0.979  signal-trade net duka -2.78bp vs mt5 -2.22bp
+   AUDUSD 14:00->16:00 n=177 corr(duka,mt5)=0.953  signal-trade net duka -0.75bp vs mt5 -0.43bp
+      timezone check AUDUSD 13:00 bar corr vs duka shifted: off-1:-0.03 off+0:0.89 off+1:0.12
+   -> FAIL (all pairs/windows: corr>0.9 and same sign of net mean)
+
+[2] PARAMETER SURFACE: basket net bp (t) by entry x exit
+   entry 10:00  15:55:  -2.66 (t-1.33)   16:00:  -3.26 (t-1.53)
+   entry 11:00  15:55:  -1.94 (t-1.03)   16:00:  -2.54 (t-1.26)
+   entry 12:00  15:55:  -1.72 (t-0.97)   16:00:  -2.32 (t-1.24)
+   entry 13:00  15:55:  -1.00 (t-0.59)   16:00:  -1.60 (t-0.87)
+   entry 14:00  15:55:  -0.74 (t-0.57)   16:00:  -1.33 (t-0.90)
+   entry 15:00  15:55:  -0.79 (t-0.72)   16:00:  -1.39 (t-1.03)
+   positive cells 0%, cells t>1 0% -> FAIL
+
+[3] OUT-OF-SAMPLE eras and year by year (basket net)
+   DEV 2010-16   n= 60 mean= -3.64bp t=-0.96 hit=0.43
+   VAL 2017-21   n= 60 mean= -4.10bp t=-1.40 hit=0.50
+   RECENT 2022+  n= 57 mean= -0.13bp t=-0.04 hit=0.47
+   by year (sum bp): 2012:-14 2013:-207 2014:-75 2015:+45 2016:+34 2017:-62 2018:-49 2019:+52 2020:-7 2021:-179 2022:-73 2023:-56 2024:+36 2025:-19 2026:+105
+   eras positive 0/3, years positive 33% -> FAIL
+
+[4] REGIMES
+   quarter-end                  n= 59 mean= -3.46bp t=-1.16 hit=0.46
+   non-QE                       n=118 mean= -2.27bp t=-0.87 hit=0.47
+   year-end                     n= 14 mean= -1.50bp t=-0.32 hit=0.57
+   big |sig|                    n= 88 mean= -3.68bp t=-1.28 hit=0.43
+   small |sig|                  n= 89 mean= -1.66bp t=-0.59 hit=0.51
+   crisis (|SPY MTD| top20%)    n= 36 mean= +1.47bp t=+0.31 hit=0.56
+   calm                         n=141 mean= -3.72bp t=-1.70 hit=0.45
+   -> FAIL (need QE, non-QE, big-|sig| and calm all > 0)
+
+[5] PLACEBO
+   2nd-last BD          n=177 mean= -1.55bp t=-0.80 hit=0.48
+   3rd-last BD          n=177 mean= +1.19bp t=+0.61 hit=0.49
+   5th-last BD          n=177 mean= -0.13bp t=-0.08 hit=0.44
+   mid-month (10th BD)  n=177 mean= -0.49bp t=-0.23 hit=0.46
+   shuffled-signal (5000 perms): true -2.66bp, perm mean -0.68, 95th pct +2.49, p=0.839
+   -> FAIL
+
+[6] COSTS x1/x2/x3 and entry delays
+   cost x0: n=177 mean= -1.72bp t=-0.86 hit=0.49
+   cost x1: n=177 mean= -2.66bp t=-1.33 hit=0.47
+   cost x2: n=177 mean= -3.61bp t=-1.80 hit=0.46
+   cost x3: n=177 mean= -4.55bp t=-2.27 hit=0.45
+   entry delay + 5min: n=177 mean= -2.17bp t=-1.10 hit=0.47
+   entry delay +15min: n=177 mean= -1.92bp t=-0.97 hit=0.48
+   entry delay +30min: n=177 mean= -2.01bp t=-1.04 hit=0.48
+   entry delay +60min: n=177 mean= -1.94bp t=-1.03 hit=0.45
+   exit 15:50 / 15:45 : n=177 mean= -2.28bp t=-1.17 hit=0.49 / n=177 mean= -2.18bp t=-1.16 hit=0.49
+   -> FAIL (x2 cost basket mean>0 and t>1)
+
+[7] WALK-FORWARD (expanding; each year choose the entry/exit cell and the signal SIGN from prior years; trade only if prior t>1)
+   2013: flat n=0 sum net +0.0bp
+   2014: 13:00->16:00 n=12 sum net -47.4bp
+   2015: 10:00->16:00 n=12 sum net +10.1bp
+   2016: 10:00->16:00 n=12 sum net -94.1bp
+   2017: flat n=0 sum net +0.0bp
+   2018: flat n=0 sum net +0.0bp
+   2019: 10:00->16:00 n=12 sum net -95.7bp
+   2020: flat n=0 sum net +0.0bp
+   2021: flat n=0 sum net +0.0bp
+   2022: 10:00->16:00 n=12 sum net +62.2bp
+   2023: 10:00->16:00 n=12 sum net +31.0bp
+   2024: 10:00->16:00 n=12 sum net -59.8bp
+   2025: 10:00->16:00 n=12 sum net +18.6bp
+   2026: 10:00->16:00 n=9 sum net -98.3bp
+   WF total -273.5bp -> FAIL
+
+[8] CROSS-PAIR consistency (primary, net x1)
+   EURUSD:-4.55(t-1.8)  GBPUSD:-1.89(t-0.7)  USDJPY:-0.18(t-0.1)  AUDUSD:-2.51(t-0.9)  USDCAD:-2.88(t-1.1)  USDCHF:-3.98(t-1.5)
+   pairs with positive net 0/6; events where >=5/6 pairs share the same sign 59%
+   -> FAIL
+
+[9] MONTE CARLO (block bootstrap by calendar year of the 12 events; 10000 sims of 10-year paths)
+   EURUSD 1x notional                     mean annual -0.54%  (5-95%: -1.17..+0.10)  median maxDD(10y) 7.11%  95% maxDD 12.59%  hist P(losing yr) 67%
+   GBPUSD 1x notional                     mean annual -0.22%  (5-95%: -0.93..+0.51)  median maxDD(10y) 5.65%  95% maxDD 10.95%  hist P(losing yr) 67%
+   USDJPY 1x notional                     mean annual -0.01%  (5-95%: -0.68..+0.66)  median maxDD(10y) 4.09%  95% maxDD 8.47%  hist P(losing yr) 60%
+   AUDUSD 1x notional                     mean annual -0.29%  (5-95%: -0.86..+0.21)  median maxDD(10y) 5.22%  95% maxDD 9.97%  hist P(losing yr) 53%
+   USDCAD 1x notional                     mean annual -0.34%  (5-95%: -0.75..+0.08)  median maxDD(10y) 5.17%  95% maxDD 8.61%  hist P(losing yr) 60%
+   USDCHF 1x notional                     mean annual -0.48%  (5-95%: -0.99..+0.01)  median maxDD(10y) 6.07%  95% maxDD 10.81%  hist P(losing yr) 60%
+   BASKET 6 pairs each 1/6 (1x total)     mean annual -0.32%  (5-95%: -0.75..+0.09)  median maxDD(10y) 4.52%  95% maxDD 8.36%  hist P(losing yr) 67%
+   BASKET 2x total                        mean annual -0.63%  (5-95%: -1.51..+0.18)  median maxDD(10y) 9.03%  95% maxDD 16.82%  hist P(losing yr) 67%
+   BASKET each pair 1x (6x gross)         mean annual -1.87%  (5-95%: -4.54..+0.54)  median maxDD(10y) 26.57%  95% maxDD 50.50%  hist P(losing yr) 67%
+   -> FAIL (historical share of positive years >=70%)
+
+[10] MULTIPLE TESTING
+   ~107 variants looked at. Primary basket t=-1.33 (one-sided p=0.0917); best surface cell t=-0.57 Bonferroni p=1.000; Bonferroni-required |t| ~ 3.30
+   -> FAIL (pre-specified primary needs |t|>3 given the search)
+
+====================================================================================================
+SUMMARY  (primary: SPY-EFA signal, 10:00->15:55, 6-pair basket, net x1)
+   test  1: FAIL
+   test  2: FAIL
+   test  3: FAIL
+   test  4: FAIL
+   test  5: FAIL
+   test  6: FAIL
+   test  7: FAIL
+   test  8: FAIL
+   test  9: FAIL
+   test 10: FAIL
+   passes 0/10   basket net -2.66bp/event (t=-1.33), gross -1.72bp
+====================================================================================================
+
+====================================================================================================
+POST-HOC BATTERY U1 post-fix USD rebound: LONG USD basket 16:05->17:00 London on month-end days (net x1)
+====================================================================================================
+   EURUSD  gross n=177 mean= +2.30bp t=+2.49 hit=0.64 | net n=177 mean= +1.51bp t=+1.64 hit=0.61
+   GBPUSD  gross n=177 mean= +1.01bp t=+1.08 hit=0.53 | net n=177 mean= +0.09bp t=+0.10 hit=0.50
+   USDJPY  gross n=177 mean= +2.36bp t=+3.10 hit=0.63 | net n=177 mean= +1.49bp t=+1.95 hit=0.60
+   AUDUSD  gross n=177 mean= +1.91bp t=+1.88 hit=0.58 | net n=177 mean= +0.96bp t=+0.94 hit=0.56
+   USDCAD  gross n=177 mean= +0.33bp t=+0.35 hit=0.54 | net n=177 mean= -0.68bp t=-0.72 hit=0.49
+   USDCHF  gross n=177 mean= +2.66bp t=+2.53 hit=0.62 | net n=177 mean= +1.54bp t=+1.46 hit=0.58
+   BASKET  gross n=177 mean= +1.76bp t=+2.38 hit=0.62 | net n=177 mean= +0.82bp t=+1.11 hit=0.57
+[1] two sources (MT5 H1 bar 16:00 open->close vs Dukascopy same hour, USD-direction, gross)
+     EURUSD: n=177 corr=0.900 duka +3.09bp (t+3.1)  mt5 +2.97bp (t+3.1)
+     GBPUSD: n=177 corr=0.946 duka +3.03bp (t+2.5)  mt5 +2.86bp (t+2.3)
+     USDJPY: n=177 corr=0.832 duka +2.68bp (t+3.2)  mt5 +1.82bp (t+2.3)
+     AUDUSD: n=177 corr=0.907 duka +3.83bp (t+3.3)  mt5 +3.17bp (t+2.9)
+   -> FAIL
+[2] surface (basket net bp, t)
+     16:00  16:30:+1.99(t+3.3)  17:00:+2.02(t+2.4)  17:30:+2.99(t+3.2)  18:00:+2.76(t+2.8)  19:00:+2.55(t+2.3)
+     16:05  16:30:+0.79(t+1.5)  17:00:+0.82(t+1.1)  17:30:+1.79(t+2.1)  18:00:+1.55(t+1.7)  19:00:+1.34(t+1.3)
+     16:10  16:30:+0.19(t+0.4)  17:00:+0.22(t+0.3)  17:30:+1.19(t+1.5)  18:00:+0.95(t+1.1)  19:00:+0.74(t+0.8)
+     16:15  16:30:+0.41(t+1.2)  17:00:+0.44(t+0.7)  17:30:+1.41(t+1.9)  18:00:+1.17(t+1.5)  19:00:+0.97(t+1.1)
+     16:30                          17:00:-0.91(t-1.8)  17:30:+0.06(t+0.1)  18:00:-0.18(t-0.2)  19:00:-0.39(t-0.5)
+   positive 88%, t>1.5 38% -> FAIL
+[3] eras / years
+     DEV 2012-16   n= 60 mean= +1.79bp t=+1.41 hit=0.63
+     VAL 2017-21   n= 60 mean= +0.55bp t=+0.40 hit=0.47
+     RECENT 2022+  n= 57 mean= +0.08bp t=+0.07 hit=0.61
+     by year (sum bp): 2012:+39 2013:-29 2014:+16 2015:+22 2016:+59 2017:+5 2018:+19 2019:+18 2020:-45 2021:+36 2022:-81 2023:-2 2024:+63 2025:+22 2026:+3
+   years positive 73% -> PASS
+[4] regimes
+     quarter-end              n= 59 mean= -0.34bp t=-0.25 hit=0.59
+     non-QE                   n=118 mean= +1.40bp t=+1.59 hit=0.56
+     year-end                 n= 14 mean= -1.88bp t=-0.99 hit=0.50
+     USD fell 15-16h          n=111 mean= +1.47bp t=+1.56 hit=0.59
+     USD rose 15-16h          n= 66 mean= -0.27bp t=-0.22 hit=0.55
+     foreign outperf (sig<0)  n= 70 mean= +0.81bp t=+0.70 hit=0.56
+     US outperf (sig>0)       n=107 mean= +0.82bp t=+0.85 hit=0.58
+     crisis                   n= 36 mean= -0.56bp t=-0.29 hit=0.56
+     calm                     n=141 mean= +1.17bp t=+1.50 hit=0.57
+   -> FAIL
+[5] placebo
+     2nd-last BD  n=177 mean= -0.59bp t=-1.03 hit=0.45
+     3rd-last BD  n=177 mean= -2.73bp t=-4.26 hit=0.38
+     1st BD       n=177 mean= -1.72bp t=-2.24 hit=0.46
+     10th BD      n=177 mean= -0.63bp t=-1.00 hit=0.45
+     random non-month-end day sets (5000 x 177): gross mean -0.10bp, 99th pct +1.31, month-end gross +1.76bp, p=0.0020
+   -> PASS
+[6] costs / delays
+     cost x1: n=177 mean= +0.82bp t=+1.11 hit=0.57
+     cost x2: n=177 mean= -0.12bp t=-0.17 hit=0.52
+     cost x3: n=177 mean= -1.06bp t=-1.44 hit=0.50
+     entry + 5min: n=177 mean= +0.22bp t=+0.33 hit=0.53
+     entry +10min: n=177 mean= +0.44bp t=+0.72 hit=0.56
+     entry +15min: n=177 mean= +0.09bp t=+0.15 hit=0.48
+     entry +30min: n=177 mean= -0.86bp t=-1.88 hit=0.44
+   -> FAIL (x2 cost mean>0, t>1.5)
+[7] walk-forward: trade year Y only if expanding gross t (years<Y) > 1.0 for the fixed window
+     2014:off+0 2015:on+22 2016:on+59 2017:on+5 2018:on+19 2019:on+18 2020:on-45 2021:on+36 2022:on-81 2023:on-2 2024:on+63 2025:on+22 2026:on+3
+   WF total +119bp, traded years positive 75% -> PASS
+[8] cross-pair
+     EURUSD:+1.51(t+1.6)  GBPUSD:+0.09(t+0.1)  USDJPY:+1.49(t+2.0)  AUDUSD:+0.96(t+0.9)  USDCAD:-0.68(t-0.7)  USDCHF:+1.54(t+1.5)
+   -> PASS
+[9] Monte Carlo (year-block bootstrap, 10y paths)
+   BASKET 1x total notional               mean annual +0.10%  (5-95%: -0.10..+0.28)  median maxDD(10y) 0.90%  95% maxDD 1.99%  hist P(losing yr) 27%
+   BASKET 2x total notional               mean annual +0.19%  (5-95%: -0.22..+0.55)  median maxDD(10y) 1.80%  95% maxDD 4.03%  hist P(losing yr) 27%
+   BASKET each pair 1x (6x gross)         mean annual +0.58%  (5-95%: -0.61..+1.65)  median maxDD(10y) 5.34%  95% maxDD 11.86%  hist P(losing yr) 27%
+   BASKET each pair 2x (12x gross)        mean annual +1.16%  (5-95%: -1.20..+3.29)  median maxDD(10y) 10.64%  95% maxDD 23.47%  hist P(losing yr) 27%
+   -> PASS (share of positive years >= 70%)
+[10] multiple testing: net t=+1.11; this window was chosen after ~107 looks + 2 post-hoc batteries; Bonferroni needs t>~3.3
+   -> FAIL
+SUMMARY U1 post-fix USD rebound: 1:F 2:F 3:P 4:F 5:P 6:F 7:P 8:P 9:P 10:F  passes 5/10  net +0.82bp/event t=+1.11
+
+====================================================================================================
+POST-HOC BATTERY U2 pre-fix USD selling: SHORT USD basket 15:00->15:55 London on month-end days (net x1)
+====================================================================================================
+   EURUSD  gross n=177 mean= -0.06bp t=-0.04 hit=0.53 | net n=177 mean= -0.85bp t=-0.59 hit=0.51
+   GBPUSD  gross n=177 mean= +3.39bp t=+2.19 hit=0.62 | net n=177 mean= +2.47bp t=+1.60 hit=0.58
+   USDJPY  gross n=177 mean= +0.73bp t=+0.62 hit=0.55 | net n=177 mean= -0.15bp t=-0.12 hit=0.52
+   AUDUSD  gross n=177 mean= +1.53bp t=+1.01 hit=0.55 | net n=177 mean= +0.58bp t=+0.38 hit=0.53
+   USDCAD  gross n=177 mean= +2.50bp t=+1.80 hit=0.55 | net n=177 mean= +1.49bp t=+1.07 hit=0.54
+   USDCHF  gross n=177 mean= +2.46bp t=+1.59 hit=0.56 | net n=177 mean= +1.34bp t=+0.86 hit=0.54
+   BASKET  gross n=177 mean= +1.76bp t=+1.60 hit=0.56 | net n=177 mean= +0.82bp t=+0.74 hit=0.54
+[1] two sources (MT5 H1 bar 15:00 open->close vs Dukascopy same hour, USD-direction, gross)
+     EURUSD: n=177 corr=0.910 duka +0.69bp (t+0.4)  mt5 +0.43bp (t+0.3)
+     GBPUSD: n=177 corr=0.917 duka +6.84bp (t+3.6)  mt5 +4.38bp (t+2.4)
+     USDJPY: n=177 corr=0.888 duka +1.17bp (t+0.8)  mt5 -0.10bp (t-0.1)
+     AUDUSD: n=177 corr=0.901 duka +4.49bp (t+2.3)  mt5 +1.40bp (t+0.7)
+   -> FAIL
+[2] surface (basket net bp, t)
+     13:00  15:45:+1.39(t+0.9)  15:55:+1.31(t+0.8)  16:00:+2.90(t+1.6)
+     14:00  15:45:+0.60(t+0.5)  15:55:+0.51(t+0.4)  16:00:+2.10(t+1.4)
+     14:30  15:45:+1.10(t+1.0)  15:55:+1.01(t+0.8)  16:00:+2.60(t+1.9)
+     15:00  15:45:+0.90(t+1.0)  15:55:+0.82(t+0.7)  16:00:+2.41(t+1.8)
+     15:30  15:45:-0.54(t-1.0)  15:55:-0.63(t-0.8)  16:00:+0.96(t+0.9)
+   positive 87%, t>1.5 20% -> FAIL
+[3] eras / years
+     DEV 2012-16   n= 60 mean= -0.42bp t=-0.23 hit=0.48
+     VAL 2017-21   n= 60 mean= +1.05bp t=+0.58 hit=0.60
+     RECENT 2022+  n= 57 mean= +1.86bp t=+0.88 hit=0.54
+     by year (sum bp): 2012:-112 2013:+36 2014:+80 2015:+1 2016:-30 2017:+21 2018:+55 2019:+35 2020:+62 2021:-109 2022:-17 2023:+5 2024:-60 2025:+105 2026:+73
+   years positive 67% -> FAIL
+[4] regimes
+     quarter-end              n= 59 mean= +0.70bp t=+0.44 hit=0.51
+     non-QE                   n=118 mean= +0.87bp t=+0.60 hit=0.56
+     year-end                 n= 14 mean= -3.75bp t=-1.19 hit=0.43
+     foreign outperf (sig<0)  n= 70 mean= +1.09bp t=+0.58 hit=0.53
+     US outperf (sig>0)       n=107 mean= +0.64bp t=+0.47 hit=0.55
+     crisis                   n= 36 mean= +2.62bp t=+0.94 hit=0.58
+     calm                     n=141 mean= +0.35bp t=+0.30 hit=0.53
+   -> PASS
+[5] placebo
+     2nd-last BD  n=177 mean= -0.82bp t=-0.95 hit=0.50
+     3rd-last BD  n=177 mean= -1.29bp t=-1.35 hit=0.42
+     1st BD       n=177 mean= -1.54bp t=-1.36 hit=0.43
+     10th BD      n=177 mean= -1.42bp t=-1.36 hit=0.45
+     random non-month-end day sets (5000 x 177): gross mean -0.16bp, 99th pct +2.04, month-end gross +1.76bp, p=0.0220
+   -> FAIL
+[6] costs / delays
+     cost x1: n=177 mean= +0.82bp t=+0.74 hit=0.54
+     cost x2: n=177 mean= -0.13bp t=-0.12 hit=0.51
+     cost x3: n=177 mean= -1.07bp t=-0.97 hit=0.49
+     entry + 5min: n=177 mean= +1.02bp t=+0.99 hit=0.54
+     entry +10min: n=177 mean= +1.10bp t=+1.13 hit=0.55
+     entry +15min: n=177 mean= +0.16bp t=+0.18 hit=0.54
+     entry +30min: n=177 mean= -0.63bp t=-0.81 hit=0.52
+   -> FAIL (x2 cost mean>0, t>1.5)
+[7] walk-forward: trade year Y only if expanding gross t (years<Y) > 1.0 for the fixed window
+     2014:off+0 2015:off+0 2016:off+0 2017:off+0 2018:off+0 2019:on+35 2020:on+62 2021:on-109 2022:off+0 2023:off+0 2024:off+0 2025:off+0 2026:on+73
+   WF total +60bp, traded years positive 75% -> PASS
+[8] cross-pair
+     EURUSD:-0.85(t-0.6)  GBPUSD:+2.47(t+1.6)  USDJPY:-0.15(t-0.1)  AUDUSD:+0.58(t+0.4)  USDCAD:+1.49(t+1.1)  USDCHF:+1.34(t+0.9)
+   -> FAIL
+[9] Monte Carlo (year-block bootstrap, 10y paths)
+   BASKET 1x total notional               mean annual +0.09%  (5-95%: -0.25..+0.42)  median maxDD(10y) 1.72%  95% maxDD 3.74%  hist P(losing yr) 33%
+   BASKET 2x total notional               mean annual +0.19%  (5-95%: -0.49..+0.82)  median maxDD(10y) 3.45%  95% maxDD 7.39%  hist P(losing yr) 33%
+   BASKET each pair 1x (6x gross)         mean annual +0.58%  (5-95%: -1.43..+2.46)  median maxDD(10y) 10.33%  95% maxDD 22.31%  hist P(losing yr) 33%
+   BASKET each pair 2x (12x gross)        mean annual +1.16%  (5-95%: -2.86..+4.95)  median maxDD(10y) 20.70%  95% maxDD 44.32%  hist P(losing yr) 33%
+   -> FAIL (share of positive years >= 70%)
+[10] multiple testing: net t=+0.74; this window was chosen after ~107 looks + 2 post-hoc batteries; Bonferroni needs t>~3.3
+   -> FAIL
+SUMMARY U2 pre-fix USD selling: 1:F 2:F 3:F 4:P 5:F 6:F 7:P 8:F 9:F 10:F  passes 2/10  net +0.82bp/event t=+0.74
+
+COMBINED U1+U2 (two round trips per event): net +1.63bp/event t=+1.20; corr(U1,U2) +0.06
+   U1+U2 BASKET each pair 1x (6x gross)   mean annual +1.15%  (5-95%: -0.82..+3.01)  median maxDD(10y) 9.19%  95% maxDD 18.68%  hist P(losing yr) 20%
