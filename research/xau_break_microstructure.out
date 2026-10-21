@@ -1,0 +1,29 @@
+﻿=== Deriv 5-min quotes (last ~1y) segments around the halt (Tue-Fri) ===
+  23:55->halt                            n= 199 mean= +0.35bp t=+1.03 hit=58.3%
+  halt->reopen open                      n= 198 mean= +4.78bp t=+7.50 hit=77.8%
+  reopen open->01:05                     n= 198 mean= +2.22bp t=+1.93 hit=57.6%
+  01:05->03:00                           n= 198 mean= +6.00bp t=+2.19 hit=50.5%
+  23:55->03:00 (trade)                   n= 199 mean=+13.36bp t=+4.21 hit=59.3%
+  01:05->03:00 only (buy after reopen)   n= 198 mean= +6.00bp t=+2.19 hit=50.5%
+
+=== MT5 IC Markets ticks, 2026-04-02..2026-10-21, n=115 Tue-Fri breaks ===
+median spreads (bp): spr55=0.92, spr_halt=0.92, spr_open=0.26, spr65=0.21, spr180=0.19
+mean spreads (bp):   spr55=0.88, spr_halt=0.92, spr_open=0.26, spr65=0.22, spr180=0.19
+  bid_55_halt          n= 115 mean= +0.99bp t=+3.05 hit=63.5%
+  mid_55_halt          n= 115 mean= +1.01bp t=+3.11 hit=64.3%
+  ask_55_halt          n= 115 mean= +1.03bp t=+3.17 hit=64.3%
+  mid_halt_open        n= 115 mean= +3.96bp t=+4.44 hit=75.7%
+  mid_open_65          n= 115 mean= +0.65bp t=+0.62 hit=50.4%
+  bid_open_65          n= 115 mean= +0.67bp t=+0.64 hit=50.4%
+  mid_65_180           n= 115 mean= +2.94bp t=+1.00 hit=45.2%
+  mid_trade            n= 115 mean= +8.57bp t=+2.50 hit=55.7%
+  bid_trade            n= 115 mean= +8.91bp t=+2.60 hit=55.7%
+  real_trade           n= 115 mean= +8.03bp t=+2.34 hit=54.8%
+  real_e56             n= 115 mean= +7.63bp t=+2.26 hit=50.4%
+  real_e57             n= 115 mean= +7.59bp t=+2.24 hit=53.0%
+  real_e59             n= 115 mean= +7.00bp t=+2.03 hit=51.3%
+  real_halt            n= 115 mean= +7.00bp t=+2.03 hit=51.3%
+  real_x195            n= 115 mean= +9.18bp t=+2.46 hit=56.5%
+  real_after_reopen    n= 115 mean= +2.73bp t=+0.93 hit=44.3%
+  real_trade net Deriv 1.2bp: n= 115 mean= +6.83bp t=+1.99 hit=52.2% ; net MT5 swap: n= 115 mean= +6.02bp t=+1.76 hit=51.3%
+  real_trade without top 3 days: n= 112 mean= +4.42bp t=+1.79 hit=53.6%; median +3.36
