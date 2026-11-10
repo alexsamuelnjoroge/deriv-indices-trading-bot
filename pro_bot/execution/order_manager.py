@@ -25,6 +25,15 @@ from loguru import logger
 from pro_bot.strategies.base import Signal
 
 
+JOURNAL_HEADER = [
+    "opened_at", "closed_at", "duration_mins",
+    "strategy", "symbol", "direction",
+    "entry", "sl", "tp", "sl_pips", "volume", "risk_usd",
+    "r_outcome", "pnl_usd", "exit_reason",
+    "confidence", "entry_reason", "indicators", "is_pyramid",
+]
+
+
 @dataclass
 class OpenTrade:
     ticket:        int
@@ -34,8 +43,9 @@ class OpenTrade:
     sl:            float
     tp:            float
     sl_pips:       float
-    risk_usd:      float
+    risk_usd:      float           # actual $ lost if the initial SL is hit (lots x stop distance)
     strategy_name: str      = ""
+    volume:        float    = 0.0
     opened_at:     datetime = field(default_factory=datetime.now)
     be_done:       bool  = False   # break-even SL already applied
     pyramid_done:  bool  = False   # pyramid entry already opened
@@ -114,11 +124,12 @@ class OrderManager:
         if not live:
             return
         balance  = self.client.get_balance()
-        risk_usd = balance * self.risk_pct / 100
         for p in live:
             if p["ticket"] in self._open:
                 continue
             sl_pips = abs(p["price"] - p["sl"]) if p["sl"] else 0.0
+            risk_usd = (self._actual_risk(p["symbol"], sl_pips, p["volume"])
+                        or balance * self.risk_pct / 100)
             self._open[p["ticket"]] = OpenTrade(
                 ticket        = p["ticket"],
                 symbol        = p["symbol"],
@@ -128,7 +139,8 @@ class OrderManager:
                 tp            = p["tp"],
                 sl_pips       = sl_pips,
                 risk_usd      = risk_usd,
-                strategy_name = "pre-restart",
+                strategy_name = self._strategy_from_comment(p.get("comment", "")),
+                volume        = p["volume"],
             )
             logger.info(
                 f"Reconciled | {p['symbol']} {p['type']} "
@@ -269,9 +281,8 @@ class OrderManager:
 
         # Skip entry if minimum lot forces actual risk beyond 2× target.
         # Happens when ATR-based SL is wide and account is too small to size below min lot.
-        info = self.client.get_symbol_info(symbol)
-        if info and info.get("point", 0) > 0 and self.min_lot_risk_mult > 0:
-            actual_risk = (signal.sl_pips / info["point"]) * info["trade_tick_value"] * volume
+        actual_risk = self._actual_risk(symbol, signal.sl_pips, volume)
+        if actual_risk and self.min_lot_risk_mult > 0:
             if actual_risk > risk_usd * self.min_lot_risk_mult:
                 logger.info(
                     f"[{symbol}] Entry skipped | min-lot risk ${actual_risk:.2f} "
@@ -301,7 +312,7 @@ class OrderManager:
             volume   = volume,
             sl_price = sl_price,
             tp_price = tp_price,
-            comment  = f"pro_bot|{signal.reason[:20]}",
+            comment  = f"pb|{signal.strategy}"[:31],
         )
 
         if not result.success:
@@ -316,8 +327,9 @@ class OrderManager:
             sl            = sl_price,
             tp            = tp_price,
             sl_pips       = signal.sl_pips,
-            risk_usd      = risk_usd,
+            risk_usd      = actual_risk or risk_usd,
             strategy_name = signal.strategy,
+            volume        = volume,
             entry_reason  = signal.reason,
             signal_meta   = signal.meta or {},
             confidence    = signal.confidence,
@@ -327,7 +339,8 @@ class OrderManager:
                    if self._dd_enabled and eff_pct != self.risk_pct else "")
         logger.info(f"Trade opened | {symbol} {signal.action} {volume}L | "
                     f"entry={price:.5f} SL={sl_price:.5f} TP={tp_price:.5f} | "
-                    f"risk=${risk_usd:.2f}{dd_note} | [{signal.strategy}] {signal.reason}")
+                    f"risk=${actual_risk or risk_usd:.2f} (target ${risk_usd:.2f}){dd_note} | "
+                    f"[{signal.strategy}] {signal.reason}")
         return True
 
     # ── Position management (break-even + pyramid) ───────────────────────────
@@ -431,9 +444,8 @@ class OrderManager:
 
         # Skip pyramid if minimum lot forces actual risk beyond 2× the target.
         # This happens when sl_dist is very small (e.g. only 2-3 points from entry).
-        info = self.client.get_symbol_info(parent.symbol)
-        if info and info.get("point", 0) > 0:
-            actual_risk = (sl_dist / info["point"]) * info["trade_tick_value"] * volume
+        actual_risk = self._actual_risk(parent.symbol, sl_dist, volume)
+        if actual_risk:
             if actual_risk > risk_usd * 2:
                 logger.info(
                     f"Pyramid skipped | {parent.symbol} min-lot risk ${actual_risk:.2f} "
@@ -460,7 +472,9 @@ class OrderManager:
                 sl           = sl_price,
                 tp           = tp_price,
                 sl_pips      = sl_dist,
-                risk_usd     = risk_usd,
+                risk_usd     = actual_risk or risk_usd,
+                strategy_name = parent.strategy_name,
+                volume       = volume,
                 is_pyramid   = True,
                 be_done      = True,  # SL already at parent entry, no further BE needed
             )
@@ -579,15 +593,34 @@ class OrderManager:
                                    "bot halted until tomorrow")
 
     def _get_trade_pnl(self, ticket: int, trade: OpenTrade) -> float:
-        """Estimate P&L from MT5 deal history for the ticket."""
+        """Net P&L (price P&L + commission + swap) from MT5 deal history."""
         try:
             import MetaTrader5 as mt5
             deals = mt5.history_deals_get(position=ticket)
             if deals:
-                return sum(d.profit for d in deals)
+                return sum(d.profit + d.commission + d.swap for d in deals)
         except Exception:
             pass
         return 0.0
+
+    def _actual_risk(self, symbol: str, sl_dist: float, volume: float) -> float:
+        """$ lost if price moves sl_dist against `volume` lots (0 if unknown)."""
+        info = self.client.get_symbol_info(symbol)
+        if not info or info.get("point", 0) <= 0 or sl_dist <= 0 or volume <= 0:
+            return 0.0
+        return (sl_dist / info["point"]) * info["trade_tick_value"] * volume
+
+    @staticmethod
+    def _strategy_from_comment(comment: str) -> str:
+        if comment.startswith("pb|") and len(comment) > 3:
+            return comment[3:]
+        if comment.startswith("pro_bot|"):          # older format: pro_bot|<entry reason>
+            word = comment[8:].split(" ")[0].lower()
+            if word == "ema":
+                return "mtf_pullback"
+            if word.isalpha():
+                return word
+        return "pre-restart"
 
     # ── Drawdown-aware sizing ────────────────────────────────────────────────
 
@@ -608,20 +641,22 @@ class OrderManager:
     def _write_pnl_log(self, trade: OpenTrade, pnl: float,
                        r_outcome: float, exit_reason: str = "") -> None:
         """Append one row to the trade journal CSV for post-session analysis."""
-        new_file = not self._pnl_log_path.exists()
         closed_at = datetime.now()
         duration_mins = round((closed_at - trade.opened_at).total_seconds() / 60, 1)
         try:
+            if self._pnl_log_path.exists():
+                with self._pnl_log_path.open() as f:
+                    header = f.readline().strip().split(",")
+                if header != JOURNAL_HEADER:
+                    old = self._pnl_log_path.with_name(
+                        f"strategy_pnl_old_{datetime.now():%Y%m%d%H%M%S}.csv")
+                    self._pnl_log_path.rename(old)
+                    logger.info(f"Trade journal format changed — previous file kept as {old.name}")
+            new_file = not self._pnl_log_path.exists()
             with self._pnl_log_path.open("a", newline="") as f:
                 w = csv.writer(f)
                 if new_file:
-                    w.writerow([
-                        "opened_at", "closed_at", "duration_mins",
-                        "strategy", "symbol", "direction",
-                        "entry", "sl", "tp", "sl_pips",
-                        "r_outcome", "pnl_usd", "exit_reason",
-                        "confidence", "entry_reason", "indicators", "is_pyramid",
-                    ])
+                    w.writerow(JOURNAL_HEADER)
                 w.writerow([
                     trade.opened_at.isoformat(timespec="seconds"),
                     closed_at.isoformat(timespec="seconds"),
@@ -633,6 +668,8 @@ class OrderManager:
                     round(trade.sl, 5),
                     round(trade.tp, 5),
                     round(trade.sl_pips, 5),
+                    trade.volume,
+                    round(trade.risk_usd, 2),
                     r_outcome,
                     round(pnl, 2),
                     exit_reason,

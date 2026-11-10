@@ -48,7 +48,10 @@ class BaseProStrategy:
 
     def feed(self, bar: dict) -> Signal:
         self._bars.append(bar)
-        return self._evaluate()
+        sig = self._evaluate()
+        if not sig.strategy:
+            sig.strategy = self.name
+        return sig
 
     def evaluate(self, bars: list[dict]) -> list[tuple[int, Signal]]:
         """Bulk evaluate — returns (bar_index, Signal) for every non-HOLD signal."""

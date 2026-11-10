@@ -142,7 +142,8 @@ class MT5Client:
 
     def place_order(self, symbol: str, action: str,
                     volume: float, sl_price: float,
-                    tp_price: float, comment: str = "pro_bot") -> OrderResult:
+                    tp_price: float, comment: str = "pro_bot",
+                    magic: int = 20260101) -> OrderResult:
         """
         action: "BUY" or "SELL"
         volume: lot size (0.01 = micro lot)
@@ -164,7 +165,7 @@ class MT5Client:
             "sl":           round(sl_price, mt5.symbol_info(symbol).digits),
             "tp":           round(tp_price, mt5.symbol_info(symbol).digits),
             "deviation":    10,
-            "magic":        20260101,
+            "magic":        magic,
             "comment":      comment,
             "type_time":    mt5.ORDER_TIME_GTC,
             "type_filling": mt5.ORDER_FILLING_IOC,
@@ -183,7 +184,7 @@ class MT5Client:
                            action=action, volume=volume, price=price,
                            sl=sl_price, tp=tp_price)
 
-    def close_position(self, ticket: int) -> bool:
+    def close_position(self, ticket: int, magic: int = 20260101) -> bool:
         pos = mt5.positions_get(ticket=ticket)
         if not pos:
             return False
@@ -200,7 +201,7 @@ class MT5Client:
             "position":     ticket,
             "price":        price,
             "deviation":    10,
-            "magic":        20260101,
+            "magic":        magic,
             "comment":      "pro_bot close",
             "type_time":    mt5.ORDER_TIME_GTC,
             "type_filling": mt5.ORDER_FILLING_IOC,
@@ -274,6 +275,7 @@ class MT5Client:
              "sl":      p.sl,
              "tp":      p.tp,
              "profit":  p.profit,
+             "comment": p.comment,
              "pips":    p.profit / (p.volume * 100000) if p.volume > 0 else 0}
             for p in positions if p.magic == magic
         ]
