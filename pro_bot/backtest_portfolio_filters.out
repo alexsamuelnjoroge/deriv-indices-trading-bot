@@ -1,0 +1,54 @@
+mbd   H1: 544 trades (240 train / 304 test)
+zsr   H1: 629 trades (278 train / 351 test)
+dbsf  H1: 325 trades (138 train / 187 test)
+lsh   H1: 598 trades (274 train / 324 test)
+pdl   H1: 1001 trades (440 train / 561 test)
+shd   H1: 545 trades (224 train / 321 test)
+rnm   H1: 1524 trades (406 train / 1118 test)
+plt   H1: 475 trades (217 train / 258 test)
+crpb  H1: 632 trades (276 train / 356 test)
+etp   H1: 576 trades (227 train / 349 test)
+nrf   M15: 575 trades (0 train / 575 test)
+mrr   M15: 154 trades (0 train / 154 test)
+vrt   H1: 753 trades (322 train / 431 test)
+
+=== BASELINE per strategy (EV in R) ===
+  crpb  train n= 276 EV=+0.038 | test n= 356 EV=+0.147
+  dbsf  train n= 138 EV=-0.043 | test n= 187 EV=+0.065
+  etp   train n= 227 EV=+0.046 | test n= 349 EV=+0.256
+  lsh   train n= 274 EV=+0.051 | test n= 324 EV=+0.015
+  mbd   train n= 240 EV=-0.122 | test n= 304 EV=+0.094
+  mrr   train n=   0 EV=+nan | test n= 154 EV=-0.105
+  nrf   train n=   0 EV=+nan | test n= 575 EV=+0.005
+  pdl   train n= 440 EV=+0.016 | test n= 561 EV=+0.030
+  plt   train n= 217 EV=+0.056 | test n= 258 EV=+0.093
+  rnm   train n= 406 EV=-0.144 | test n=1118 EV=+0.068
+  shd   train n= 224 EV=+0.038 | test n= 321 EV=-0.000
+  vrt   train n= 322 EV=-0.029 | test n= 431 EV=+0.065
+  zsr   train n= 278 EV=-0.129 | test n= 351 EV=+0.122
+  POOLED train: n=3042 EV=-0.025R
+  POOLED test: n=5289 EV=+0.068R
+
+=== FILTERS (kept vs removed; improved = strategies whose EV rises) ===
+rule             | TRAIN keep% EVkeep EVdrop t  improved        | TEST keep% EVkeep EVdrop t  improved         | verdict
+TREND            |   87% -0.015 -0.092 +0.89 6/11               |   85% +0.089 -0.051 +2.15 10/13              | fail
+MOM20            |   83% -0.033 +0.014 -0.60 4/11               |   82% +0.057 +0.123 -1.05 6/13               | fail
+NOVOL            |   86% -0.023 -0.038 +0.18 6/11               |   82% +0.116 -0.154 +4.68 11/13              | fail
+NONEWS           |   79% -0.028 -0.013 -0.21 6/11               |   78% +0.072 +0.056 +0.28 5/13               | fail
+NOASIA           |   71% -0.035 -0.001 -0.51 3/10               |   75% +0.067 +0.074 -0.13 8/12               | fail
+TREND+MOM20      |   76% -0.008 -0.079 +1.04 6/11               |   76% +0.091 -0.003 +1.75 9/13               | fail
+TREND+NOVOL      |   76% -0.023 -0.030 +0.10 5/11               |   72% +0.122 -0.067 +3.73 12/13              | fail
+TREND+NONEWS     |   70% -0.018 -0.040 +0.34 6/11               |   67% +0.086 +0.033 +1.06 8/13               | fail
+TREND+NOASIA     |   62% -0.027 -0.022 -0.08 4/10               |   63% +0.090 +0.030 +1.24 7/12               | fail
+MOM20+NOVOL      |   72% -0.026 -0.023 -0.05 4/11               |   68% +0.093 +0.014 +1.58 10/13              | fail
+MOM20+NONEWS     |   66% -0.029 -0.017 -0.21 6/11               |   64% +0.057 +0.090 -0.67 5/13               | fail
+MOM20+NOASIA     |   59% -0.030 -0.018 -0.19 4/10               |   61% +0.052 +0.095 -0.90 6/12               | fail
+NOVOL+NONEWS     |   68% -0.015 -0.047 +0.50 7/11               |   64% +0.112 -0.009 +2.49 10/13              | fail
+NOVOL+NOASIA     |   62% -0.045 +0.008 -0.86 5/10               |   62% +0.109 +0.002 +2.21 8/12               | fail
+NONEWS+NOASIA    |   51% -0.043 -0.006 -0.63 3/10               |   52% +0.071 +0.065 +0.12 6/12               | fail
+
+=== POST-HOC yearly view (inspection only, no re-tuning): EV kept - EV removed, R ===
+NOVOL        16:+0.90(26) 17:-- 18:+0.27(72) 19:-0.60(183) 20:+0.32(138) 21:-- 22:+0.25(76) 23:-0.31(102) 24:+0.35(216) 25:+0.70(269) 26:+0.30(263)
+TREND        16:-0.08(36) 17:-0.93(61) 18:+0.36(98) 19:+0.20(110) 20:+0.37(82) 21:-0.29(100) 22:+0.29(102) 23:+0.08(78) 24:+0.31(190) 25:+0.46(176) 26:-0.31(121)
+TREND+NOVOL  16:+0.38(62) 17:-0.93(61) 18:+0.28(139) 19:-0.38(268) 20:+0.39(189) 21:-0.29(100) 22:+0.30(162) 23:-0.24(170) 24:+0.33(373) 25:+0.70(342) 26:+0.06(353)
+baseline EV  16:-0.020(n=301) 17:+0.100(n=661) 18:-0.137(n=675) 19:-0.051(n=670) 20:-0.013(n=735) 21:-0.072(n=746) 22:+0.057(n=811) 23:+0.076(n=882) 24:-0.049(n=957) 25:+0.174(n=992) 26:+0.196(n=901)

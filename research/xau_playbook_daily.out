@@ -1,0 +1,76 @@
+D1 bars 7522: 1998-04-22 -> 2026-10-14
+
+Pass: TRAIN t>=2.5 & mean>0, TEST t>=1.5 & mean>0, TEST mean>0 at 2x cost
+
+[fail] S1 RSI2<10/>90 pullback
+   TRAIN n= 141 /yr=11.0 mean=  -8.0bp t=-0.35 WR=65.2% hold=4.5d
+   TEST  n= 151 /yr=10.4 mean=  -3.7bp t=-0.22 WR=58.9% hold=5.0d
+     long  train n= 102 /yr= 8.4 mean=  +4.6bp t=+0.25 WR=63.7% hold=4.6d
+     long  test  n=  83 /yr= 6.1 mean= +23.0bp t=+0.96 WR=62.7% hold=5.0d
+     short train n=  39 /yr= 4.0 mean= -40.8bp t=-0.59 WR=69.2% hold=4.1d
+     short test  n=  68 /yr= 4.7 mean= -36.2bp t=-1.53 WR=54.4% hold=5.1d
+   TEST years: 12:+21 13:+12 14:-47 15:-4 16:-89 17:-57 18:+19 19:+38 20:+62 21:-23 22:-78 23:-66 24:+77 25:+137 26:-30
+[fail] S1 RSI2<5/>95 pullback
+   TRAIN n=  72 /yr= 5.7 mean= -17.8bp t=-0.44 WR=65.3% hold=4.6d
+   TEST  n=  77 /yr= 5.3 mean= -22.7bp t=-0.94 WR=59.7% hold=5.1d
+     long  train n=  56 /yr= 4.6 mean=  +9.4bp t=+0.31 WR=64.3% hold=4.7d
+     long  test  n=  39 /yr= 2.9 mean= +19.4bp t=+0.65 WR=64.1% hold=4.8d
+     short train n=  16 /yr= 1.7 mean=-113.3bp t=-0.75 WR=68.8% hold=4.2d
+     short test  n=  38 /yr= 2.6 mean= -65.9bp t=-1.77 WR=55.3% hold=5.3d
+   TEST years: 12:+22 13:-63 14:-132 15:-7 16:-305 17:-0 18:-0 19:+69 20:+84 21:+5 22:+4 23:-102 24:+137 25:+166 26:-218
+[fail] S2 EMA20 retest 2R
+   TRAIN n= 180 /yr=13.4 mean= -43.5bp t=-1.82 WR=39.4% hold=11.1d
+   TEST  n= 189 /yr=12.9 mean=  +5.3bp t=+0.27 WR=43.4% hold=11.4d
+     long  train n= 114 /yr= 8.7 mean= -12.7bp t=-0.40 WR=41.2% hold=10.7d
+     long  test  n= 101 /yr= 6.9 mean= -17.5bp t=-0.67 WR=39.6% hold=11.1d
+     short train n=  66 /yr= 4.9 mean= -96.8bp t=-2.75 WR=36.4% hold=11.7d
+     short test  n=  88 /yr= 6.1 mean= +31.5bp t=+1.10 WR=47.7% hold=11.6d
+   TEST years: 12:+62 13:+139 14:-68 15:-60 16:-17 17:-44 18:+9 19:-10 20:+11 21:+25 22:+133 23:-54 24:+26 25:+91 26:-145
+[fail] S3 NR7 breakout
+   TRAIN n= 400 /yr=29.8 mean=  -6.7bp t=-0.94 WR=33.5% hold=1.5d
+   TEST  n= 446 /yr=30.2 mean=  +1.0bp t=+0.16 WR=34.3% hold=1.5d
+     long  train n= 225 /yr=16.8 mean=  +3.9bp t=+0.40 WR=39.1% hold=1.6d
+     long  test  n= 217 /yr=14.8 mean=  +4.6bp t=+0.53 WR=38.2% hold=1.6d
+     short train n= 175 /yr=13.1 mean= -20.4bp t=-1.93 WR=26.3% hold=1.3d
+     short test  n= 229 /yr=15.5 mean=  -2.3bp t=-0.25 WR=30.6% hold=1.4d
+   TEST years: 12:-29 13:+45 14:+9 15:+24 16:+20 17:-33 18:-7 19:+2 20:+7 21:-18 22:+15 23:-13 24:-20 25:+38 26:-37
+[fail] S3 NR7 breakout w/ trend
+   TRAIN n= 297 /yr=22.1 mean= -18.0bp t=-2.40 WR=27.6% hold=1.2d
+   TEST  n= 330 /yr=22.4 mean=  -8.3bp t=-1.10 WR=28.8% hold=1.2d
+     long  train n= 198 /yr=15.0 mean= -14.8bp t=-1.60 WR=29.3% hold=1.2d
+     long  test  n= 170 /yr=11.6 mean=  -1.2bp t=-0.13 WR=33.5% hold=1.4d
+     short train n=  99 /yr= 7.4 mean= -24.5bp t=-1.90 WR=24.2% hold=1.2d
+     short test  n= 160 /yr=10.8 mean= -15.7bp t=-1.36 WR=23.8% hold=1.1d
+   TEST years: 12:-28 13:+39 14:-10 15:+22 16:+16 17:-45 18:-1 19:-20 20:-11 21:-44 22:+8 23:-28 24:-49 25:+59 26:-66
+[fail] S4 expansion FOLLOW 1d
+   TRAIN n=  88 /yr= 6.6 mean=  +4.0bp t=+0.20 WR=47.7% hold=0.0d
+   TEST  n=  87 /yr= 6.0 mean= +16.9bp t=+1.15 WR=49.4% hold=0.0d
+     long  train n=  43 /yr= 3.3 mean= +29.4bp t=+1.01 WR=51.2% hold=0.0d
+     long  test  n=  43 /yr= 3.0 mean=  -4.0bp t=-0.28 WR=51.2% hold=0.0d
+     short train n=  45 /yr= 3.5 mean= -20.4bp t=-0.73 WR=44.4% hold=0.0d
+     short test  n=  44 /yr= 3.2 mean= +37.3bp t=+1.48 WR=47.7% hold=0.0d
+   TEST years: 12:-5 13:+168 14:-42 15:-11 16:+16 17:-60 18:-5 19:+11 20:+37 21:+81 22:-22 23:+3 24:-17 25:+124 26:-39
+[fail] S4 expansion FOLLOW 3d
+   TRAIN n=  78 /yr= 5.9 mean= +35.3bp t=+1.30 WR=60.3% hold=2.8d
+   TEST  n=  80 /yr= 5.5 mean= +21.3bp t=+0.82 WR=57.5% hold=2.8d
+     long  train n=  40 /yr= 3.1 mean= +70.3bp t=+2.16 WR=70.0% hold=3.1d
+     long  test  n=  40 /yr= 2.7 mean=  +4.6bp t=+0.11 WR=60.0% hold=2.8d
+     short train n=  38 /yr= 3.0 mean=  -1.4bp t=-0.03 WR=50.0% hold=2.6d
+     short test  n=  40 /yr= 2.9 mean= +37.9bp t=+1.32 WR=55.0% hold=2.8d
+   TEST years: 12:-1 13:+63 14:-53 15:+65 16:+161 17:-17 18:+28 19:+75 20:-3 21:+21 22:+70 23:+32 24:+46 25:-32 26:-266
+[fail] S4 expansion FADE 1d
+   TRAIN n=  88 /yr= 6.6 mean=  -5.2bp t=-0.26 WR=50.0% hold=0.0d
+   TEST  n=  87 /yr= 6.0 mean= -18.1bp t=-1.23 WR=50.6% hold=0.0d
+     long  train n=  45 /yr= 3.5 mean= +19.2bp t=+0.69 WR=53.3% hold=0.0d
+     long  test  n=  44 /yr= 3.2 mean= -38.5bp t=-1.52 WR=52.3% hold=0.0d
+     short train n=  43 /yr= 3.3 mean= -30.6bp t=-1.06 WR=46.5% hold=0.0d
+     short test  n=  43 /yr= 3.0 mean=  +2.8bp t=+0.20 WR=48.8% hold=0.0d
+   TEST years: 12:+4 13:-169 14:+41 15:+10 16:-18 17:+59 18:+4 19:-12 20:-38 21:-83 22:+21 23:-4 24:+16 25:-125 26:+38
+[fail] S4 expansion FADE 3d
+   TRAIN n=  78 /yr= 5.9 mean= -40.2bp t=-1.48 WR=39.7% hold=2.8d
+   TEST  n=  80 /yr= 5.5 mean= -26.1bp t=-1.01 WR=41.2% hold=2.8d
+     long  train n=  38 /yr= 3.0 mean=  -3.1bp t=-0.07 WR=50.0% hold=2.6d
+     long  test  n=  40 /yr= 2.9 mean= -42.8bp t=-1.48 WR=45.0% hold=2.8d
+     short train n=  40 /yr= 3.1 mean= -75.5bp t=-2.32 WR=30.0% hold=3.1d
+     short test  n=  40 /yr= 2.7 mean=  -9.5bp t=-0.22 WR=37.5% hold=2.8d
+   TEST years: 12:-4 13:-69 14:+48 15:-70 16:-166 17:+12 18:-33 19:-80 20:-2 21:-27 22:-75 23:-37 24:-51 25:+28 26:+259

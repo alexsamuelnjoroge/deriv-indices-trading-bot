@@ -1,0 +1,40 @@
+M15 bars 452758: 2008-01-01 00:00:00+00:00 -> 2026-10-15 21:45:00+01:00
+
+Pass: TRAIN t>=2.5 & mean>0, TEST t>=1.5 & mean>0, TEST mean>0 at 2x cost
+
+[fail] I1 Asian fade (all)
+   TRAIN n=1802 /yr= 200 mean= +0.52bp t=+1.08 WR=50.7%
+   TEST  n=2124 /yr= 212 mean= -2.01bp t=-4.16 WR=45.5%
+     long  train n= 785 /yr=  87 mean= +1.61bp t=+1.99 WR=52.5% | test n=1032 /yr= 103 mean= -2.04bp t=-2.69 WR=47.4%
+     short train n=1017 /yr= 113 mean= -0.32bp t=-0.55 WR=49.3% | test n=1092 /yr= 109 mean= -1.99bp t=-3.26 WR=43.8%
+   years: 08:+5.2 09:-1.8 10:-1.5 11:+0.3 12:+0.0 13:+1.7 14:+0.2 15:+1.2 16:-0.7 17:-0.7 18:-0.8 19:-2.3 20:+2.4 21:-0.7 22:-1.1 23:-1.4 24:-2.2 25:-5.5 26:-8.8
+[fail] I1 Asian fade (quiet Asia)
+   TRAIN n=1584 /yr= 176 mean= +0.45bp t=+0.99 WR=50.8%
+   TEST  n=1923 /yr= 192 mean= -1.63bp t=-4.08 WR=45.1%
+     long  train n= 688 /yr=  76 mean= +1.63bp t=+2.20 WR=52.8% | test n= 952 /yr=  95 mean= -1.32bp t=-2.28 WR=47.2%
+     short train n= 896 /yr= 100 mean= -0.46bp t=-0.82 WR=49.2% | test n= 971 /yr=  97 mean= -1.94bp t=-3.51 WR=43.0%
+   years: 08:+3.2 09:-1.2 10:-1.7 11:+2.2 12:+0.3 13:+1.1 14:-0.3 15:+1.5 16:-0.9 17:-0.8 18:-0.5 19:-1.8 20:+0.0 21:-0.5 22:-0.7 23:-1.7 24:-2.4 25:-4.1 26:-4.2
+[fail] I2 London Judas -> opposite side
+   TRAIN n=1484 /yr= 165 mean= +0.40bp t=+0.46 WR=30.3%
+   TEST  n=1613 /yr= 161 mean= -0.99bp t=-1.14 WR=28.0%
+     long  train n= 666 /yr=  74 mean= -1.69bp t=-1.32 WR=27.9% | test n= 776 /yr=  78 mean= -1.35bp t=-1.02 WR=28.7%
+     short train n= 818 /yr=  91 mean= +2.11bp t=+1.78 WR=32.3% | test n= 837 /yr=  84 mean= -0.66bp t=-0.58 WR=27.4%
+   years: 08:+8.9 09:+1.7 10:-1.2 11:-5.2 12:+0.7 13:-1.7 14:+1.2 15:-0.8 16:+0.0 17:-0.5 18:-0.2 19:-1.0 20:-0.2 21:-1.1 22:-0.4 23:-0.5 24:-5.8 25:+0.2 26:-0.0
+[fail] I2 London Judas -> 2R
+   TRAIN n=1484 /yr= 165 mean= +0.38bp t=+0.44 WR=34.4%
+   TEST  n=1613 /yr= 161 mean= -1.45bp t=-1.80 WR=33.3%
+     long  train n= 666 /yr=  74 mean= -2.02bp t=-1.56 WR=29.9% | test n= 776 /yr=  78 mean= -1.19bp t=-0.89 WR=34.5%
+     short train n= 818 /yr=  91 mean= +2.33bp t=+2.01 WR=38.0% | test n= 837 /yr=  84 mean= -1.68bp t=-1.82 WR=32.1%
+   years: 08:+9.7 09:+0.8 10:+0.1 11:-5.5 12:+1.1 13:-1.9 14:+0.7 15:-1.0 16:-0.9 17:+0.5 18:-0.3 19:-1.2 20:-2.2 21:-1.5 22:-0.5 23:-0.6 24:-4.5 25:-4.7 26:+1.6
+[fail] I3 London breakout (all)
+   TRAIN n=1600 /yr= 178 mean= -1.14bp t=-0.98 WR=40.9%
+   TEST  n=1681 /yr= 168 mean= +0.51bp t=+0.48 WR=41.9%
+     long  train n= 869 /yr=  97 mean= -2.87bp t=-1.90 WR=38.4% | test n= 879 /yr=  88 mean= +0.59bp t=+0.43 WR=43.0%
+     short train n= 731 /yr=  81 mean= +0.92bp t=+0.51 WR=43.9% | test n= 802 /yr=  80 mean= +0.41bp t=+0.25 WR=40.8%
+   years: 08:-0.5 09:-2.8 10:-7.1 11:-6.2 12:+2.3 13:+6.4 14:+1.5 15:-2.1 16:-0.2 17:+2.1 18:+0.3 19:-0.8 20:-2.1 21:-2.7 22:+1.4 23:-2.3 24:+2.3 25:-1.8 26:+15.3
+[fail] I3 London breakout (compressed Asia)
+   TRAIN n= 908 /yr= 101 mean= -1.08bp t=-0.89 WR=40.7%
+   TEST  n= 984 /yr=  98 mean= +1.01bp t=+0.95 WR=41.2%
+     long  train n= 472 /yr=  52 mean= -3.44bp t=-2.14 WR=36.4% | test n= 496 /yr=  50 mean= +1.39bp t=+0.96 WR=42.9%
+     short train n= 436 /yr=  48 mean= +1.48bp t=+0.83 WR=45.4% | test n= 488 /yr=  49 mean= +0.62bp t=+0.40 WR=39.3%
+   years: 08:+5.0 09:+3.5 10:-7.4 11:-4.2 12:+0.2 13:+0.5 14:-1.6 15:-1.5 16:-3.9 17:-3.3 18:+2.6 19:-1.2 20:-0.3 21:-0.9 22:+0.3 23:-3.2 24:+7.8 25:-4.5 26:+21.4

@@ -1,0 +1,96 @@
+loaded 623441 bars 2018-01-01 23:00:00+00:00 -> 2026-10-15 20:55:00+00:00  (8s)
+F1 overreaction ...
+  504 configs (24s)
+F2 VWAP ...
+  88 configs (26s)
+F3 regime TSMOM ...
+  72 configs (39s)
+F4 hour-of-week ...
+  cells: {2.5: {98: 2.88}, 3.0: {}}
+F5 ML walk-forward ...
+  fit <2020: n=41039 -> predict 64469 (46s)
+  fit <2021: n=62529 -> predict 64242 (50s)
+  fit <2022: n=83943 -> predict 64311 (55s)
+  fit <2023: n=105380 -> predict 64038 (60s)
+  fit <2024: n=126726 -> predict 64530 (67s)
+  fit <2025: n=148236 -> predict 64296 (101s)
+  fit <2026: n=169668 -> predict 50975 (117s)
+
+TOTAL configs: 669  (119s)
+drift/bar  train -0.0020bp  test +0.0195bp
+
+=== PASSING TRAIN SELECTION (net>0, t>=3.5, tpy>=150) ===
+  (none)
+
+=== TOP 15 BY TRAIN t (any frequency), for context ===
+F4 HoW |t|>=2.5 (1 cells) H=12
+   TRAIN n=  253 tpy=  51 net=+1.54 str=+0.94 t=+2.07 WR=55.3 L=+1.54(253) S= +nan(0) vsD=+1.56 yrs+=5/5
+   TEST  n=  193 tpy=  51 net=-1.36 str=-1.96 t=-0.76 WR=46.1 L=-1.36(193) S= +nan(0) vsD=-1.60 yrs+=1/4
+F1 k12 z>3.0 asia fade H=24
+   TRAIN n=  115 tpy=  23 net=+5.89 str=+5.29 t=+2.03 WR=61.7 L=+10.96(54) S=+1.40(61) vsD=+5.88 yrs+=5/5
+   TEST  n=  162 tpy=  43 net=+3.66 str=+3.06 t=+1.02 WR=56.2 L=+10.70(80) S=-3.20(82) vsD=+3.67 yrs+=3/4
+F1 k6 z>4.0 asia fade H=12
+   TRAIN n=   69 tpy=  14 net=+6.45 str=+5.85 t=+1.63 WR=60.9 L=+16.56(28) S=-0.46(41) vsD=+6.44 yrs+=3/5
+   TEST  n=  101 tpy=  28 net=+8.67 str=+8.07 t=+1.87 WR=62.4 L=+21.91(53) S=-5.94(48) vsD=+8.66 yrs+=3/4
+F1 k6 z>4.0 us follow H=3
+   TRAIN n=  604 tpy= 121 net=+1.37 str=+0.77 t=+1.62 WR=49.5 L=+2.58(282) S=+0.30(322) vsD=+1.36 yrs+=4/5
+   TEST  n=  471 tpy= 125 net=-0.47 str=-1.07 t=-0.34 WR=43.1 L=-1.39(211) S=+0.27(260) vsD=-0.47 yrs+=2/4
+F2 vwapdev>2.0 us follow H=24
+   TRAIN n=  522 tpy= 105 net=+3.21 str=+2.61 t=+1.61 WR=51.0 L=+1.95(263) S=+4.49(259) vsD=+3.21 yrs+=4/5
+   TEST  n=  472 tpy= 125 net=-2.78 str=-3.38 t=-1.32 WR=45.3 L=-2.90(251) S=-2.65(221) vsD=-2.81 yrs+=1/4
+F1 k1 z>4.0 all follow H=24
+   TRAIN n= 1210 tpy= 242 net=+1.86 str=+1.26 t=+1.53 WR=48.5 L=+1.89(568) S=+1.84(642) vsD=+1.86 yrs+=3/5
+   TEST  n=  835 tpy= 221 net=-3.09 str=-3.69 t=-1.68 WR=46.0 L=-0.44(368) S=-5.18(467) vsD=-3.04 yrs+=1/4
+F1 k6 z>4.0 us follow H=6
+   TRAIN n=  552 tpy= 111 net=+1.80 str=+1.20 t=+1.53 WR=51.1 L=+2.71(257) S=+1.01(295) vsD=+1.80 yrs+=5/5
+   TEST  n=  444 tpy= 118 net=-0.78 str=-1.38 t=-0.41 WR=46.8 L=-1.58(198) S=-0.13(246) vsD=-0.76 yrs+=2/4
+F1 k12 z>3.0 asia fade H=12
+   TRAIN n=  122 tpy=  25 net=+4.28 str=+3.68 t=+1.48 WR=64.8 L=+11.88(58) S=-2.62(64) vsD=+4.28 yrs+=4/5
+   TEST  n=  174 tpy=  46 net=+2.60 str=+2.00 t=+0.93 WR=54.6 L=+9.32(85) S=-3.81(89) vsD=+2.61 yrs+=2/4
+F1 k6 z>3.0 asia fade H=12
+   TRAIN n=  201 tpy=  41 net=+2.71 str=+2.11 t=+1.47 WR=56.7 L=+8.87(98) S=-3.16(103) vsD=+2.71 yrs+=4/5
+   TEST  n=  267 tpy=  71 net=+1.46 str=+0.86 t=+0.50 WR=53.9 L=+10.69(142) S=-9.03(125) vsD=+1.44 yrs+=2/4
+F2 vwapdev>2.0 eu fade H=6
+   TRAIN n=  142 tpy=  29 net=+1.94 str=+1.34 t=+1.47 WR=56.3 L=+3.84(86) S=-0.98(56) vsD=+1.94 yrs+=4/5
+   TEST  n=  123 tpy=  33 net=-1.41 str=-2.01 t=-0.57 WR=49.6 L=-4.41(62) S=+1.64(61) vsD=-1.41 yrs+=1/4
+F1 k12 z>4.0 us follow H=6
+   TRAIN n=  366 tpy=  73 net=+1.97 str=+1.37 t=+1.45 WR=53.0 L=+3.23(173) S=+0.83(193) vsD=+1.96 yrs+=4/5
+   TEST  n=  321 tpy=  85 net=-0.47 str=-1.07 t=-0.25 WR=46.1 L=-1.69(139) S=+0.45(182) vsD=-0.46 yrs+=2/4
+F1 k12 z>4.0 all follow H=3
+   TRAIN n=  505 tpy= 101 net=+1.38 str=+0.78 t=+1.42 WR=49.1 L=+1.60(252) S=+1.16(253) vsD=+1.38 yrs+=4/5
+   TEST  n=  449 tpy= 119 net=-1.44 str=-2.04 t=-0.97 WR=43.9 L=+0.46(199) S=-2.95(250) vsD=-1.43 yrs+=1/4
+F1 k12 z>4.0 us follow H=12
+   TRAIN n=  312 tpy=  63 net=+2.78 str=+2.18 t=+1.39 WR=51.9 L=+5.89(142) S=+0.18(170) vsD=+2.78 yrs+=5/5
+   TEST  n=  281 tpy=  74 net=-2.37 str=-2.97 t=-1.04 WR=45.2 L=-5.45(122) S=-0.00(159) vsD=-2.34 yrs+=2/4
+F1 k12 z>4.0 us follow H=3
+   TRAIN n=  430 tpy=  86 net=+1.20 str=+0.60 t=+1.31 WR=50.0 L=+1.80(206) S=+0.64(224) vsD=+1.20 yrs+=4/5
+   TEST  n=  356 tpy=  94 net=-1.08 str=-1.68 t=-0.69 WR=45.2 L=-1.13(155) S=-1.04(201) vsD=-1.07 yrs+=1/4
+F2 vwapdev>2.0 us follow H=12
+   TRAIN n=  714 tpy= 143 net=+1.54 str=+0.94 t=+1.24 WR=48.6 L=+2.26(362) S=+0.80(352) vsD=+1.54 yrs+=5/5
+   TEST  n=  643 tpy= 170 net=-0.81 str=-1.41 t=-0.55 WR=46.0 L=-1.52(343) S=+0.01(300) vsD=-0.83 yrs+=1/4
+
+=== F5 ML (all OOS; 2020-22 = 'train' column for threshold choice) ===
+GBR pred>|0.5|bp (OOS 2020+)
+   20-22 n=15834 tpy=5287 net=-0.56 str=-1.16 t=-3.24 WR=48.9 L=-0.56(8595) S=-0.56(7239) vsD=-0.56 yrs+=0/3
+   23+   n=19237 tpy=5085 net=-0.36 str=-0.96 t=-1.98 WR=49.0 L=-0.13(10399) S=-0.63(8838) vsD=-0.38 yrs+=1/4
+   years 23:-0.7 24:-0.2 25:-0.5 26:+0.1
+GBR pred>|1.0|bp (OOS 2020+)
+   20-22 n=14461 tpy=4829 net=-0.60 str=-1.20 t=-3.44 WR=48.9 L=-0.60(7928) S=-0.60(6533) vsD=-0.60 yrs+=0/3
+   23+   n=15907 tpy=4205 net=-0.38 str=-0.98 t=-1.85 WR=49.1 L=-0.12(8852) S=-0.71(7055) vsD=-0.41 yrs+=0/4
+   years 23:-0.5 24:-0.3 25:-0.3 26:-0.6
+GBR pred>|2.0|bp (OOS 2020+)
+   20-22 n= 9757 tpy=3258 net=-0.59 str=-1.19 t=-2.45 WR=48.7 L=-0.43(5613) S=-0.80(4144) vsD=-0.59 yrs+=0/3
+   23+   n= 9181 tpy=2427 net=+0.16 str=-0.44 t=+0.48 WR=50.1 L=+0.38(5390) S=-0.16(3791) vsD=+0.12 yrs+=2/4
+   years 23:-0.1 24:+0.4 25:-0.4 26:+1.0
+GBR pred>|3.0|bp (OOS 2020+)
+   20-22 n= 5329 tpy=1780 net=-0.51 str=-1.11 t=-1.40 WR=49.4 L=-0.30(3200) S=-0.83(2129) vsD=-0.51 yrs+=1/3
+   23+   n= 4882 tpy=1291 net=-0.41 str=-1.01 t=-0.83 WR=50.5 L=-0.50(2984) S=-0.28(1898) vsD=-0.47 yrs+=1/4
+   years 23:-0.2 24:-1.0 25:-1.0 26:+0.9
+
+=== GROSS EDGE MAP: best TEST net per family among configs with TRAIN net>0 & tpy>=150 ===
+F1: 40 configs train-positive; test-positive 11; test t>=2 0
+F2: 6 configs train-positive; test-positive 3; test t>=2 0
+F3: 2 configs train-positive; test-positive 0; test t>=2 0
+F4: 0 configs train-positive; test-positive 0; test t>=2 0
+F5: 0 configs train-positive; test-positive 0; test t>=2 0
+wrote research/xau_freq_battery_results.csv

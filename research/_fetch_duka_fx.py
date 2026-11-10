@@ -71,7 +71,7 @@ def ok(f, y):
     return all(months.get(m, 0) > 4500 for m in range(1, last_m + 1))
 
 
-for pair in sys.argv[1:]:
+for pair in (sys.argv[1:] if __name__ == "__main__" else []):
     inst = getattr(ins, f"INSTRUMENT_FX_MAJORS_{pair[:3]}_{pair[3:]}")
     for y in range(2010, 2027):
         f = CACHE / f"frx{pair}_M5_{y}.csv"
