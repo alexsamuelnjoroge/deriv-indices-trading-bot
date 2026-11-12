@@ -1,0 +1,54 @@
+M15 bars 452758: 2008-01-01 02:00:00 -> 2026-10-15 23:45:00 (server time)
+1) Year by year (net of 0.36bp): bp | R | median risk bp
+   2008:  +3.17bp | +0.082R | risk  59.9bp | n=247
+   2009:  +4.56bp | +0.021R | risk  46.9bp | n=242
+   2010:  +0.81bp | -0.012R | risk  36.3bp | n=259
+   2011: +11.56bp | +0.181R | risk  40.6bp | n=258
+   2012:  +0.66bp | +0.041R | risk  32.8bp | n=259
+   2013: +16.79bp | +0.201R | risk  44.9bp | n=224
+   2014:  -2.40bp | -0.046R | risk  36.6bp | n=229
+   2015:  +3.43bp | +0.134R | risk  36.4bp | n=252
+   2016:  +4.73bp | +0.089R | risk  45.1bp | n=255
+   2017:  +1.28bp | +0.050R | risk  28.5bp | n=256
+   2018:  +0.65bp | +0.025R | risk  29.7bp | n=256
+   2019:  +0.27bp | +0.008R | risk  29.7bp | n=255
+   2020:  +4.04bp | +0.072R | risk  49.6bp | n=257
+   2021:  -1.83bp | -0.056R | risk  40.4bp | n=257
+   2022:  -0.35bp | -0.014R | risk  41.2bp | n=256
+   2023:  +0.98bp | +0.036R | risk  32.4bp | n=256
+   2024:  +8.27bp | +0.182R | risk  41.8bp | n=258
+   2025:  +4.84bp | +0.064R | risk  64.6bp | n=253
+   2026: +18.79bp | +0.163R | risk  95.3bp | n=198
+
+2) Long vs short
+   long  TRAIN n=1230 +1.69bp t=+1.16 | +0.022R   TEST n=1298 +2.89bp t=+2.06 | +0.049R
+   short TRAIN n= 995 +8.49bp t=+4.59 | +0.144R   TEST n=1204 +3.84bp t=+2.35 | +0.051R
+
+3) Extra slippage per round trip
+   +0bp  TRAIN n=2225 +4.73bp t=+4.09 | +0.077R   TEST n=2502 +3.35bp t=+3.13 | +0.050R
+   +1bp  TRAIN n=2225 +3.73bp t=+3.23 | +0.050R   TEST n=2502 +2.35bp t=+2.19 | +0.023R
+   +2bp  TRAIN n=2225 +2.73bp t=+2.36 | +0.024R   TEST n=2502 +1.35bp t=+1.26 | -0.004R
+   +3bp  TRAIN n=2225 +1.73bp t=+1.50 | -0.003R   TEST n=2502 +0.35bp t=+0.32 | -0.031R
+   +5bp  TRAIN n=2225 -0.27bp t=-0.23 | -0.056R   TEST n=2502 -1.65bp t=-1.55 | -0.086R
+
+4) Neighbouring windows (SL opposite, TP 1R) and TP multiples (03-08)
+   02-07  TRAIN n=2148 +4.17bp t=+3.40 | +0.074R   TEST n=2506 +3.23bp t=+3.01 | +0.057R
+   02-08  TRAIN n=2131 +4.08bp t=+3.23 | +0.062R   TEST n=2497 +3.37bp t=+3.07 | +0.047R
+   03-07  TRAIN n=2247 +4.68bp t=+4.24 | +0.086R   TEST n=2511 +3.23bp t=+3.14 | +0.062R
+   03-08  TRAIN n=2225 +4.73bp t=+4.09 | +0.077R   TEST n=2502 +3.35bp t=+3.13 | +0.050R
+   03-09  TRAIN n=2210 +2.55bp t=+2.09 | +0.050R   TEST n=2482 +2.99bp t=+2.74 | +0.025R
+   04-08  TRAIN n=2262 +3.61bp t=+3.57 | +0.064R   TEST n=2512 +1.56bp t=+1.63 | +0.037R
+   04-09  TRAIN n=2249 +2.42bp t=+2.20 | +0.050R   TEST n=2497 +2.06bp t=+2.06 | +0.022R
+   05-09  TRAIN n=2260 +1.28bp t=+1.34 | +0.043R   TEST n=2515 +1.37bp t=+1.59 | +0.015R
+   TP 0.50R TRAIN n=2225 +2.55bp t=+3.02 | +0.040R   TEST n=2502 +1.48bp t=+1.83 | +0.025R
+   TP 0.75R TRAIN n=2225 +3.67bp t=+3.59 | +0.054R   TEST n=2502 +1.83bp t=+1.92 | +0.027R
+   TP 1.00R TRAIN n=2225 +4.73bp t=+4.09 | +0.077R   TEST n=2502 +3.35bp t=+3.13 | +0.050R
+   TP 1.50R TRAIN n=2225 +3.80bp t=+2.88 | +0.064R   TEST n=2502 +3.45bp t=+2.92 | +0.063R
+   TP 2.00R TRAIN n=2225 +4.19bp t=+2.95 | +0.080R   TEST n=2502 +3.20bp t=+2.58 | +0.057R
+
+5) Placebo: random direction at 08:00, same bracket (5 seeds)
+   seed 0  TRAIN n=2236 -1.25bp t=-1.04 | -0.026R   TEST n=2526 +1.12bp t=+1.03 | +0.006R
+   seed 1  TRAIN n=2236 +0.88bp t=+0.73 | -0.011R   TEST n=2526 -1.30bp t=-1.19 | -0.029R
+   seed 2  TRAIN n=2236 -2.10bp t=-1.74 | -0.030R   TEST n=2526 -0.42bp t=-0.39 | -0.013R
+   seed 3  TRAIN n=2236 -1.64bp t=-1.36 | -0.035R   TEST n=2526 -0.72bp t=-0.66 | +0.004R
+   seed 4  TRAIN n=2236 +2.18bp t=+1.81 | +0.014R   TEST n=2526 -1.23bp t=-1.13 | -0.019R

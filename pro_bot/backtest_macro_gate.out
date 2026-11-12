@@ -1,0 +1,34 @@
+V0 current: 8331 trades
+V1 band 0.01%: 8650 trades
+V2 band 0.05%: 9982 trades
+V3 flat=stand by: 6358 trades
+V4 no gate: 16578 trades
+
+=== Pooled, all strategies (EV = mean R per trade; R/yr = total R per year) ===
+V0 current        clean A 2016-20: n=3042 EV=-0.025 t=-0.85 R/yr= -16.9 long= 56% | clean B 2021-24: n=2977 EV=-0.003 t=-0.10 R/yr=  -2.7 long= 53% | in-sample 24-26: n=2312 EV=+0.161 t=+4.39 R/yr=+163.2 long= 63%
+V1 band 0.01%     clean A 2016-20: n=3160 EV=-0.033 t=-1.14 R/yr= -23.2 long= 55% | clean B 2021-24: n=3105 EV=+0.000 t=+0.02 R/yr=  +0.4 long= 52% | in-sample 24-26: n=2385 EV=+0.165 t=+4.58 R/yr=+173.2 long= 62%
+V2 band 0.05%     clean A 2016-20: n=3816 EV=-0.037 t=-1.39 R/yr= -31.0 long= 56% | clean B 2021-24: n=3577 EV=-0.014 t=-0.51 R/yr= -14.1 long= 53% | in-sample 24-26: n=2589 EV=+0.125 t=+3.65 R/yr=+142.3 long= 61%
+V3 flat=stand by  clean A 2016-20: n=2203 EV=-0.016 t=-0.47 R/yr=  -8.0 long= 60% | clean B 2021-24: n=2204 EV=-0.014 t=-0.41 R/yr=  -8.9 long= 53% | in-sample 24-26: n=1951 EV=+0.119 t=+3.02 R/yr=+102.3 long= 65%
+V4 no gate        clean A 2016-20: n=6281 EV=+0.006 t=+0.30 R/yr=  +8.7 long= 49% | clean B 2021-24: n=5945 EV=-0.024 t=-1.12 R/yr= -40.0 long= 49% | in-sample 24-26: n=4352 EV=+0.032 t=+1.24 R/yr= +60.8 long= 47%
+
+=== Per strategy, CLEAN 2016-07 -> 2024-07 EV (R) ===
+strategy        V0 current     V1 band 0.01%     V2 band 0.05%  V3 flat=stand by        V4 no gate
+crpb              +0.071            +0.065            +0.059            +0.020            +0.075
+dbsf              -0.033            -0.063            -0.102            -0.068            +0.020
+etp               +0.119            +0.145            +0.080            +0.061            +0.116
+lsh               +0.022            +0.011            +0.047            +0.009            +0.028
+mbd               -0.022            -0.035            -0.049            -0.104            -0.058
+mrr               -0.185            -0.207            -0.154            -0.140            -0.029
+nrf               -0.136            -0.130            -0.138            -0.099            -0.070
+pdl               -0.023            -0.017            -0.029            -0.030            -0.040
+plt               +0.031            +0.022            +0.034            +0.018            -0.018
+rnm               -0.114            -0.113            -0.146            -0.029            -0.059
+shd               +0.011            +0.010            -0.057            +0.021            -0.035
+vrt               -0.005            -0.012            +0.020            +0.022            +0.031
+zsr               -0.023            -0.029            -0.010            -0.025            -0.061
+
+=== Verdict vs V0 ===
+V1 band 0.01%     better in both clean halves: False | strategies improved 4/13 | not better
+V2 band 0.05%     better in both clean halves: False | strategies improved 5/13 | not better
+V3 flat=stand by  better in both clean halves: False | strategies improved 5/13 | not better
+V4 no gate        better in both clean halves: False | strategies improved 7/13 | not better

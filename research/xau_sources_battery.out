@@ -1,0 +1,43 @@
+M15 bars 452758: 2008-01-01 02:00:00 -> 2026-10-15 23:45:00 (server time)
+
+[fail] C1a IB retracement (original)
+   TRAIN n=1240 /yr= 138 mean= -1.57bp t=-1.73 WR=45.2%
+   TEST  n=1211 /yr= 121 mean= +1.95bp t=+2.42 WR=50.5%
+     long  train n= 642 /yr=  71 mean= -2.29bp t=-1.82 WR=45.2% | test n= 638 /yr=  64 mean= +2.29bp t=+2.03 WR=50.9%
+     short train n= 598 /yr=  66 mean= -0.80bp t=-0.61 WR=45.2% | test n= 573 /yr=  57 mean= +1.56bp t=+1.36 WR=50.1%
+   years: 08:-6.7 09:-3.2 10:+2.1 11:-4.0 12:+0.4 13:+1.2 14:-1.2 15:-0.1 16:-1.6 17:+2.8 18:+0.5 19:+4.9 20:-0.8 21:-0.1 22:+1.4 23:+1.5 24:+1.7 25:+4.7 26:+3.4
+
+[fail] C1b IB retracement (April, longs only)
+   TRAIN n= 505 /yr=  56 mean= -2.53bp t=-1.51 WR=57.0%
+   TEST  n= 475 /yr=  48 mean= +2.01bp t=+1.43 WR=60.8%
+     long  train n= 505 /yr=  56 mean= -2.53bp t=-1.51 WR=57.0% | test n= 475 /yr=  48 mean= +2.01bp t=+1.43 WR=60.8%
+     short train n<20 | test n<20
+   years: 08:-10.0 09:+3.2 10:-3.3 11:-4.9 12:-2.9 13:+0.6 14:+2.0 15:-2.2 16:+2.3 17:+5.3 18:+4.9 19:+4.3 20:+4.5 21:-3.0 22:-2.4 23:-0.8 24:+3.9 25:+7.8 26:-1.3
+
+[PASS] C2a prior-day false break M5
+   TRAIN n=1699 /yr= 189 mean= +5.13bp t=+3.51 WR=21.9%
+   TEST  n=1971 /yr= 197 mean= +2.11bp t=+2.19 WR=21.0%
+     long  train n= 804 /yr=  89 mean= +5.13bp t=+2.33 WR=23.4% | test n= 905 /yr=  90 mean= +3.29bp t=+2.19 WR=23.9%
+     short train n= 895 /yr=  99 mean= +5.14bp t=+2.63 WR=20.6% | test n=1066 /yr= 107 mean= +1.10bp t=+0.89 WR=18.5%
+   years: 08:+1.3 09:+5.4 10:+3.7 11:+7.0 12:+2.3 13:+11.2 14:+7.0 15:-0.2 16:+8.8 17:+2.0 18:+4.8 19:+3.7 20:+5.3 21:+2.3 22:+1.0 23:+2.2 24:-0.4 25:+1.8 26:-2.5
+
+[PASS] C2b prior-day false break M15
+   TRAIN n=1639 /yr= 182 mean= +5.39bp t=+3.38 WR=25.4%
+   TEST  n=1914 /yr= 191 mean= +2.39bp t=+2.24 WR=24.9%
+     long  train n= 781 /yr=  87 mean= +4.69bp t=+1.98 WR=26.6% | test n= 882 /yr=  88 mean= +3.41bp t=+2.11 WR=28.2%
+     short train n= 858 /yr=  95 mean= +6.03bp t=+2.79 WR=24.2% | test n=1032 /yr= 103 mean= +1.52bp t=+1.08 WR=22.1%
+   years: 08:+4.1 09:+5.2 10:+1.6 11:+7.4 12:+4.6 13:+13.8 14:+6.4 15:-1.8 16:+7.9 17:+2.4 18:+5.8 19:+3.8 20:+5.1 21:+2.4 22:+0.4 23:+3.7 24:+2.7 25:-1.3 26:-2.1
+
+[PASS] C4a Asian-hours long 01->09 server
+   TRAIN n=2270 /yr= 252 mean= +8.06bp t=+7.99 WR=58.9%
+   TEST  n=2525 /yr= 252 mean= +4.31bp t=+4.47 WR=54.4%
+     long  train n=2270 /yr= 252 mean= +8.06bp t=+7.99 WR=58.9% | test n=2525 /yr= 252 mean= +4.31bp t=+4.47 WR=54.4%
+     short train n<20 | test n<20
+   years: 08:+7.6 09:+8.2 10:+10.0 11:+10.6 12:+9.1 13:+6.2 14:+3.7 15:+6.6 16:+9.5 17:+4.4 18:+1.8 19:+2.3 20:+0.8 21:+6.0 22:-0.3 23:+6.0 24:+5.7 25:+11.0 26:+5.8
+
+[PASS] C4b Asian-hours long 01->07 server
+   TRAIN n=2267 /yr= 252 mean= +6.09bp t=+6.63 WR=58.2%
+   TEST  n=2525 /yr= 252 mean= +4.59bp t=+5.65 WR=55.2%
+     long  train n=2267 /yr= 252 mean= +6.09bp t=+6.63 WR=58.2% | test n=2525 /yr= 252 mean= +4.59bp t=+5.65 WR=55.2%
+     short train n<20 | test n<20
+   years: 08:+5.1 09:+5.4 10:+7.5 11:+12.9 12:+7.4 13:+2.5 14:+1.8 15:+2.8 16:+8.3 17:+4.4 18:+2.9 19:+1.7 20:+3.2 21:+3.6 22:-0.4 23:+6.5 24:+5.3 25:+10.6 26:+9.1

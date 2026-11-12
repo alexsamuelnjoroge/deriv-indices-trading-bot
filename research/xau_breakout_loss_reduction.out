@@ -1,0 +1,25 @@
+M15 bars 452758: 2008-01-01 02:00:00 -> 2026-10-15 23:45:00 (server time)
+V0 baseline
+   TRAIN 08-16 n=2225 mean=+0.077R t=+3.81 R/yr=+19.0 maxDD= -21.1R streak=12
+   TEST  17-26 n=2502 mean=+0.050R t=+2.71 R/yr=+12.6 maxDD= -38.8R streak=12
+   MT5   22-26 n=1077 mean=+0.099R t=+3.60 R/yr=+21.4 maxDD= -18.2R streak= 7
+V1 skip wide ranges
+   TRAIN 08-16 n=1770 mean=+0.070R t=+3.04 R/yr=+13.9 maxDD= -24.4R streak= 9
+   TEST  17-26 n=1978 mean=+0.040R t=+1.87 R/yr= +8.0 maxDD= -40.5R streak=12
+   MT5   22-26 n= 843 mean=+0.099R t=+3.05 R/yr=+16.6 maxDD= -14.5R streak= 6
+V2 with daily trend
+   TRAIN 08-16 n=1119 mean=+0.141R t=+4.98 R/yr=+17.5 maxDD= -12.8R streak=10
+   TEST  17-26 n=1237 mean=+0.073R t=+2.76 R/yr= +9.1 maxDD= -22.5R streak= 7
+   MT5   22-26 n= 538 mean=+0.097R t=+2.47 R/yr=+10.4 maxDD= -16.4R streak= 7
+V3 skip extreme vol
+   TRAIN 08-16 n=1955 mean=+0.070R t=+3.23 R/yr=+15.1 maxDD= -17.4R streak=12
+   TEST  17-26 n=2117 mean=+0.031R t=+1.54 R/yr= +6.6 maxDD= -52.5R streak=12
+   MT5   22-26 n= 877 mean=+0.079R t=+2.57 R/yr=+13.9 maxDD= -22.7R streak= 7
+V4 break-even at +0.5R
+   TRAIN 08-16 n=2225 mean=+0.070R t=+4.13 R/yr=+17.3 maxDD= -14.2R streak=13
+   TEST  17-26 n=2502 mean=+0.041R t=+2.62 R/yr=+10.4 maxDD= -37.1R streak=12
+   MT5   22-26 n=1077 mean=+0.060R t=+2.50 R/yr=+12.9 maxDD= -23.4R streak=11
+V5 no fills after 16:00
+   TRAIN 08-16 n=2187 mean=+0.076R t=+3.70 R/yr=+18.4 maxDD= -19.9R streak=10
+   TEST  17-26 n=2436 mean=+0.053R t=+2.79 R/yr=+12.9 maxDD= -37.3R streak=12
+   MT5   22-26 n=1041 mean=+0.102R t=+3.60 R/yr=+21.2 maxDD= -18.1R streak= 7
