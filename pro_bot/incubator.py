@@ -8,10 +8,13 @@ Separate process from pro_bot.main; its positions use their own magic numbers.
     python -m pro_bot.incubator              # trade on demo
     python -m pro_bot.incubator --dry-run    # log signals only
 
-Each rule holds at most one position. Entry: market order right after the signal bar
-closes. Exit: market close H bars later (time exit, as researched). A wide disaster
-stop (6 sigma of the holding-period move) is the only stop. Trades are written to
-logs/incubator_trades.csv; review after ~6 months (2027-05).
+Each rule holds at most one position. Rules A/B: market order right after the signal bar
+closes, market close H bars later (time exit, as researched), wide 6-sigma disaster stop.
+Rule D (Asian-range breakout, added 2026-11-11): at 08:00 server a buy-stop at the range
+high and a sell-stop at the range low with SL/TP attached; the first fill cancels the other,
+unfilled orders are cancelled at 22:00 and an open trade is closed at 23:00 server.
+Trades (with planned vs actual entry, i.e. slippage) go to logs/incubator_trades.csv;
+review A/B after ~6 months (2027-05), D after ~40 trades.
 """
 
 import argparse
@@ -31,10 +34,14 @@ from loguru import logger
 import MetaTrader5 as mt5
 
 from pro_bot.execution.mt5_client import MT5Client
-from pro_bot.incubator_signals import GOLD, RULES, align, compute_signals, session_id, symbols_needed
+from pro_bot.notify import notify
+from pro_bot.incubator_signals import (BREAKOUT, GOLD, RULES, align, asia_range, compute_signals,
+                                       session_id, symbols_needed)
 
-DEFAULT_RULES = ("A_asia_dip", "B_usd_resid")
+BO = BREAKOUT["name"]
+DEFAULT_RULES = ("A_asia_dip", "B_usd_resid", BO)
 MAGIC_BASE = 20261110
+BO_MAGIC = MAGIC_BASE + 10
 BARS = 8000                      # ~28 sessions: 20 for betas + 288-bar warm-ups
 MAX_SIGNAL_AGE = 120             # seconds after bar close; older signals are skipped
 DISASTER_SIGMA = 6.0
@@ -42,7 +49,8 @@ STATE_FILE = Path("data/incubator_state.json")
 TRADES_FILE = Path("logs/incubator_trades.csv")
 TRADE_FIELDS = ["rule", "side", "signal_bar_utc", "z", "entry_time_utc", "entry_price",
                 "exit_time_utc", "exit_price", "lots", "gross_bp", "profit_usd",
-                "commission_usd", "swap_usd", "net_usd", "exit_reason", "ticket"]
+                "commission_usd", "swap_usd", "net_usd", "exit_reason", "ticket",
+                "planned_entry", "slip_bp"]
 NY = ZoneInfo("America/New_York")
 
 
@@ -53,7 +61,7 @@ def server_offset(utc_ts: float) -> int:
 
 
 def magic_for(rule: str) -> int:
-    return MAGIC_BASE + list(RULES).index(rule)
+    return BO_MAGIC if rule == BO else MAGIC_BASE + list(RULES).index(rule)
 
 
 # ── state ────────────────────────────────────────────────────────────────────
@@ -126,10 +134,13 @@ def close_and_record(client: MT5Client, rule: str, tr: dict, reason: str) -> Non
     entry_px = entry[0].price if entry else tr["entry_price"]
     exit_px = exits[-1].price
     exit_t = exits[-1].time - server_offset(exits[-1].time)
+    if reason == "stop_or_external":
+        reason = {mt5.DEAL_REASON_SL: "sl", mt5.DEAL_REASON_TP: "tp"}.get(exits[-1].reason, reason)
     profit = sum(d.profit for d in deals)
     comm = sum(d.commission for d in deals)
     swap = sum(d.swap for d in deals)
     gross_bp = tr["side"] * np.log(exit_px / entry_px) * 1e4
+    planned = tr.get("planned_entry") or entry_px
     record_trade({
         "rule": rule, "side": tr["side"], "signal_bar_utc": utc_str(tr["signal_bar"]),
         "z": round(tr["z"], 3), "entry_time_utc": utc_str(tr["entry_ts"]),
@@ -137,9 +148,12 @@ def close_and_record(client: MT5Client, rule: str, tr: dict, reason: str) -> Non
         "lots": tr["lots"], "gross_bp": round(gross_bp, 2), "profit_usd": round(profit, 2),
         "commission_usd": round(comm, 2), "swap_usd": round(swap, 2),
         "net_usd": round(profit + comm + swap, 2), "exit_reason": reason, "ticket": ticket,
+        "planned_entry": planned, "slip_bp": round(tr["side"] * (entry_px / planned - 1) * 1e4, 2),
     })
     logger.info(f"[{rule}] CLOSED {reason} | {'BUY' if tr['side'] > 0 else 'SELL'} "
                 f"{entry_px} -> {exit_px} | gross {gross_bp:+.1f}bp | net ${profit + comm + swap:+.2f}")
+    notify("incubator", f"CLOSED {rule} {'BUY' if tr['side'] > 0 else 'SELL'} — {reason}\n"
+                        f"{entry_px} -> {exit_px} | net ${profit + comm + swap:+.2f}")
     tr["closed"] = True
 
 
@@ -166,11 +180,171 @@ def adopt_orphans(client: MT5Client, state: dict, rules) -> None:
     """Close incubator positions MT5 holds but state doesn't know about (e.g. lost state file)."""
     positions = mt5.positions_get(symbol=GOLD) or []
     known = {tr["ticket"] for tr in state["open"].values()}
-    magics = {magic_for(r): r for r in RULES}
+    magics = {magic_for(r): r for r in list(RULES) + [BO]}
     for p in positions:
         if p.magic in magics and p.ticket not in known:
             logger.warning(f"orphan incubator position {p.ticket} ({magics[p.magic]}) — closing")
             client.close_position(p.ticket, magic=p.magic)
+    pending = set(state.get("bo_pending", {}).get("orders", []))
+    for o in mt5.orders_get(symbol=GOLD) or []:
+        if o.magic == BO_MAGIC and o.ticket not in pending:
+            logger.warning(f"orphan breakout order {o.ticket} — cancelling")
+            cancel_order(o.ticket)
+
+
+# ── D: Asian-range breakout ──────────────────────────────────────────────────
+def server_now() -> datetime:
+    now = time.time()
+    return datetime.fromtimestamp(now + server_offset(now), timezone.utc).replace(tzinfo=None)
+
+
+def server_to_utc(server_dt: datetime) -> float:
+    s = server_dt.replace(tzinfo=timezone.utc).timestamp()
+    return s - server_offset(s - 3 * 3600)
+
+
+def cancel_order(ticket: int) -> bool:
+    if not mt5.orders_get(ticket=ticket):
+        return True
+    r = mt5.order_send({"action": mt5.TRADE_ACTION_REMOVE, "order": ticket})
+    ok = r is not None and r.retcode == mt5.TRADE_RETCODE_DONE
+    if not ok:
+        logger.error(f"[{BO}] cancel order {ticket} failed: {r.comment if r else mt5.last_error()}")
+    return ok
+
+
+def place_stop(side: int, price: float, sl: float, tp: float, lots: float):
+    digits = mt5.symbol_info(GOLD).digits
+    req = {"action": mt5.TRADE_ACTION_PENDING, "symbol": GOLD, "volume": lots,
+           "type": mt5.ORDER_TYPE_BUY_STOP if side > 0 else mt5.ORDER_TYPE_SELL_STOP,
+           "price": round(price, digits), "sl": round(sl, digits), "tp": round(tp, digits),
+           "deviation": 10, "magic": BO_MAGIC, "comment": "incub_D", "type_time": mt5.ORDER_TIME_GTC}
+    last = None
+    for filling in (mt5.ORDER_FILLING_RETURN, mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_FOK):
+        last = mt5.order_send({**req, "type_filling": filling})
+        if last is not None and last.retcode == mt5.TRADE_RETCODE_DONE:
+            return last.order
+    logger.error(f"[{BO}] {'BUY' if side > 0 else 'SELL'}_STOP @ {price} failed: "
+                 f"{last.comment if last else mt5.last_error()}")
+    return None
+
+
+def bo_register_fill(state: dict, pend: dict, p) -> None:
+    side = 1 if p.type == 0 else -1
+    state["open"][BO] = {
+        "ticket": p.ticket, "side": side, "z": round((pend["hi"] - pend["lo"]) / pend["lo"] * 1e4, 1),
+        "lots": p.volume, "signal_bar": pend["range_end_utc"],
+        "entry_ts": p.time - server_offset(p.time), "entry_price": p.price_open,
+        "planned_entry": pend["hi"] if side > 0 else pend["lo"],
+        "exit_ts": pend["flat_utc"], "sl": p.sl,
+    }
+    logger.info(f"[{BO}] FILLED {'BUY' if side > 0 else 'SELL'} ticket {p.ticket} @ {p.price_open} "
+                f"(planned {state['open'][BO]['planned_entry']}) SL {p.sl} TP {p.tp}")
+    notify("incubator", f"FILLED {BO} {'BUY' if side > 0 else 'SELL'} @ {p.price_open} "
+                        f"(planned {state['open'][BO]['planned_entry']})\nSL {p.sl} | TP {p.tp}")
+
+
+def manage_breakout(client: MT5Client, state: dict, lots: float, dry_run: bool) -> None:
+    sn = server_now()
+    mins = sn.hour * 60 + sn.minute
+    day = sn.date()
+
+    if (state.get("bo_pending") is None and BO not in state["open"] and sn.weekday() < 5
+            and state.get("bo_day") != str(day)
+            and BREAKOUT["range_end"] <= mins < BREAKOUT["place_until"]):
+        state["bo_day"] = str(day)                    # one attempt per server day
+        save_state(state)
+        r = mt5.copy_rates_from_pos(GOLD, mt5.TIMEFRAME_M5, 0, 300)
+        if r is None or len(r) == 0:
+            logger.warning(f"[{BO}] no M5 bars: {mt5.last_error()}")
+            return
+        bars = pd.DataFrame(r)
+        bars.index = pd.to_datetime(bars["time"], unit="s")
+        bars = bars[bars.index + pd.Timedelta(minutes=5) <= pd.Timestamp(sn)]
+        rng = asia_range(bars, day)
+        if rng is None:
+            logger.info(f"[{BO}] {day}: incomplete 03:00-08:00 range data — no trade today")
+            return
+        hi, lo = rng
+        w = hi - lo
+        base = datetime.combine(day, datetime.min.time())
+        pend = {"hi": hi, "lo": lo, "day": str(day),
+                "range_end_utc": server_to_utc(base.replace(hour=8)),
+                "cancel_utc": server_to_utc(base.replace(hour=22)),
+                "flat_utc": server_to_utc(base.replace(hour=23)), "orders": []}
+        logger.info(f"[{BO}] {day} range {lo:.2f}-{hi:.2f} (${w:.2f}, {w / lo * 1e4:.0f}bp) | "
+                    f"buy-stop {hi:.2f} SL {lo:.2f} TP {hi + w:.2f} | sell-stop {lo:.2f} SL {hi:.2f} TP {lo - w:.2f}"
+                    f"{' — DRY RUN' if dry_run else ''}")
+        if dry_run:
+            return
+        tick = mt5.symbol_info_tick(GOLD)
+        if tick.ask >= hi or tick.bid <= lo:          # already broken: enter now, as the backtest would
+            side = 1 if tick.ask >= hi else -1
+            px = tick.ask if side > 0 else tick.bid
+            sl = lo if side > 0 else hi
+            res = client.place_order(GOLD, "BUY" if side > 0 else "SELL", lots, sl,
+                                     px + side * BREAKOUT["tp_r"] * abs(px - sl),
+                                     comment="incub_D", magic=BO_MAGIC)
+            if res.success:
+                p = next((q for q in mt5.positions_get(symbol=GOLD) or [] if q.magic == BO_MAGIC), None)
+                if p:
+                    bo_register_fill(state, pend, p)
+                    save_state(state)
+            return
+        orders = [place_stop(1, hi, lo, hi + BREAKOUT["tp_r"] * w, lots),
+                  place_stop(-1, lo, hi, lo - BREAKOUT["tp_r"] * w, lots)]
+        if None in orders:
+            for o in orders:
+                if o:
+                    cancel_order(o)
+            return
+        pend["orders"] = orders
+        state["bo_pending"] = pend
+        save_state(state)
+        logger.info(f"[{BO}] pending orders placed: {orders}")
+        notify("incubator", f"{BO} orders placed for {day}\nbuy-stop {hi:.2f} | sell-stop {lo:.2f} "
+                            f"(range ${w:.2f})")
+        return
+
+    pend = state.get("bo_pending")
+    if not pend:
+        return
+    pos = [p for p in (mt5.positions_get(symbol=GOLD) or []) if p.magic == BO_MAGIC]
+    live_orders = {o.ticket for o in (mt5.orders_get(symbol=GOLD) or [])}
+    if pos:
+        for o in pend["orders"]:
+            cancel_order(o)
+        bo_register_fill(state, pend, pos[0])
+        del state["bo_pending"]
+        save_state(state)
+    elif any(o not in live_orders for o in pend["orders"]):
+        # an order filled and its position already closed between polls: record it from history
+        for o in pend["orders"]:
+            cancel_order(o)
+        deals = [d for d in (mt5.history_deals_get(datetime.fromtimestamp(time.time() - 86400),
+                                                   datetime.fromtimestamp(time.time() + 86400)) or [])
+                 if d.magic == BO_MAGIC and d.entry == mt5.DEAL_ENTRY_IN and d.order in pend["orders"]]
+        if deals:
+            d = deals[-1]
+            side = 1 if d.type == mt5.DEAL_TYPE_BUY else -1
+            state["open"][BO] = {"ticket": d.position_id, "side": side,
+                                 "z": round((pend["hi"] - pend["lo"]) / pend["lo"] * 1e4, 1),
+                                 "lots": d.volume, "signal_bar": pend["range_end_utc"],
+                                 "entry_ts": d.time - server_offset(d.time), "entry_price": d.price,
+                                 "planned_entry": pend["hi"] if side > 0 else pend["lo"],
+                                 "exit_ts": pend["flat_utc"], "sl": 0.0}
+            logger.info(f"[{BO}] order filled and closed between polls — recording position {d.position_id}")
+        else:
+            logger.warning(f"[{BO}] pending order vanished without a fill: {pend['orders']}")
+        del state["bo_pending"]
+        save_state(state)
+    elif time.time() >= pend["cancel_utc"]:
+        for o in pend["orders"]:
+            cancel_order(o)
+        logger.info(f"[{BO}] {pend['day']}: no breakout by 22:00 server — orders cancelled")
+        notify("incubator", f"{BO}: no breakout today — orders cancelled")
+        del state["bo_pending"]
+        save_state(state)
 
 
 def process_bar(client: MT5Client, state: dict, rules, lots: float, dry_run: bool,
@@ -218,11 +392,14 @@ def process_bar(client: MT5Client, state: dict, rules, lots: float, dry_run: boo
         state["open"][rule] = {
             "ticket": ticket, "side": side, "z": z, "lots": lots, "signal_bar": i_ts,
             "entry_ts": time.time(), "entry_price": res.price,
+            "planned_entry": float(df[GOLD].iloc[-1]),
             "exit_ts": bar_close + H * 300, "sl": sl,
         }
         save_state(state)
         logger.info(f"{tag} — OPENED ticket {ticket} @ {res.price} SL {sl:.2f} "
                     f"exit at {utc_str(bar_close + H * 300)} UTC")
+        notify("incubator", f"OPENED {rule} {'BUY' if side > 0 else 'SELL'} @ {res.price}\n"
+                            f"time exit {utc_str(bar_close + H * 300)} UTC")
 
 
 def main():
@@ -233,9 +410,11 @@ def main():
     ap.add_argument("--allow-real", action="store_true")
     args = ap.parse_args()
     rules = [r.strip() for r in args.rules.split(",") if r.strip()]
-    unknown = [r for r in rules if r not in RULES]
+    unknown = [r for r in rules if r not in RULES and r != BO]
     if unknown:
-        sys.exit(f"unknown rules: {unknown}; choose from {list(RULES)}")
+        sys.exit(f"unknown rules: {unknown}; choose from {list(RULES) + [BO]}")
+    use_bo = BO in rules
+    rules = [r for r in rules if r in RULES]
 
     load_dotenv()
     Path("logs").mkdir(exist_ok=True)
@@ -253,12 +432,14 @@ def main():
 
     state = load_state()
     adopt_orphans(client, state, rules)
-    logger.info(f"incubator up | rules={rules} lots={args.lots} dry_run={args.dry_run} "
-                f"open={list(state['open'])}")
+    logger.info(f"incubator up | rules={rules + ([BO] if use_bo else [])} lots={args.lots} "
+                f"dry_run={args.dry_run} open={list(state['open'])} pending={state.get('bo_pending')}")
 
     while True:
         try:
             manage_open(client, state)
+            if use_bo:
+                manage_breakout(client, state, args.lots, args.dry_run)
             r = mt5.copy_rates_from_pos(GOLD, mt5.TIMEFRAME_M5, 0, 1)
             if r is not None and len(r):
                 forming = int(r[0]["time"]) - server_offset(int(r[0]["time"]))

@@ -32,6 +32,28 @@ RULES = {
     "C_mf_resid_eu": dict(kind="resid", factors=("usd", "xag", "spx"), W=12, thr=2.0, sess="eu", H=12),
 }
 
+# D_asia_range_bo — Asian-range breakout (research/xau_session_breakout_ea.py, 2026-11-11).
+# Server time = New York + 7h. Range = high/low of 03:00-08:00 server; at 08:00 place a buy-stop
+# at the high and a sell-stop at the low (one cancels the other). SL = opposite side of the
+# range, TP = 1R. Unfilled orders cancelled at 22:00, open trades closed at 23:00 server.
+# Duka 2008-16 +4.7bp t=4.1 | 2017-26 +3.4bp t=3.1 | IC MT5 2022-26 +6.8bp t=3.4 (cost 0.36bp).
+BREAKOUT = dict(name="D_asia_range_bo", range_start=3 * 60, range_end=8 * 60,
+                place_until=8 * 60 + 30, cancel=22 * 60, flat=23 * 60, tp_r=1.0)
+
+
+def asia_range(server_bars: pd.DataFrame, server_date) -> tuple | None:
+    """(high, low) of the BREAKOUT window on server_date from M5 bars indexed by server time,
+    or None if the window is incomplete (holiday, missing data)."""
+    day = server_bars[server_bars.index.date == server_date]
+    mins = day.index.hour * 60 + day.index.minute
+    win = day[(mins >= BREAKOUT["range_start"]) & (mins < BREAKOUT["range_end"])]
+    need = (BREAKOUT["range_end"] - BREAKOUT["range_start"]) // 5
+    if len(win) < need - 6:
+        return None
+    hi, lo = float(win["high"].max()), float(win["low"].min())
+    return (hi, lo) if hi > lo else None
+
+
 SESSION_OFFSET = int(20.5 * 3600)
 BETA_LOOKBACK_SESSIONS = 20
 

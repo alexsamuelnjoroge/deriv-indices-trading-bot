@@ -479,8 +479,9 @@ strategies:
   # OFBS â€” Order Flow Balance Shift: rolling CPF avg flips from bull to bear zone â†’ institutional reversal
   # ROBUST 4/4 XAUUSD; ROBUST 4/4 GBPUSD
   # Disabled 2026-11-10: 2016-2024 out-of-sample test on XAUUSD was significantly negative (t=-2.7).
+  # Re-enabled 2026-11-12 at the user's request (demo) after a +3R TP win; judge it on the new journal.
   - name: ofbs
-    enabled: false
+    enabled: true
     symbols: [XAUUSD]
     granularity: 3600
     avg_period: 15

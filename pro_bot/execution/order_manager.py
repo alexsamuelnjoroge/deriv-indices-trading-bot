@@ -22,6 +22,7 @@ from typing import Optional
 
 from loguru import logger
 
+from pro_bot.notify import notify
 from pro_bot.strategies.base import Signal
 
 
@@ -341,6 +342,9 @@ class OrderManager:
                     f"entry={price:.5f} SL={sl_price:.5f} TP={tp_price:.5f} | "
                     f"risk=${actual_risk or risk_usd:.2f} (target ${risk_usd:.2f}){dd_note} | "
                     f"[{signal.strategy}] {signal.reason}")
+        notify("pro_bot", f"OPENED {signal.strategy} {symbol} {signal.action} {volume} lots\n"
+                          f"entry {price:.2f} | SL {sl_price:.2f} | TP {tp_price:.2f}\n"
+                          f"risk ${actual_risk or risk_usd:.2f}")
         return True
 
     # ── Position management (break-even + pyramid) ───────────────────────────
@@ -577,6 +581,8 @@ class OrderManager:
                         f"P&L ${pnl:+.2f} ({r_outcome:+.2f}R) | {exit_reason} | "
                         f"Today {self._today_pnl:+.2f}")
             self._write_pnl_log(trade, pnl, r_outcome, exit_reason)
+            notify("pro_bot", f"CLOSED {trade.strategy_name} {trade.symbol} {trade.action} — {exit_reason}\n"
+                              f"P&L ${pnl:+.2f} ({r_outcome:+.2f}R) | today ${self._today_pnl:+.2f}")
 
             # Update peak balance after a close (equity may have changed)
             balance = self.client.get_balance()
@@ -591,6 +597,8 @@ class OrderManager:
                     self._halted = True
                     logger.warning(f"DAILY LOSS LIMIT HIT ({loss_pct:.1f}%) — "
                                    "bot halted until tomorrow")
+                    notify("pro_bot", f"HALTED — daily loss limit hit ({loss_pct:.1f}%). "
+                                      f"No new trades until tomorrow. Balance ${balance:.2f}")
 
     def _get_trade_pnl(self, ticket: int, trade: OpenTrade) -> float:
         """Net P&L (price P&L + commission + swap) from MT5 deal history."""
@@ -645,7 +653,7 @@ class OrderManager:
         duration_mins = round((closed_at - trade.opened_at).total_seconds() / 60, 1)
         try:
             if self._pnl_log_path.exists():
-                with self._pnl_log_path.open() as f:
+                with self._pnl_log_path.open(encoding="utf-8", errors="replace") as f:
                     header = f.readline().strip().split(",")
                 if header != JOURNAL_HEADER:
                     old = self._pnl_log_path.with_name(
@@ -653,7 +661,7 @@ class OrderManager:
                     self._pnl_log_path.rename(old)
                     logger.info(f"Trade journal format changed — previous file kept as {old.name}")
             new_file = not self._pnl_log_path.exists()
-            with self._pnl_log_path.open("a", newline="") as f:
+            with self._pnl_log_path.open("a", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
                 if new_file:
                     w.writerow(JOURNAL_HEADER)
