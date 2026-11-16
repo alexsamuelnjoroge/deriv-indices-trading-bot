@@ -2,7 +2,7 @@
 MT5 tick recorder — MT5 keeps only ~1 day of tick history, so order-flow research
 (bid/ask update imbalance, quote intensity) needs ticks recorded going forward.
 
-    python -m pro_bot.tick_recorder [--symbols XAUUSD,XAGUSD,EURUSD]
+    python -m pro_bot.tick_recorder [--symbols XAUUSD,XAGUSD,EURUSD,XTIUSD,XBRUSD]
 
 Writes data/ticks/<SYMBOL>/<UTC date>.csv.gz with columns utc_msc,bid,ask,flags.
 Resumes from data/ticks/_state.json after a restart (gap = whatever MT5 still holds).
@@ -53,7 +53,7 @@ def write_ticks(sym: str, ticks) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--symbols", default="XAUUSD,XAGUSD,EURUSD")
+    ap.add_argument("--symbols", default="XAUUSD,XAGUSD,EURUSD,XTIUSD,XBRUSD")
     args = ap.parse_args()
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
 

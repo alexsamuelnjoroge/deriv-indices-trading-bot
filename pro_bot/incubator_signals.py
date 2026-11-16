@@ -19,6 +19,8 @@ blocked and a trade must exit inside the same session (session boundary 20:30 UT
 so no position is held through the daily rollover.
 """
 
+from datetime import date, timedelta
+
 import numpy as np
 import pandas as pd
 
@@ -52,6 +54,55 @@ def asia_range(server_bars: pd.DataFrame, server_date) -> tuple | None:
         return None
     hi, lo = float(win["high"].max()), float(win["low"].min())
     return (hi, lo) if hi > lo else None
+
+
+# E_usdjpy_gotobi — USDJPY into the 09:55 JST Tokyo fix on Gotobi days (research/usdjpy_tokyo_fix.py).
+# Long 08:00 JST, closed 09:54:30 JST (the move reverses right after the fix). Gotobi = 5th, 10th,
+# 15th, 20th, 25th, month-end, moved to the previous Japanese business day. Dukascopy 2017-26
+# +1.85bp net t=3.2 (2011-16 weak, t=0.8); IC MT5 M5 2025-26 +2.9bp t=2.0. Candidate, not proven.
+GOTOBI = dict(name="E_usdjpy_gotobi", symbol="USDJPY", entry=(8, 0), entry_window_min=10,
+              exit=(9, 54, 30), sl_pct=0.01)
+
+
+def _nth_monday(y, m, n):
+    d = date(y, m, 1)
+    d += timedelta(days=(7 - d.weekday()) % 7)
+    return d + timedelta(weeks=n - 1)
+
+
+def jp_holidays(y: int) -> set:
+    """Japanese bank holidays: fixed dates + Happy-Monday holidays; equinoxes approximated
+    as Mar 20 / Sep 23; a Sunday holiday is observed on Monday."""
+    fixed = [(1, 1), (1, 2), (1, 3), (2, 11), (3, 20), (4, 29), (5, 3), (5, 4), (5, 5),
+             (9, 23), (11, 3), (11, 23), (12, 31)]
+    if y >= 2020:
+        fixed.append((2, 23))
+    elif y <= 2018:
+        fixed.append((12, 23))
+    h = {date(y, m, d) for m, d in fixed}
+    h |= {_nth_monday(y, 1, 2), _nth_monday(y, 7, 3), _nth_monday(y, 9, 3), _nth_monday(y, 10, 2)}
+    for d in list(h):
+        if d.weekday() == 6:
+            h.add(d + timedelta(days=1))
+    return h
+
+
+def jp_business_day(d: date) -> bool:
+    return d.weekday() < 5 and d not in jp_holidays(d.year)
+
+
+def gotobi_day(d: date) -> bool:
+    """True if d is the Japanese business day that carries a Gotobi settlement."""
+    if not jp_business_day(d):
+        return False
+    last = (date(d.year + (d.month == 12), d.month % 12 + 1, 1) - timedelta(days=1)).day
+    for dom in (5, 10, 15, 20, 25, last):
+        t = date(d.year, d.month, min(dom, last))
+        while not jp_business_day(t) and t.day > 1:
+            t -= timedelta(days=1)
+        if t == d:
+            return True
+    return False
 
 
 SESSION_OFFSET = int(20.5 * 3600)

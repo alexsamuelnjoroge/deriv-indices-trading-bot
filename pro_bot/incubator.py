@@ -22,7 +22,7 @@ import csv
 import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -35,13 +35,16 @@ import MetaTrader5 as mt5
 
 from pro_bot.execution.mt5_client import MT5Client
 from pro_bot.notify import notify
-from pro_bot.incubator_signals import (BREAKOUT, GOLD, RULES, align, asia_range, compute_signals,
-                                       session_id, symbols_needed)
+from pro_bot.incubator_signals import (BREAKOUT, GOLD, GOTOBI, RULES, align, asia_range, compute_signals,
+                                       gotobi_day, session_id, symbols_needed)
 
 BO = BREAKOUT["name"]
-DEFAULT_RULES = ("A_asia_dip", "B_usd_resid", BO)
+GO = GOTOBI["name"]
+DEFAULT_RULES = ("A_asia_dip", "B_usd_resid", BO, GO)
 MAGIC_BASE = 20261110
 BO_MAGIC = MAGIC_BASE + 10
+GO_MAGIC = MAGIC_BASE + 20
+JST = timezone(timedelta(hours=9))
 BARS = 8000                      # ~28 sessions: 20 for betas + 288-bar warm-ups
 MAX_SIGNAL_AGE = 120             # seconds after bar close; older signals are skipped
 DISASTER_SIGMA = 6.0
@@ -61,7 +64,11 @@ def server_offset(utc_ts: float) -> int:
 
 
 def magic_for(rule: str) -> int:
-    return BO_MAGIC if rule == BO else MAGIC_BASE + list(RULES).index(rule)
+    if rule == BO:
+        return BO_MAGIC
+    if rule == GO:
+        return GO_MAGIC
+    return MAGIC_BASE + list(RULES).index(rule)
 
 
 # ── state ────────────────────────────────────────────────────────────────────
@@ -160,7 +167,7 @@ def close_and_record(client: MT5Client, rule: str, tr: dict, reason: str) -> Non
 def manage_open(client: MT5Client, state: dict) -> None:
     if not state["open"]:
         return
-    positions = mt5.positions_get(symbol=GOLD)
+    positions = mt5.positions_get()
     if positions is None:
         logger.warning(f"positions_get failed: {mt5.last_error()}")
         return
@@ -178,9 +185,9 @@ def manage_open(client: MT5Client, state: dict) -> None:
 
 def adopt_orphans(client: MT5Client, state: dict, rules) -> None:
     """Close incubator positions MT5 holds but state doesn't know about (e.g. lost state file)."""
-    positions = mt5.positions_get(symbol=GOLD) or []
+    positions = mt5.positions_get() or []
     known = {tr["ticket"] for tr in state["open"].values()}
-    magics = {magic_for(r): r for r in list(RULES) + [BO]}
+    magics = {magic_for(r): r for r in list(RULES) + [BO, GO]}
     for p in positions:
         if p.magic in magics and p.ticket not in known:
             logger.warning(f"orphan incubator position {p.ticket} ({magics[p.magic]}) — closing")
@@ -347,6 +354,46 @@ def manage_breakout(client: MT5Client, state: dict, lots: float, dry_run: bool) 
         save_state(state)
 
 
+# ── E: USDJPY into the Tokyo fix on Gotobi days ──────────────────────────────
+def manage_gotobi(client: MT5Client, state: dict, lots: float, dry_run: bool) -> None:
+    now = datetime.now(JST)
+    today = now.date()
+    eh, em = GOTOBI["entry"]
+    entry_dt = datetime(today.year, today.month, today.day, eh, em, tzinfo=JST)
+    if (GO in state["open"] or state.get("go_day") == str(today) or not gotobi_day(today)
+            or not entry_dt <= now < entry_dt + timedelta(minutes=GOTOBI["entry_window_min"])):
+        return
+    state["go_day"] = str(today)                      # one attempt per Gotobi day
+    save_state(state)
+    xh, xm, xs = GOTOBI["exit"]
+    exit_dt = datetime(today.year, today.month, today.day, xh, xm, xs, tzinfo=JST)
+    sym = GOTOBI["symbol"]
+    tick = mt5.symbol_info_tick(sym)
+    if tick is None:
+        logger.warning(f"[{GO}] no {sym} tick — skipping {today}")
+        return
+    planned = tick.ask
+    sl = planned * (1 - GOTOBI["sl_pct"])
+    logger.info(f"[{GO}] Gotobi {today}: BUY {sym} {lots} @ ~{planned} SL {sl:.3f}, "
+                f"exit {exit_dt:%H:%M:%S} JST{' — DRY RUN' if dry_run else ''}")
+    if dry_run:
+        return
+    res = client.place_order(sym, "BUY", lots, sl, 0.0, comment="incub_E", magic=GO_MAGIC)
+    if not res.success:
+        logger.error(f"[{GO}] order failed: {res.error}")
+        return
+    p = next((q for q in mt5.positions_get(symbol=sym) or [] if q.magic == GO_MAGIC), None)
+    state["open"][GO] = {
+        "ticket": p.ticket if p else res.ticket, "side": 1, "z": 0.0, "lots": lots,
+        "signal_bar": entry_dt.timestamp(), "entry_ts": time.time(),
+        "entry_price": p.price_open if p else res.price, "planned_entry": planned,
+        "exit_ts": exit_dt.timestamp(), "sl": sl,
+    }
+    save_state(state)
+    notify("incubator", f"OPENED {GO} BUY {sym} @ {state['open'][GO]['entry_price']} "
+                        f"(Gotobi {today})\nexit {exit_dt:%H:%M:%S} JST")
+
+
 def process_bar(client: MT5Client, state: dict, rules, lots: float, dry_run: bool,
                 forming_bar_utc: int) -> None:
     gold, others = fetch_closes(symbols_needed({r: RULES[r] for r in rules}), forming_bar_utc)
@@ -410,10 +457,10 @@ def main():
     ap.add_argument("--allow-real", action="store_true")
     args = ap.parse_args()
     rules = [r.strip() for r in args.rules.split(",") if r.strip()]
-    unknown = [r for r in rules if r not in RULES and r != BO]
+    unknown = [r for r in rules if r not in RULES and r not in (BO, GO)]
     if unknown:
-        sys.exit(f"unknown rules: {unknown}; choose from {list(RULES) + [BO]}")
-    use_bo = BO in rules
+        sys.exit(f"unknown rules: {unknown}; choose from {list(RULES) + [BO, GO]}")
+    use_bo, use_go = BO in rules, GO in rules
     rules = [r for r in rules if r in RULES]
 
     load_dotenv()
@@ -432,7 +479,9 @@ def main():
 
     state = load_state()
     adopt_orphans(client, state, rules)
-    logger.info(f"incubator up | rules={rules + ([BO] if use_bo else [])} lots={args.lots} "
+    if use_go:
+        mt5.symbol_select(GOTOBI["symbol"], True)
+    logger.info(f"incubator up | rules={rules + ([BO] if use_bo else []) + ([GO] if use_go else [])} lots={args.lots} "
                 f"dry_run={args.dry_run} open={list(state['open'])} pending={state.get('bo_pending')}")
 
     while True:
@@ -440,6 +489,8 @@ def main():
             manage_open(client, state)
             if use_bo:
                 manage_breakout(client, state, args.lots, args.dry_run)
+            if use_go:
+                manage_gotobi(client, state, args.lots, args.dry_run)
             r = mt5.copy_rates_from_pos(GOLD, mt5.TIMEFRAME_M5, 0, 1)
             if r is not None and len(r):
                 forming = int(r[0]["time"]) - server_offset(int(r[0]["time"]))
