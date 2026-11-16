@@ -1,0 +1,29 @@
+M15 bars 452758: 2008-01-01 02:00:00 -> 2026-10-15 23:45:00 (server time)
+NFP: 170 dates confirmed by the market, 26 corrected to a nearby release day, 29 kept without a clear spike (median 08:30 move 6.5bp)
+CPI: 113 dates confirmed by the market, 63 corrected to a nearby release day, 49 kept without a clear spike (median 08:30 move 6.5bp)
+
+Baseline trades on event days vs other days (all 2008-2026):
+   NFP/CPI days n= 424 mean=+0.054R t=+1.15 R/yr= +1.2 maxDD= -11.1R
+   FOMC days    n= 143 mean=-0.106R t=-1.27 R/yr= -0.8 maxDD= -21.6R
+   other days   n=4303 mean=+0.064R t=+4.46 R/yr=+14.4 maxDD= -42.7R
+
+V0 baseline
+   Duka 08-16 n=2225 mean=+0.077R t=+3.81 R/yr=+19.0 maxDD= -21.1R
+   Duka 17-26 n=2502 mean=+0.050R t=+2.71 R/yr=+12.6 maxDD= -38.8R
+   MT5  22-26 n=1066 mean=+0.095R t=+3.43 R/yr=+20.2 maxDD= -18.2R
+F1 skip NFP+CPI
+   Duka 08-16 n=2023 mean=+0.074R t=+3.52 R/yr=+16.6 maxDD= -18.8R
+   Duka 17-26 n=2280 mean=+0.054R t=+2.80 R/yr=+12.4 maxDD= -42.7R
+   MT5  22-26 n= 975 mean=+0.099R t=+3.43 R/yr=+19.2 maxDD= -21.2R
+F2 skip NFP+CPI+FOMC
+   Duka 08-16 n=1960 mean=+0.074R t=+3.49 R/yr=+16.2 maxDD= -21.3R
+   Duka 17-26 n=2209 mean=+0.063R t=+3.22 R/yr=+14.0 maxDD= -37.4R
+   MT5  22-26 n= 945 mean=+0.102R t=+3.51 R/yr=+19.3 maxDD= -20.1R
+F3 flat 08:15 ET on NFP/CPI
+   Duka 08-16 n=2220 mean=+0.075R t=+3.79 R/yr=+18.5 maxDD= -20.3R
+   Duka 17-26 n=2484 mean=+0.050R t=+2.75 R/yr=+12.5 maxDD= -38.3R
+   MT5  22-26 n=1058 mean=+0.088R t=+3.24 R/yr=+18.6 maxDD= -16.7R
+F4 skip FOMC
+   Duka 08-16 n=2157 mean=+0.078R t=+3.82 R/yr=+18.7 maxDD= -22.2R
+   Duka 17-26 n=2427 mean=+0.059R t=+3.15 R/yr=+14.4 maxDD= -34.2R
+   MT5  22-26 n=1035 mean=+0.097R t=+3.47 R/yr=+20.1 maxDD= -18.9R

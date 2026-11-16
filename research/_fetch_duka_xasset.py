@@ -15,6 +15,9 @@ ALL = {
     "DXY": ins.INSTRUMENT_IDX_AMERICA_DOLLAR_IDX_USD,
     "USTBOND": ins.INSTRUMENT_BND_CFD_USTBOND_TR_USD,
     "frxXAUUSD": ins.INSTRUMENT_FX_METALS_XAU_USD,
+    "DEU40": ins.INSTRUMENT_IDX_EUROPE_E_DAAX,
+    "XTIUSD": ins.INSTRUMENT_CMD_ENERGY_E_LIGHT,
+    "XBRUSD": ins.INSTRUMENT_CMD_ENERGY_E_BRENT,
 }
 args = sys.argv[1:]
 y0 = int(args[args.index("--from") + 1]) if "--from" in args else 2018
